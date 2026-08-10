@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mat-thay-tai-nghe-v5';
+const CACHE_NAME = 'mat-thay-tai-nghe-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -13,7 +13,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
-  console.log('[ServiceWorker V5] Install event');
+  console.log('[ServiceWorker V6] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS_TO_CACHE))
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  console.log('[ServiceWorker V5] Activate event');
+  console.log('[ServiceWorker V6] Activate event');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -40,7 +40,8 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.url.includes('generativelanguage.googleapis.com') ||
       event.request.url.includes('accounts.google.com') ||
-      event.request.url.includes('translate.google.com')) {
+      event.request.url.includes('translate.google.com') ||
+      event.request.url.includes('api.telegram.org')) {
     return;
   }
 

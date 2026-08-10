@@ -1,11 +1,14 @@
 /**
- * MẮT THẤY TAI NGHE V5 - PHIÊN BẢN HỖ TRỢ NGƯỜI CAO TUỔI & GIA ĐÌNH
- * Features: Audio Unlock, speakVietnamese (WebSpeech 0.82x + Cloud TTS Fallback),
- * askAIAdvisor (OCR & Gemini Doctor), saveHealthMetrics & renderHealthHistory,
- * checkDailyReminders (6:30 AM & 21:00 PM Greetings + Medicine Alarms), showBigBanner
+ * MẮT THẤY TAI NGHE V6 - BÁC SĨ GIA ĐÌNH CHO NGƯỜI CAO TUỔI
+ * Features: Medical Light UI (#F8FAFC, #E6F4EA, #1A73E8), Doctor 👨‍⚕️🩺 logo,
+ * Speak Out Loud button, AI Prescription OCR, Symptom advice ("chóng mặt"),
+ * Confirm Taken Medicine button ("✅ TÔI ĐÃ UỐNG THUỐC RỒI"), Zalo/Telegram Bot Webhook.
  */
 
-const SYSTEM_INSTRUCTION = `Bạn là bác sĩ gia đình ảo thân thiện thuộc ứng dụng MẮT THẤY TAI NGHE dành cho người cao tuổi. Hãy tư vấn ngắn gọn, ấm áp, sử dụng từ ngữ dễ hiểu, xưng 'cháu' gọi 'ông' hoặc 'bà', nhắc nhở ăn uống nghỉ ngơi. Nếu là toa thuốc, hãy liệt kê tên thuốc, liều dùng và giờ uống rõ ràng.
+const SYSTEM_INSTRUCTION = `Bạn là bác sĩ gia đình ảo thân thiện thuộc ứng dụng MẮT THẤY TAI NGHE dành cho người cao tuổi. Hãy tư vấn ngắn gọn, ấm áp, sử dụng từ ngữ dễ hiểu, xưng 'cháu' gọi 'ông' hoặc 'bà', nhắc nhở ăn uống nghỉ ngơi. 
+
+NẾU LÀ ẢNH ĐƠN THUỐC / PHẦN THUỐC: Hãy trích xuất tên thuốc, liều dùng, giờ uống và hướng dẫn rõ ràng.
+NẾU BỆNH NHÂN KHAI BÁO TRIỆU CHỨNG (VD: 'chóng mặt'): Hãy khuyên ông bà nằm nghỉ ngay tại chỗ tránh té ngã, hướng dẫn đo lại huyết áp và uống một ly nước trà đường ấm.
 
 ĐẦU RA BẮT BUỘC DẠNG JSON CHUẨN:
 {
@@ -40,7 +43,7 @@ let speechRecognition = null;
 let currentBase64Image = null;
 let currentAudioElement = null;
 
-// Initialize
+// DOM Content Loaded Initialization
 document.addEventListener('DOMContentLoaded', () => {
   initHealthProfile();
   initAuth();
@@ -51,12 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHealthHistory();
   setupEventListeners();
 
-  // Run initial reminder check & start 30s timer
   checkDailyReminders();
   setInterval(checkDailyReminders, 30000);
 });
 
-// 1. AUDIO UNLOCK LISTENER (ONE-TIME USER CLICK TO UNLOCK BROWSER AUDIO CONTEXT)
+// 1. UNLOCK AUDIO CONTEXT ON FIRST USER TOUCH
 document.addEventListener('click', function unlockAudio() {
   if ('speechSynthesis' in window) {
     const silentUtterance = new SpeechSynthesisUtterance('');
@@ -65,11 +67,10 @@ document.addEventListener('click', function unlockAudio() {
   document.removeEventListener('click', unlockAudio);
 }, { once: true });
 
-// SPEAK VIETNAMESE (V5 HIGH QUALITY WITH CLOUD TTS FALLBACK)
+// SPEAK VIETNAMESE (V6 CLOUD & NATIVE HYBRID TTS)
 function speakVietnamese(text) {
   if (!text) return;
   
-  // Clean text from code, markdown, URLs, emojis
   const cleanText = text.toString()
     .replace(/[*_#`~[\](){}]/g, '')
     .replace(/https?:\/\/\S+/g, '')
@@ -80,7 +81,6 @@ function speakVietnamese(text) {
 
   if (!cleanText) return;
 
-  // Stop previous audio playback
   if (currentAudioElement) {
     currentAudioElement.pause();
     currentAudioElement = null;
@@ -99,7 +99,7 @@ function speakVietnamese(text) {
       const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.voice = viVoice;
       utterance.lang = 'vi-VN';
-      utterance.rate = 0.82; // Extra clear and slow for elderly ears (0.82x)
+      utterance.rate = 0.82; // Slow 0.82x for senior ears
       utterance.pitch = 1.0;
 
       const btnSpeakAgain = document.getElementById('btnSpeakAgain');
@@ -112,7 +112,7 @@ function speakVietnamese(text) {
     }
   }
 
-  // Priority 2: Fallback to Cloud TTS Audio Element (Google Translate TTS API)
+  // Priority 2: Google Translate Cloud TTS Fallback
   try {
     const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${encodeURIComponent(cleanText.substring(0, 180))}`;
     const audio = new Audio(audioUrl);
@@ -127,7 +127,7 @@ function speakVietnamese(text) {
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise.catch(error => {
-        console.warn("Autoplay blocked or network error. User interaction needed:", error);
+        console.warn("Autoplay blocked or network error:", error);
       });
     }
   } catch (e) {
@@ -135,7 +135,7 @@ function speakVietnamese(text) {
   }
 }
 
-// 2. ASK AI ADVISOR (OCR & GEMINI DOCTOR CONSULTATION)
+// 2. ASK AI ADVISOR (DOCTOR OCR & SYMPTOM CONSULTATION)
 async function askAIAdvisor(promptText, imageBase64 = null) {
   const aiOutputElement = document.getElementById('ai-response') || document.getElementById('speechMessageText');
   const resultSection = document.getElementById('resultSection');
@@ -147,20 +147,25 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
   loadingIndicator.scrollIntoView({ behavior: 'smooth' });
 
   if (aiOutputElement) {
-    aiOutputElement.innerHTML = "<p>⏳ AI đang đọc toa thuốc và suy nghĩ tư vấn cho ông bà...</p>";
+    aiOutputElement.innerHTML = "<p>⏳ Bác sĩ AI đang đọc toa thuốc và suy nghĩ tư vấn cho ông bà...</p>";
   }
   
   speakVietnamese("Cháu đang đọc thông tin và toa thuốc. Ông bà chờ cháu một chút nhé!");
 
   try {
-    const profileContext = `[HỒ SƠ SỨC KHỎE]: Bệnh nhân: ${healthProfile.userName}. Bệnh nền: ${(healthProfile.conditions || []).join(', ') || 'Không'}. Huyết áp chuẩn: ${healthProfile.baseSystolic}/${healthProfile.baseDiastolic} mmHg, Nhịp tim chuẩn: ${healthProfile.baseHeartRate} bpm. Thuốc hằng ngày: ${healthProfile.dailyMedicines || 'Chưa có'}.`;
+    let symptomGuide = "";
+    if (promptText.toLowerCase().includes('chóng mặt')) {
+      symptomGuide = " [CHÚ Ý VỀ CHÓNG MẶT]: Hướng dẫn nằm nghỉ tại chỗ ngay lập tức tránh té ngã, đo lại huyết áp và uống một ly nước trà đường ấm.";
+    }
+
+    const profileContext = `[HỒ SƠ SỨC KHỎE]: Bệnh nhân: ${healthProfile.userName}. Bệnh nền: ${(healthProfile.conditions || []).join(', ') || 'Không'}. Huyết áp chuẩn: ${healthProfile.baseSystolic}/${healthProfile.baseDiastolic} mmHg, Nhịp tim chuẩn: ${healthProfile.baseHeartRate} bpm. Thuốc hằng ngày: ${healthProfile.dailyMedicines || 'Chưa có'}.${symptomGuide}`;
 
     const requestBody = {
       systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
       contents: [{
         parts: [
           { text: profileContext },
-          { text: promptText || "Hãy phân tích hình ảnh/toa thuốc này và hướng dẫn sử dụng chi tiết." }
+          { text: promptText || "Hãy phân tích hình ảnh/toa thuốc này và hướng dẫn liều dùng chi tiết cho ông bà." }
         ]
       }],
       generationConfig: { responseMimeType: "application/json", maxOutputTokens: 65536 }
@@ -210,7 +215,11 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     loadingIndicator.classList.add('hidden');
 
     if (!success || !replyText) {
-      replyText = "Cháu đã nhận được thông tin. Ông bà nhớ uống nhiều nước ấm, uống thuốc đúng liều và nghỉ ngơi đầy đủ nhé!";
+      if (promptText.toLowerCase().includes('chóng mặt')) {
+        replyText = "Ông bà ơi, khi bị chóng mặt hãy nằm nghỉ ngay tại chỗ tránh té ngã! Nhờ con cháu đo lại huyết áp và uống một ly nước trà đường ấm nhé!";
+      } else {
+        replyText = "Cháu đã nhận được thông tin. Ông bà nhớ uống nhiều nước ấm, uống thuốc đúng liều và nghỉ ngơi đầy đủ nhé!";
+      }
     }
 
     currentSpeechMessage = replyText;
@@ -243,6 +252,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     resultSection.classList.remove('hidden');
     resultSection.scrollIntoView({ behavior: 'smooth' });
 
+    // SPEAK ENTIRE PRESCRIPTION OUT LOUD
     speakVietnamese(replyText);
 
   } catch (error) {
@@ -257,7 +267,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
   }
 }
 
-// 3. REMOTE HEALTH LOGS FOR FAMILY (LƯU & ĐỒNG BỘ DỮ LIỆU TỪ XA)
+// 3. REMOTE HEALTH METRICS LOGGING & BOT WEBHOOK
 function saveHealthMetrics(heartRate, bloodPressure) {
   const healthData = {
     time: new Date().toLocaleString('vi-VN'),
@@ -267,18 +277,35 @@ function saveHealthMetrics(heartRate, bloodPressure) {
 
   let logs = JSON.parse(localStorage.getItem('HEALTH_LOGS') || "[]");
   logs.unshift(healthData);
-  if (logs.length > 30) logs.pop(); // Keep 30 recent records
+  if (logs.length > 30) logs.pop();
   localStorage.setItem('HEALTH_LOGS', JSON.stringify(logs));
 
-  // Remote check for abnormal heart rate
+  // Check for abnormal heart rate (< 50 or > 100) or blood pressure
   const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE');
-  if (remotePhone) {
-    if (heartRate > 100 || heartRate < 50) {
-      triggerZaloAlertMessage(remotePhone, `⚠️ CẢNH BÁO: Nhịp tim của ông/bà bất thường: ${heartRate} bpm (lúc ${healthData.time})`);
+  const isAbnormal = (heartRate > 100 || heartRate < 50);
+
+  if (isAbnormal) {
+    const alertMsg = `⚠️ CẢNH BÁO SỨC KHỎE MẮT THẤY TAI NGHE: Nhịp tim của ông/bà bất thường: ${heartRate} bpm (Huyết áp ${bloodPressure}) lúc ${healthData.time}`;
+    sendRemoteWebhookAlert(alertMsg);
+    if (remotePhone) {
+      triggerZaloAlertMessage(remotePhone, alertMsg);
     }
   }
 
   renderHealthHistory();
+}
+
+function sendRemoteWebhookAlert(messageText) {
+  const webhookUrl = localStorage.getItem('ZALO_WEBHOOK_URL');
+  if (webhookUrl) {
+    try {
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: messageText, message: messageText })
+      }).catch(e => console.warn("Webhook alert error:", e));
+    } catch(e){}
+  }
 }
 
 function renderHealthHistory() {
@@ -293,23 +320,39 @@ function renderHealthHistory() {
 
   let html = `<h3>📊 Lịch Sử Sức Khỏe (Con cháu xem từ xa)</h3><ul style="font-size: 1.2rem; list-style: none; padding: 0;">`;
   logs.forEach(log => {
-    html += `<li style="background: #1e293b; border-left: 5px solid #007bff; margin: 8px 0; padding: 12px; border-radius: 8px;">
+    html += `<li style="background: #f1f5f9; border-left: 5px solid #1a73e8; margin: 8px 0; padding: 12px; border-radius: 8px;">
       ⏰ <strong>${log.time}</strong><br>
-      ❤️ Nhịp tim: <span style="color:#f87171; font-weight:bold;">${log.heartRate} bpm</span> | 
-      🩺 Huyết áp: <span style="color:#60a5fa; font-weight:bold;">${log.bloodPressure} mmHg</span>
+      ❤️ Nhịp tim: <span style="color:#dc2626; font-weight:bold;">${log.heartRate} bpm</span> | 
+      🩺 Huyết áp: <span style="color:#1a73e8; font-weight:bold;">${log.bloodPressure} mmHg</span>
     </li>`;
   });
   html += `</ul>`;
   container.innerHTML = html;
 }
 
-// 4. DAILY REMINDERS & GIANT OVERLAY BANNER FOR SENIORS
+// 4. CONFIRM TAKEN MEDICINE BUTTON HANDLER ("✅ TÔI ĐÃ UỐNG THUỐC RỒI")
+function confirmMedicineTaken() {
+  const curTimeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  const praiseMsg = `Giỏi quá! Ông bà đã uống thuốc đầy đủ lúc ${curTimeStr} rồi ạ. Cháu đã gửi tin nhắn báo cho con cháu yên tâm rồi nhé!`;
+
+  // Speak praise voice
+  speakVietnamese(praiseMsg);
+
+  // Send confirmation to relatives via Webhook & Zalo
+  const familyMsg = `✅ MẮT THẤY TAI NGHE: Ông/bà đã uống thuốc đầy đủ lúc ${curTimeStr}`;
+  const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
+
+  sendRemoteWebhookAlert(familyMsg);
+
+  showToastAlert("✅ ĐÃ XÁC NHẬN UỐNG THUỐC", `Đã lưu mốc giờ ${curTimeStr} và gửi thông báo báo cho con cháu yên tâm!`);
+}
+
+// 5. DAILY REMINDERS & BIG BANNER
 function checkDailyReminders() {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
 
-  // A. Weather / Daily Greeting Banner
   if (hours === 6 && minutes === 30) {
     showBigBanner("☀️ CHÚC CỤ NGÀY MỚI TỐT LÀNH!", "Hôm nay thời tiết có thể lạnh, cụ nhớ khoác thêm áo ấm và uống một ly nước ấm nhé!");
     speakVietnamese("Chúc ông bà ngày mới tốt lành! Hôm nay trời lạnh, ông bà nhớ mặc áo ấm khi ra ngoài nhé.");
@@ -319,7 +362,6 @@ function checkDailyReminders() {
     speakVietnamese("Đã chín giờ tối rồi. Chúc ông bà ngủ ngon và có giấc mơ đẹp!");
   }
 
-  // B. Automatic Medicine Alarm Check
   const medicineTime = localStorage.getItem('MEDICINE_TIME') || "08:00";
   const [medHour, medMin] = medicineTime.split(':').map(Number);
 
@@ -328,7 +370,6 @@ function checkDailyReminders() {
     speakVietnamese("Thông báo quan trọng! Đã đến giờ uống thuốc rồi. Ông bà hãy lấy thuốc uống và uống thêm một ly nước ấm nhé!");
   }
 
-  // Dynamic Alarms Array Check
   medicineReminders.forEach(rem => {
     if (rem.time === `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}` && !rem.triggeredToday) {
       rem.triggeredToday = true;
@@ -353,9 +394,9 @@ function showBigBanner(title, message) {
   }
 
   modal.innerHTML = `
-    <div style="background: #1e293b; padding: 30px; border-radius: 20px; border: 5px solid #ff4757; max-width: 90%; width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.9);">
-      <h1 style="color: #ff4757; font-size: 2.2rem; margin-bottom: 15px;">${title}</h1>
-      <p style="font-size: 1.6rem; color: #ffffff; line-height: 1.5; font-weight: bold; margin-bottom: 25px;">${message}</p>
+    <div style="background: #ffffff; padding: 30px; border-radius: 20px; border: 5px solid #dc2626; max-width: 90%; width: 500px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+      <h1 style="color: #dc2626; font-size: 2.2rem; margin-bottom: 15px;">${title}</h1>
+      <p style="font-size: 1.6rem; color: #0f172a; line-height: 1.5; font-weight: bold; margin-bottom: 25px;">${message}</p>
       <button onclick="document.getElementById('big-alert-modal').remove()" 
               style="font-size: 1.8rem; padding: 15px 40px; background: #2ed573; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer;">
         ĐÃ XONG / ĐÃ HIỂU
@@ -364,7 +405,7 @@ function showBigBanner(title, message) {
   `;
 }
 
-// 5. HELPER FUNCTIONS & LISTENERS
+// 6. HELPER FUNCTIONS
 function initHealthProfile() {
   const savedProfile = localStorage.getItem('HEALTH_PROFILE');
   if (savedProfile) {
@@ -539,65 +580,6 @@ function updatePedometerUI() {
   if (stepPercent) stepPercent.textContent = pct;
 }
 
-// VITALS CHECK WITH AUTOMATIC LOG & REMOTE ALERT
-function checkVitalsAgainstProfile() {
-  const sysVal = parseInt(document.getElementById('inputSystolic').value);
-  const diaVal = parseInt(document.getElementById('inputDiastolic').value);
-  const hrVal = parseInt(document.getElementById('inputHeartRate').value);
-
-  if (isNaN(sysVal) || isNaN(diaVal) || isNaN(hrVal)) {
-    showToastAlert("NHẬP THIẾU CHỈ SỐ", "Ông bà vui lòng nhập đủ Huyết áp (Tâm thu/Tâm trương) và Nhịp tim để Bác sĩ AI đối chiếu nhé!");
-    return;
-  }
-
-  // AUTOMATICALLY SAVE MEASUREMENT TO REMOTE HEALTH LOGS
-  saveHealthMetrics(hrVal, `${sysVal}/${diaVal}`);
-
-  const baseSys = healthProfile.baseSystolic || 120;
-  const baseDia = healthProfile.baseDiastolic || 80;
-  const baseHr = healthProfile.baseHeartRate || 72;
-
-  const sysDev = Math.abs(sysVal - baseSys) / baseSys;
-  const diaDev = Math.abs(diaVal - baseDia) / baseDia;
-  const hrDev = Math.abs(hrVal - baseHr) / baseHr;
-
-  const isDeviatedAbove15 = (sysDev > 0.15 || diaDev > 0.15 || hrDev > 0.15);
-
-  let message = "";
-  if (isDeviatedAbove15) {
-    message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Cháu đã bật nút gửi tin nhắn báo động Zalo cho con cháu ngay!`;
-  } else {
-    message = `Huyết áp ${sysVal}/${diaVal} mmHg và Nhịp tim ${hrVal} nhịp/phút của ông bà nằm trong mức AN TOÀN, chỉ chênh lệch nhẹ dưới 15% so với hồ sơ sức khỏe. Ông bà tiếp tục duy trì sức khỏe tốt nhé!`;
-  }
-
-  currentAlertDetails = `Huyết áp thực tế: ${sysVal}/${diaVal} mmHg, Nhịp tim: ${hrVal} bpm (Chuẩn hồ sơ: ${baseSys}/${baseDia} mmHg, ${baseHr} bpm)`;
-
-  const aiOutputElement = document.getElementById('ai-response') || document.getElementById('speechMessageText');
-  if (aiOutputElement) {
-    aiOutputElement.innerHTML = `<div class="ai-reply"><strong>👨‍⚕️ Bác sĩ AI tư vấn:</strong><br>${message}</div>`;
-  }
-
-  document.getElementById('valMedicine').textContent = `Huyết áp: ${sysVal}/${diaVal} mmHg`;
-  document.getElementById('valDosage').textContent = `Nhịp tim: ${hrVal} nhịp/phút`;
-  document.getElementById('valExpiry').textContent = `Chuẩn hồ sơ: ${baseSys}/${baseDia} mmHg`;
-
-  const badgeAlert = document.getElementById('badgeAlert');
-  const alertActionBox = document.getElementById('alertActionBox');
-
-  if (isDeviatedAbove15) {
-    badgeAlert.classList.remove('hidden');
-    alertActionBox.classList.remove('hidden');
-  } else {
-    badgeAlert.classList.add('hidden');
-    alertActionBox.classList.add('hidden');
-  }
-
-  document.getElementById('resultSection').classList.remove('hidden');
-  document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
-
-  speakVietnamese(message);
-}
-
 // MEDICINE REMINDERS
 function initMedicineReminders() {
   const savedReminders = localStorage.getItem('MEDICINE_REMINDERS');
@@ -676,6 +658,7 @@ function setupEventListeners() {
   document.getElementById('btnOpenSettings').addEventListener('click', () => {
     document.getElementById('settingGeminiApiKey').value = localStorage.getItem('GEMINI_API_KEY') || "";
     document.getElementById('settingGoogleClientId').value = localStorage.getItem('GOOGLE_CLIENT_ID') || "";
+    document.getElementById('settingZaloWebhook').value = localStorage.getItem('ZALO_WEBHOOK_URL') || "";
     document.getElementById('systemSettingsModal').classList.remove('hidden');
   });
   document.getElementById('btnCloseSystemSettings').addEventListener('click', () => {
@@ -684,10 +667,12 @@ function setupEventListeners() {
   document.getElementById('btnSaveSystemSettings').addEventListener('click', () => {
     const key = document.getElementById('settingGeminiApiKey').value.trim();
     const clientId = document.getElementById('settingGoogleClientId').value.trim();
+    const webhook = document.getElementById('settingZaloWebhook').value.trim();
     if (key) localStorage.setItem('GEMINI_API_KEY', key);
     if (clientId) localStorage.setItem('GOOGLE_CLIENT_ID', clientId);
+    if (webhook) localStorage.setItem('ZALO_WEBHOOK_URL', webhook);
     document.getElementById('systemSettingsModal').classList.add('hidden');
-    showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cài đặt hệ thống API đã được lưu thành công!");
+    showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cài đặt hệ thống API và Webhook Bot đã được lưu thành công!");
   });
 
   // Health Profile Modal
@@ -719,7 +704,7 @@ function setupEventListeners() {
     }
   });
 
-  // Action Button 1: MẮT THẤY (Capture Image)
+  // Action Button 1: MẮT THẤY (Capture Image / OCR Prescription)
   document.getElementById('btnMatThay').addEventListener('click', () => {
     document.getElementById('imageInput').click();
   });
@@ -737,14 +722,17 @@ function setupEventListeners() {
     }
   });
 
-  // Action Button 2: TAI NGHE (Voice)
+  // Action Button 2: TAI NGHE (Voice Speech Recognition)
   document.getElementById('btnTaiNghe').addEventListener('click', () => startVoiceInput());
   document.getElementById('btnStopListening').addEventListener('click', () => stopVoiceInput());
   document.getElementById('btnSpeakAgain').addEventListener('click', () => {
     if (currentSpeechMessage) speakVietnamese(currentSpeechMessage);
   });
 
-  // Zalo Active Alert
+  // Confirm Taken Medicine Button Listener
+  document.getElementById('btnConfirmMedicineTaken').addEventListener('click', confirmMedicineTaken);
+
+  // Zalo Active Alert Listener
   document.getElementById('btnSendZaloAlert').addEventListener('click', () => {
     const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
     const msg = `[MẮT THẤY TAI NGHE] Cập nhật sức khỏe ông/bà: ${currentSpeechMessage}`;
