@@ -34,18 +34,22 @@
       </div>
 
       <div class="header-actions">
-        <!-- Auth Options: Quick Start & Google Login -->
+        <!-- Auth Options: Quick Login & Gmail -->
         <div id="authButtonsContainer" class="auth-buttons-group">
           <button id="btnQuickStart" class="btn-quick-start">
             🚀 Bắt Đầu Nhanh
           </button>
           <button id="btnGoogleLogin" class="btn-gmail-login">
-            <span class="g-icon">📧</span> Gmail
+            <span class="g-icon">📧</span> Đăng Nhập Gmail
           </button>
         </div>
 
         <button id="btnOpenHealthProfile" class="btn-icon btn-health-profile" title="Hồ sơ sức khỏe cá nhân">
           📋 Hồ Sơ
+        </button>
+
+        <button id="btnOpenSettings" class="btn-icon" aria-label="Cài đặt hệ thống">
+          ⚙️ Cài Đặt
         </button>
 
         <button id="btnInstallPwa" class="btn-install-pwa hidden" title="Thêm vào màn hình chính">
@@ -200,11 +204,6 @@
           <p id="speechMessageText" class="speech-text">...</p>
         </div>
 
-        <!-- Fallback Text Reading Alert if Device Has No Vietnamese Voice -->
-        <div id="ttsFallbackNotice" class="tts-fallback-notice hidden">
-          <span>💡 <em>Thiết bị chưa có sẵn giọng đọc Tiếng Việt. Văn bản chữ to ở trên đã được phóng to để ông bà đọc dễ dàng!</em></span>
-        </div>
-
         <!-- Details Grid -->
         <div id="detailsGrid" class="details-grid">
           <div class="detail-card" id="cardMedicine">
@@ -235,7 +234,7 @@
           <p class="alert-action-title">📱 KẾT NỐI VỚI CON CHÁU CHỦ ĐỘNG QUA ZALO:</p>
           <div class="alert-buttons">
             <button id="btnSendZaloAlert" class="btn-zalo-emergency">
-              <span class="zalo-icon">💬</span> 💬 GỬI BÁO ĐỘNG BẰNG ZALO CHỦ ĐỘNG
+              <span class="zalo-icon">💬</span> 💬 GỬI BÁO ĐỘNG/KẾT QUẢ QUA ZALO
             </button>
             <a id="btnCallChildren" href="tel:115" class="btn-emergency">📞 Gọi Khẩn Cấp 115</a>
           </div>
@@ -273,28 +272,56 @@
 
   </main>
 
-  <!-- QUICK START / PROFILE SETUP MODAL -->
+  <!-- QUICK START / FORM ĐĂNG NHẬP NHANH MODAL -->
   <div id="quickStartModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
-        <h2>🚀 Bắt Đầu Nhanh (Không cần Google)</h2>
+        <h2>🚀 Form Đăng Nhập Nhanh</h2>
         <button id="btnCloseQuickStart" class="btn-close">&times;</button>
       </div>
       <div class="modal-body">
-        <p class="help-text">Ông/bà chỉ cần nhập thông tin cơ bản để sử dụng ngay:</p>
+        <p class="help-text">Nhập Tên và Email để bắt đầu sử dụng ngay mà không bị gián đoạn:</p>
         <form id="quickStartForm">
           <div class="form-group">
             <label for="qsUserName">Tên đại diện của Ông/Bà:</label>
             <input type="text" id="qsUserName" placeholder="Ví dụ: Ông Nông" required>
           </div>
           <div class="form-group">
-            <label for="qsZaloPhone">📱 Số điện thoại Zalo của Con/Cháu (Để gửi cảnh báo):</label>
+            <label for="qsUserEmail">Email hoặc SĐT cá nhân:</label>
+            <input type="text" id="qsUserEmail" placeholder="Ví dụ: ongba@gmail.com" required>
+          </div>
+          <div class="form-group">
+            <label for="qsZaloPhone">📱 Số điện thoại Zalo người thân (Con/Cháu):</label>
             <input type="tel" id="qsZaloPhone" placeholder="Ví dụ: 0901234567" required>
           </div>
           <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">
             🚀 BẮT ĐẦU SỬ DỤNG NGAY
           </button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM SETTINGS MODAL (API KEY & GOOGLE CLIENT ID CONFIG) -->
+  <div id="systemSettingsModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>⚙️ Cài Đặt Hệ Thống & Google API</h2>
+        <button id="btnCloseSystemSettings" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="settingGeminiApiKey">🔑 Gemini API Key (Cài đặt tùy chọn):</label>
+          <input type="password" id="settingGeminiApiKey" placeholder="AIzaSy...">
+        </div>
+        <div class="form-group">
+          <label for="settingGoogleClientId">🌐 Google OAuth2 Client ID (Bật Google Sign-In thật):</label>
+          <input type="text" id="settingGoogleClientId" placeholder="123456-abc.apps.googleusercontent.com">
+          <p class="help-text-sm">💡 <em>Hướng dẫn: Dán Client ID tạo từ Google Cloud Console vào đây nếu bạn muốn sử dụng nút Đăng nhập Gmail OAuth2 thật. Nút Bắt Đầu Nhanh luôn sẵn sàng sử dụng khi không có Client ID.</em></p>
+        </div>
+        <button id="btnSaveSystemSettings" class="btn-primary" style="width: 100%;">
+          💾 Lưu Cài Đặt Hệ Thống
+        </button>
       </div>
     </div>
   </div>
@@ -310,14 +337,14 @@
         <form id="healthProfileForm">
           
           <div class="form-section">
-            <h3 class="form-section-title">1. Tên Bệnh Nhân & Số Điện Thoại Zalo Con Cháu:</h3>
+            <h3 class="form-section-title">1. Tên Bệnh Nhân & Số Điện Thoại Zalo Người Thân:</h3>
             <div class="inputs-row">
               <div class="form-group">
                 <label for="profileUserName">Tên đại diện Ông/Bà:</label>
                 <input type="text" id="profileUserName" placeholder="Ông/Bà" required>
               </div>
               <div class="form-group">
-                <label for="familyPhone">📱 Số điện thoại Zalo của Con/Cháu:</label>
+                <label for="familyPhone">📱 Số điện thoại Zalo người thân (Con/Cháu):</label>
                 <input type="tel" id="familyPhone" placeholder="0901234567" required>
               </div>
             </div>
@@ -397,7 +424,7 @@
   <!-- Footer -->
   <footer class="app-footer">
     <p>Ứng Dụng Y Tế & Kết Nối Tình Thân "MẮT THẤY TAI NGHE"</p>
-    <p class="copyright">© 2026 Powered by Google Gemini AI</p>
+    <p class="copyright">© 2026 Powered by Google Gemini AI & Cloud TTS</p>
   </footer>
 
   <script src="app.js"></script>

@@ -1,6 +1,6 @@
 /**
- * MẮT THẤY TAI NGHE V3 - Client Application Script
- * Fixes: Google Login Fallback, Clean Vietnamese TTS (0.85x), Active Zalo Alert
+ * MẮT THẤY TAI NGHE V4 - Client Application Script
+ * Fixes: Google Login Fallback, Cloud TTS Audio Fallback (Google Translate TTS), Active Desktop Zalo Share with Clipboard Auto-Copy
  */
 
 const SYSTEM_INSTRUCTION = `Bạn là 'Cháu Ngoan AI' – Trợ lý y tế và kết nối tình thân cho người cao tuổi thuộc ứng dụng MẮT THẤY TAI NGHE.
@@ -48,8 +48,9 @@ let currentAlertDetails = "";
 let speechRecognition = null;
 let currentBase64Image = null;
 let vietnameseVoice = null;
+let currentAudioElement = null;
 
-// Initialize
+// Initialize App
 document.addEventListener('DOMContentLoaded', () => {
   initHealthProfile();
   initAuth();
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
 });
 
-// 1. HEALTH PROFILE & QUICK START
+// 1. HEALTH PROFILE & STORAGE
 function initHealthProfile() {
   const savedProfile = localStorage.getItem('HEALTH_PROFILE');
   if (savedProfile) {
@@ -104,14 +105,11 @@ function saveHealthProfileFromForm(e) {
   showToastAlert("ĐÃ LƯU HỒ SƠ", "Hồ sơ sức khỏe cá nhân của ông/bà đã được cập nhật thành công!");
 }
 
-// 2. AUTHENTICATION (QUICK START + GOOGLE FALLBACK)
+// 2. AUTHENTICATION & SAFE FALLBACK
 function initAuth() {
   const savedUser = localStorage.getItem('GOOGLE_USER') || localStorage.getItem('QUICK_USER');
   if (savedUser) {
-    try {
-      const user = JSON.parse(savedUser);
-      renderUserProfile(user);
-    } catch(e){}
+    try { renderUserProfile(JSON.parse(savedUser)); } catch(e){}
   }
 }
 
@@ -127,13 +125,14 @@ function renderUserProfile(user) {
   const bar = document.getElementById('userProfileBar');
   document.getElementById('userAvatar').src = user.picture || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(user.name);
   document.getElementById('userName').textContent = user.name || healthProfile.userName || "Ông/Bà";
-  document.getElementById('userEmail').textContent = user.email || `📱 SĐT Zalo con cháu: ${healthProfile.familyPhone || '0901234567'}`;
+  document.getElementById('userEmail').textContent = user.email || `Zalo người thân: ${healthProfile.familyPhone || '0901234567'}`;
   bar.classList.remove('hidden');
 }
 
-function handleQuickStart(e) {
+function handleQuickStartSubmit(e) {
   e.preventDefault();
   const name = document.getElementById('qsUserName').value.trim() || "Ông/Bà";
+  const email = document.getElementById('qsUserEmail').value.trim() || "ongba@gmail.com";
   const phone = document.getElementById('qsZaloPhone').value.trim() || "0901234567";
 
   healthProfile.userName = name;
@@ -142,7 +141,7 @@ function handleQuickStart(e) {
 
   const quickUser = {
     name: name,
-    email: `Chế độ Bắt đầu nhanh (Zalo: ${phone})`,
+    email: email,
     picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(name)
   };
   localStorage.setItem('QUICK_USER', JSON.stringify(quickUser));
@@ -152,12 +151,15 @@ function handleQuickStart(e) {
   showToastAlert("ĐÃ KÍCH HOẠT", `Chào mừng ${name}! Bạn đã sẵn sàng sử dụng ứng dụng MẮT THẤY TAI NGHE.`);
 }
 
+// SAFE GMAIL LOGIN WITH FALLBACK TO QUICK LOGIN FORM
 function handleGoogleLogin() {
-  // If GIS script loaded and client_id exists
-  if (window.google && google.accounts && google.accounts.id) {
+  const configuredClientId = localStorage.getItem('GOOGLE_CLIENT_ID');
+
+  // Check if Google Client ID is configured and GIS loaded
+  if (configuredClientId && window.google && google.accounts && google.accounts.id) {
     try {
       google.accounts.id.initialize({
-        client_id: "1083921938192-demo.apps.googleusercontent.com",
+        client_id: configuredClientId,
         callback: (response) => {
           const payload = parseJwt(response.credential);
           const user = {
@@ -171,14 +173,20 @@ function handleGoogleLogin() {
       });
       google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Open Quick Start fallback
-          document.getElementById('quickStartModal').classList.remove('hidden');
+          openQuickLoginFallback();
         }
       });
       return;
-    } catch(e){}
+    } catch(err) {
+      console.warn("Google GIS init failed:", err);
+    }
   }
-  // Fallback immediately to Quick Start modal if Google OAuth client fails or unconfigured
+
+  // Safe fallback to Quick Login Form to prevent freezing
+  openQuickLoginFallback();
+}
+
+function openQuickLoginFallback() {
   document.getElementById('quickStartModal').classList.remove('hidden');
 }
 
@@ -256,12 +264,12 @@ function checkVitalsAgainstProfile() {
 
   let message = "";
   if (isDeviatedAbove15) {
-    message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Cháu đã bật nút gửi tin nhắn báo động Zalo chủ động cho con cháu ngay cho ông bà!`;
+    message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Cháu đã bật nút gửi tin nhắn báo động Zalo cho con cháu ngay cho ông bà!`;
   } else {
-    message = `Huyết áp ${sysVal}/${diaVal} mmHg và Nhịp tim ${hrVal} nhịp/phút của ông bà nằm trong mức AN TOÀN, chỉ chênh lệch nhẹ dưới 15% so với hồ sơ sức khỏe. Ông bà tiếp tục duy trì nhé!`;
+    message = `Huyết áp ${sysVal}/${diaVal} mmHg và Nhịp tim ${hrVal} nhịp/phút của ông bà nằm trong mức AN TOÀN, chỉ chênh lệch nhẹ dưới 15% so với hồ sơ sức khỏe. Ông bà tiếp tục duy trì sức khỏe tốt nhé!`;
   }
 
-  currentAlertDetails = `Huyết áp thực tế: ${sysVal}/${diaVal} mmHg, Nhịp tim: ${hrVal} bpm (Hồ sơ chuẩn: ${baseSys}/${baseDia} mmHg, ${baseHr} bpm)`;
+  currentAlertDetails = `Huyết áp thực tế: ${sysVal}/${diaVal} mmHg, Nhịp tim: ${hrVal} bpm (Chuẩn hồ sơ: ${baseSys}/${baseDia} mmHg, ${baseHr} bpm)`;
 
   renderResult({
     action_type: isDeviatedAbove15 ? "EMERGENCY" : "HEALTH_CHAT",
@@ -319,7 +327,7 @@ function checkMedicineAlarms() {
     if (rem.time === curTime && !rem.triggeredToday) {
       rem.triggeredToday = true;
       playAlarmChime();
-      speakText(`Ông bà ơi! Đã đến giờ uống thuốc ${rem.name} rồi ạ! Ông bà nhớ uống thuốc đúng giờ nhé!`);
+      speakVietnamese(`Ông bà ơi! Đã đến giờ uống thuốc ${rem.name} rồi ạ! Ông bà nhớ uống thuốc đúng giờ nhé!`);
       showToastAlert("⏰ ĐẾN GIỜ UỐNG THUỐC", `Đã đến ${rem.time}! Đã đến giờ uống thuốc: ${rem.name}`);
     }
   });
@@ -353,7 +361,7 @@ function initPwaInstall() {
   const installAction = () => {
     if (deferredInstallPrompt) {
       deferredInstallPrompt.prompt();
-      deferredInstallPrompt.userChoice.then((choice) => {
+      deferredInstallPrompt.userChoice.then(() => {
         deferredInstallPrompt = null;
         document.getElementById('btnInstallPwa').classList.add('hidden');
         document.getElementById('pwaInstallBanner').classList.add('hidden');
@@ -374,11 +382,29 @@ function setupEventListeners() {
   document.getElementById('btnCloseQuickStart').addEventListener('click', () => {
     document.getElementById('quickStartModal').classList.add('hidden');
   });
-  document.getElementById('quickStartForm').addEventListener('submit', handleQuickStart);
+  document.getElementById('quickStartForm').addEventListener('submit', handleQuickStartSubmit);
 
   // Google Login & Logout Controls
   document.getElementById('btnGoogleLogin').addEventListener('click', handleGoogleLogin);
   document.getElementById('btnGoogleLogout').addEventListener('click', handleLogout);
+
+  // System Settings Modal Controls
+  document.getElementById('btnOpenSettings').addEventListener('click', () => {
+    document.getElementById('settingGeminiApiKey').value = localStorage.getItem('GEMINI_API_KEY') || "";
+    document.getElementById('settingGoogleClientId').value = localStorage.getItem('GOOGLE_CLIENT_ID') || "";
+    document.getElementById('systemSettingsModal').classList.remove('hidden');
+  });
+  document.getElementById('btnCloseSystemSettings').addEventListener('click', () => {
+    document.getElementById('systemSettingsModal').classList.add('hidden');
+  });
+  document.getElementById('btnSaveSystemSettings').addEventListener('click', () => {
+    const key = document.getElementById('settingGeminiApiKey').value.trim();
+    const clientId = document.getElementById('settingGoogleClientId').value.trim();
+    if (key) localStorage.setItem('GEMINI_API_KEY', key);
+    if (clientId) localStorage.setItem('GOOGLE_CLIENT_ID', clientId);
+    document.getElementById('systemSettingsModal').classList.add('hidden');
+    showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cài đặt hệ thống API đã được lưu thành công!");
+  });
 
   // Health Profile Modal Controls
   document.getElementById('btnOpenHealthProfile').addEventListener('click', () => {
@@ -434,10 +460,10 @@ function setupEventListeners() {
   document.getElementById('btnTaiNghe').addEventListener('click', () => startVoiceInput());
   document.getElementById('btnStopListening').addEventListener('click', () => stopVoiceInput());
   document.getElementById('btnSpeakAgain').addEventListener('click', () => {
-    if (currentSpeechMessage) speakText(currentSpeechMessage);
+    if (currentSpeechMessage) speakVietnamese(currentSpeechMessage);
   });
 
-  // ACTIVE ZALO EMERGENCY ALERT BUTTON
+  // ACTIVE ZALO ALERT BUTTON WITH CLIPBOARD COPY & WEB SHARE
   document.getElementById('btnSendZaloAlert').addEventListener('click', triggerActiveZaloAlert);
 
   // Medicine Reminder Modal
@@ -475,35 +501,44 @@ function setupEventListeners() {
   });
 }
 
-// ACTIVE ZALO ALERT HANDLER
+// 8. ACTIVE ZALO ALERT CONNECTION (CLIPBOARD + WEB SHARE)
 function triggerActiveZaloAlert() {
-  const phone = (healthProfile.familyPhone || "0901234567").replace(/\D/g, '');
-  const cleanMessage = cleanSpeechText(currentSpeechMessage) || "Ông/bà đang gặp tình trạng cần chú ý sức khỏe!";
+  const rawPhone = healthProfile.familyPhone || localStorage.getItem('ZALO_PHONE') || "0901234567";
+  const cleanPhone = rawPhone.replace(/\D/g, '');
+  const cleanMessage = cleanSpeechText(currentSpeechMessage) || "Tình trạng sức khỏe cần chú ý!";
   const details = currentAlertDetails ? ` (Chỉ số: ${currentAlertDetails})` : "";
   
-  const alertText = `CẢNH BÁO SỨC KHỎE TỪ MẮT THẤY TAI NGHE: Ông/bà đang gặp tình trạng [${cleanMessage}]${details}. Hãy kiểm tra ngay!`;
+  const formattedAlertMessage = `[MẮT THẤY TAI NGHE] Cập nhật sức khỏe ông/bà: ${cleanMessage}${details}. Hãy kiểm tra ngay!`;
 
-  // Try Web Share API on mobile
+  // Auto copy message to system clipboard
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(formattedAlertMessage).catch(() => {});
+  }
+
+  // Mobile Web Share API
   if (navigator.share) {
     navigator.share({
-      title: 'CẢNH BÁO SỨC KHỎE TỪ MẮT THẤY TAI NGHE',
-      text: alertText,
+      title: '[MẮT THẤY TAI NGHE] Cảnh Báo Sức Khỏe',
+      text: formattedAlertMessage,
       url: window.location.href
-    }).catch(() => openZaloOrSmsFallback(phone, alertText));
+    }).catch(() => openZaloDesktopFallback(cleanPhone, formattedAlertMessage));
   } else {
-    openZaloOrSmsFallback(phone, alertText);
+    openZaloDesktopFallback(cleanPhone, formattedAlertMessage);
   }
 }
 
-function openZaloOrSmsFallback(phone, alertText) {
-  const zaloUrl = `https://zalo.me/${phone}`;
-  const smsUrl = `sms:${phone}?body=${encodeURIComponent(alertText)}`;
+function openZaloDesktopFallback(cleanPhone, alertText) {
+  const zaloUrl = `https://zalo.me/${cleanPhone}`;
+  const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(alertText)}`;
   
-  // Try opening Zalo link
-  const opened = window.open(zaloUrl, '_blank');
-  if (!opened) {
-    window.location.href = smsUrl;
-  }
+  showToastAlert("📋 ĐÃ SAO CHÉP CẢNH BÁO", "Nội dung cảnh báo đã được tự động sao chép vào bộ nhớ tạm! Đang mở Zalo con cháu, ông/bà hoặc người thân chỉ cần nhấn Ctrl+V (hoặc Dán) để gửi ngay!");
+
+  setTimeout(() => {
+    const opened = window.open(zaloUrl, '_blank');
+    if (!opened) {
+      window.location.href = smsUrl;
+    }
+  }, 1000);
 }
 
 // IMAGE SELECTION & BASE64
@@ -633,7 +668,6 @@ function cleanSpeechText(text) {
   if (!text) return "";
   let cleaned = String(text);
 
-  // If text is raw JSON string, parse speech_message property directly
   if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
     try {
       const obj = JSON.parse(cleaned);
@@ -641,11 +675,9 @@ function cleanSpeechText(text) {
     } catch(e){}
   }
 
-  // Remove markdown code blocks
   cleaned = cleaned.replace(/```json[\s\S]*?```/gi, '');
   cleaned = cleaned.replace(/```[\s\S]*?```/gi, '');
 
-  // Remove JSON keys and raw code syntax
   cleaned = cleaned.replace(/"action_type"\s*:\s*".*?"/gi, '');
   cleaned = cleaned.replace(/"medicine_name"\s*:\s*".*?"/gi, '');
   cleaned = cleaned.replace(/"dosage"\s*:\s*".*?"/gi, '');
@@ -655,7 +687,6 @@ function cleanSpeechText(text) {
   cleaned = cleaned.replace(/"alert_children"\s*:\s*(true|false)/gi, '');
   cleaned = cleaned.replace(/"speech_message"\s*:\s*"/gi, '');
 
-  // Strip brackets, curly braces, quotes
   cleaned = cleaned.replace(/[{}[\]"]/g, ' ');
   cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
@@ -675,7 +706,6 @@ function renderResult(data) {
     alert_children = false
   } = data;
 
-  // Clean raw speech message to ensure warm natural Vietnamese spoken sentence only
   const cleanMessage = cleanSpeechText(speech_message);
   currentSpeechMessage = cleanMessage;
 
@@ -704,8 +734,8 @@ function renderResult(data) {
   resultSection.classList.remove('hidden');
   resultSection.scrollIntoView({ behavior: 'smooth' });
 
-  // SPEAK CLEAN VIETNAMESE VOICE AT 0.85x SPEED
-  speakText(cleanMessage);
+  // SPEAK VIETNAMESE VOICE WITH CLOUD TTS FALLBACK (0.85x)
+  speakVietnamese(cleanMessage);
 
   if (is_blurry) {
     showToastAlert("📷 ẢNH MỜ HOẶC KHÓ ĐỌC", "Cháu thấy ảnh hơi mờ nên không đoán mò. Cháu đã bật nút gửi báo động Zalo cho con cháu kiểm tra giúp ông bà nhé!");
@@ -714,7 +744,7 @@ function renderResult(data) {
   }
 }
 
-// TTS VOICE SELECTION & PLAYBACK (RATE 0.85x)
+// 9. AUTOMATIC VIETNAMESE TTS WITH CLOUD TTS FALLBACK (speakVietnamese)
 function initTtsVoices() {
   if (!('speechSynthesis' in window)) return;
   
@@ -729,43 +759,63 @@ function initTtsVoices() {
   }
 }
 
-function speakText(text) {
-  if (!('speechSynthesis' in window)) return;
-  
+function speakVietnamese(text) {
   const cleanedText = cleanSpeechText(text);
   if (!cleanedText) return;
 
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(cleanedText);
-  utterance.rate = 0.85; // Slow, clear rate for elderly ears (0.85x)
-  utterance.pitch = 1.0;
-  utterance.lang = 'vi-VN';
-
-  // Find Vietnamese Voice
-  const voices = window.speechSynthesis.getVoices();
-  const viVoice = vietnameseVoice || voices.find(v => v.lang.includes('vi') || v.lang.includes('VI'));
-
-  const noticeEl = document.getElementById('ttsFallbackNotice');
-  if (viVoice) {
-    utterance.voice = viVoice;
-    if (noticeEl) noticeEl.classList.add('hidden');
-  } else {
-    // Device has no native Vietnamese voice installed: show giant text notice for senior readability
-    if (noticeEl) noticeEl.classList.remove('hidden');
+  // Stop any currently playing audio element
+  if (currentAudioElement) {
+    currentAudioElement.pause();
+    currentAudioElement = null;
   }
 
-  const btnSpeakAgain = document.getElementById('btnSpeakAgain');
-  if (btnSpeakAgain) btnSpeakAgain.classList.add('pulse-ring');
-  
-  utterance.onend = () => {
-    if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring');
-  };
-  utterance.onerror = () => {
-    if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring');
-  };
+  // STEP 1: Try Native window.speechSynthesis if Vietnamese Voice Exists
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const voices = window.speechSynthesis.getVoices();
+    const viVoice = vietnameseVoice || voices.find(v => v.lang.includes('vi') || v.lang.includes('VI'));
 
-  window.speechSynthesis.speak(utterance);
+    if (viVoice) {
+      const utterance = new SpeechSynthesisUtterance(cleanedText);
+      utterance.voice = viVoice;
+      utterance.rate = 0.85; // Slow 0.85x for senior ears
+      utterance.pitch = 1.0;
+      utterance.lang = 'vi-VN';
+
+      const btnSpeakAgain = document.getElementById('btnSpeakAgain');
+      if (btnSpeakAgain) btnSpeakAgain.classList.add('pulse-ring');
+      utterance.onend = () => { if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring'); };
+      utterance.onerror = () => { if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring'); };
+
+      window.speechSynthesis.speak(utterance);
+      return;
+    }
+  }
+
+  // STEP 2: FALLBACK TO GOOGLE TRANSLATE CLOUD TTS AUDIO API
+  try {
+    const textChunk = encodeURIComponent(cleanedText.substring(0, 180));
+    const cloudTtsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${textChunk}`;
+
+    const audio = new Audio(cloudTtsUrl);
+    audio.playbackRate = 0.85; // 0.85x speed
+    currentAudioElement = audio;
+
+    const btnSpeakAgain = document.getElementById('btnSpeakAgain');
+    if (btnSpeakAgain) btnSpeakAgain.classList.add('pulse-ring');
+
+    audio.onended = () => { if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring'); };
+    audio.onerror = () => {
+      if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring');
+      console.warn("Cloud TTS playback fallback to visual text mode.");
+    };
+
+    audio.play().catch(err => {
+      console.warn("Audio autoplay blocked by browser policy:", err);
+    });
+  } catch(err) {
+    console.error("speakVietnamese cloud TTS error:", err);
+  }
 }
 
 // TOAST ALERT MODAL
