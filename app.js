@@ -1,6 +1,6 @@
 /**
- * MẮT THẤY TAI NGHE V2 - Client Application Script
- * Powered by Google Gemini AI & Google Identity
+ * MẮT THẤY TAI NGHE V3 - Client Application Script
+ * Fixes: Google Login Fallback, Clean Vietnamese TTS (0.85x), Active Zalo Alert
  */
 
 const SYSTEM_INSTRUCTION = `Bạn là 'Cháu Ngoan AI' – Trợ lý y tế và kết nối tình thân cho người cao tuổi thuộc ứng dụng MẮT THẤY TAI NGHE.
@@ -30,12 +30,13 @@ Luôn trả về kết quả cấu trúc JSON như sau:
 
 // Application State
 let healthProfile = {
+  userName: "Ông/Bà",
   conditions: [],
   baseSystolic: 120,
   baseDiastolic: 80,
   baseHeartRate: 72,
   dailyMedicines: "",
-  familyPhone: "0912345678"
+  familyPhone: "0901234567"
 };
 
 let stepCount = 0;
@@ -43,21 +44,24 @@ let lastAccelMagnitude = 0;
 let medicineReminders = [];
 let deferredInstallPrompt = null;
 let currentSpeechMessage = "";
+let currentAlertDetails = "";
 let speechRecognition = null;
 let currentBase64Image = null;
+let vietnameseVoice = null;
 
-// DOM Elements
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
   initHealthProfile();
-  initGoogleAuth();
+  initAuth();
   initPedometer();
   initMedicineReminders();
   initPwaInstall();
   initSpeechRecognition();
+  initTtsVoices();
   setupEventListeners();
 });
 
-// 1. HEALTH PROFILE MANAGEMENT
+// 1. HEALTH PROFILE & QUICK START
 function initHealthProfile() {
   const savedProfile = localStorage.getItem('HEALTH_PROFILE');
   if (savedProfile) {
@@ -67,16 +71,16 @@ function initHealthProfile() {
 }
 
 function updateHealthProfileModalFields() {
+  document.getElementById('profileUserName').value = healthProfile.userName || "Ông/Bà";
+  document.getElementById('familyPhone').value = healthProfile.familyPhone || "0901234567";
   document.getElementById('baseSystolic').value = healthProfile.baseSystolic || 120;
   document.getElementById('baseDiastolic').value = healthProfile.baseDiastolic || 80;
   document.getElementById('baseHeartRate').value = healthProfile.baseHeartRate || 72;
   document.getElementById('dailyMedicinesText').value = healthProfile.dailyMedicines || "";
-  document.getElementById('familyPhone').value = healthProfile.familyPhone || "0912345678";
 
-  // Checkboxes
   const checkInputs = document.querySelectorAll('input[name="condition"]');
   checkInputs.forEach(input => {
-    input.checked = healthProfile.conditions.includes(input.value);
+    input.checked = (healthProfile.conditions || []).includes(input.value);
   });
 }
 
@@ -85,68 +89,97 @@ function saveHealthProfileFromForm(e) {
   const checkedConditions = Array.from(document.querySelectorAll('input[name="condition"]:checked')).map(c => c.value);
   
   healthProfile = {
+    userName: document.getElementById('profileUserName').value.trim() || "Ông/Bà",
+    familyPhone: document.getElementById('familyPhone').value.trim() || "0901234567",
     conditions: checkedConditions,
     baseSystolic: parseInt(document.getElementById('baseSystolic').value) || 120,
     baseDiastolic: parseInt(document.getElementById('baseDiastolic').value) || 80,
     baseHeartRate: parseInt(document.getElementById('baseHeartRate').value) || 72,
-    dailyMedicines: document.getElementById('dailyMedicinesText').value.trim(),
-    familyPhone: document.getElementById('familyPhone').value.trim() || "0912345678"
+    dailyMedicines: document.getElementById('dailyMedicinesText').value.trim()
   };
 
   localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
   document.getElementById('healthProfileModal').classList.add('hidden');
+  renderUserBar();
   showToastAlert("ĐÃ LƯU HỒ SƠ", "Hồ sơ sức khỏe cá nhân của ông/bà đã được cập nhật thành công!");
 }
 
-// 2. GOOGLE AUTHENTICATION (GOOGLE IDENTITY SERVICES)
-function initGoogleAuth() {
-  const btnGoogleLogin = document.getElementById('btnGoogleLogin');
-  const btnGoogleLogout = document.getElementById('btnGoogleLogout');
-  const userProfileBar = document.getElementById('userProfileBar');
-
-  // Check saved login
-  const savedUser = localStorage.getItem('GOOGLE_USER');
+// 2. AUTHENTICATION (QUICK START + GOOGLE FALLBACK)
+function initAuth() {
+  const savedUser = localStorage.getItem('GOOGLE_USER') || localStorage.getItem('QUICK_USER');
   if (savedUser) {
     try {
       const user = JSON.parse(savedUser);
       renderUserProfile(user);
     } catch(e){}
   }
+}
 
-  btnGoogleLogin.addEventListener('click', handleGoogleLogin);
-  btnGoogleLogout.addEventListener('click', handleGoogleLogout);
+function renderUserBar() {
+  const savedUser = localStorage.getItem('GOOGLE_USER') || localStorage.getItem('QUICK_USER');
+  if (savedUser) {
+    try { renderUserProfile(JSON.parse(savedUser)); } catch(e){}
+  }
+}
+
+function renderUserProfile(user) {
+  document.getElementById('authButtonsContainer').classList.add('hidden');
+  const bar = document.getElementById('userProfileBar');
+  document.getElementById('userAvatar').src = user.picture || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(user.name);
+  document.getElementById('userName').textContent = user.name || healthProfile.userName || "Ông/Bà";
+  document.getElementById('userEmail').textContent = user.email || `📱 SĐT Zalo con cháu: ${healthProfile.familyPhone || '0901234567'}`;
+  bar.classList.remove('hidden');
+}
+
+function handleQuickStart(e) {
+  e.preventDefault();
+  const name = document.getElementById('qsUserName').value.trim() || "Ông/Bà";
+  const phone = document.getElementById('qsZaloPhone').value.trim() || "0901234567";
+
+  healthProfile.userName = name;
+  healthProfile.familyPhone = phone;
+  localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
+
+  const quickUser = {
+    name: name,
+    email: `Chế độ Bắt đầu nhanh (Zalo: ${phone})`,
+    picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(name)
+  };
+  localStorage.setItem('QUICK_USER', JSON.stringify(quickUser));
+
+  document.getElementById('quickStartModal').classList.add('hidden');
+  renderUserProfile(quickUser);
+  showToastAlert("ĐÃ KÍCH HOẠT", `Chào mừng ${name}! Bạn đã sẵn sàng sử dụng ứng dụng MẮT THẤY TAI NGHE.`);
 }
 
 function handleGoogleLogin() {
-  // Use Google Identity Services if available, or simulate standard Gmail login
+  // If GIS script loaded and client_id exists
   if (window.google && google.accounts && google.accounts.id) {
-    google.accounts.id.initialize({
-      client_id: "1083921938192-demo.apps.googleusercontent.com", // standard demo client ID
-      callback: (response) => {
-        const payload = parseJwt(response.credential);
-        const user = {
-          name: payload.name || "Ông/Bà",
-          email: payload.email || "user@gmail.com",
-          picture: payload.picture || "https://api.dicebear.com/7.x/bottts/svg?seed=Senior"
-        };
-        localStorage.setItem('GOOGLE_USER', JSON.stringify(user));
-        renderUserProfile(user);
-      }
-    });
-    google.accounts.id.prompt();
-  } else {
-    // Interactive Prompt Fallback
-    const emailPrompt = prompt("Nhập địa chỉ Gmail của ông/bà để đăng nhập:", "ongba@gmail.com");
-    if (emailPrompt) {
-      const user = {
-        name: emailPrompt.split('@')[0].toUpperCase(),
-        email: emailPrompt,
-        picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(emailPrompt)
-      };
-      localStorage.setItem('GOOGLE_USER', JSON.stringify(user));
-      renderUserProfile(user);
-    }
+    try {
+      google.accounts.id.initialize({
+        client_id: "1083921938192-demo.apps.googleusercontent.com",
+        callback: (response) => {
+          const payload = parseJwt(response.credential);
+          const user = {
+            name: payload.name || "Ông/Bà",
+            email: payload.email || "user@gmail.com",
+            picture: payload.picture || "https://api.dicebear.com/7.x/bottts/svg?seed=Senior"
+          };
+          localStorage.setItem('GOOGLE_USER', JSON.stringify(user));
+          renderUserProfile(user);
+        }
+      });
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // Open Quick Start fallback
+          document.getElementById('quickStartModal').classList.remove('hidden');
+        }
+      });
+      return;
+    } catch(e){}
   }
+  // Fallback immediately to Quick Start modal if Google OAuth client fails or unconfigured
+  document.getElementById('quickStartModal').classList.remove('hidden');
 }
 
 function parseJwt(token) {
@@ -157,28 +190,15 @@ function parseJwt(token) {
   } catch(e) { return {}; }
 }
 
-function renderUserProfile(user) {
-  document.getElementById('googleAuthContainer').classList.add('hidden');
-  const bar = document.getElementById('userProfileBar');
-  document.getElementById('userAvatar').src = user.picture;
-  document.getElementById('userName').textContent = user.name;
-  document.getElementById('userEmail').textContent = user.email;
-  bar.classList.remove('hidden');
-}
-
-function handleGoogleLogout() {
+function handleLogout() {
   localStorage.removeItem('GOOGLE_USER');
+  localStorage.removeItem('QUICK_USER');
   document.getElementById('userProfileBar').classList.add('hidden');
-  document.getElementById('googleAuthContainer').classList.remove('hidden');
+  document.getElementById('authButtonsContainer').classList.remove('hidden');
 }
 
-// 3. PEDOMETER (ACCELEROMETER DEVICE MOTION)
+// 3. PEDOMETER (ACCELEROMETER)
 function initPedometer() {
-  const stepCountValue = document.getElementById('stepCountValue');
-  const stepProgressFill = document.getElementById('stepProgressFill');
-  const stepPercent = document.getElementById('stepPercent');
-
-  // Load saved steps
   const savedSteps = localStorage.getItem('DAILY_STEPS_' + new Date().toDateString());
   if (savedSteps) stepCount = parseInt(savedSteps) || 0;
   updatePedometerUI();
@@ -192,7 +212,6 @@ function initPedometer() {
       const delta = Math.abs(magnitude - lastAccelMagnitude);
       lastAccelMagnitude = magnitude;
 
-      // Threshold for step detection
       if (delta > 11.5) {
         stepCount++;
         localStorage.setItem('DAILY_STEPS_' + new Date().toDateString(), stepCount);
@@ -214,7 +233,7 @@ function updatePedometerUI() {
   if (stepPercent) stepPercent.textContent = pct;
 }
 
-// 4. VITALS SIGNS DIAGNOSTICS & >15% DEVIATION CHECK
+// 4. VITALS SIGNS DIAGNOSTICS (>15% DEVIATION)
 function checkVitalsAgainstProfile() {
   const sysVal = parseInt(document.getElementById('inputSystolic').value);
   const diaVal = parseInt(document.getElementById('inputDiastolic').value);
@@ -229,7 +248,6 @@ function checkVitalsAgainstProfile() {
   const baseDia = healthProfile.baseDiastolic || 80;
   const baseHr = healthProfile.baseHeartRate || 72;
 
-  // Calculate percentage deviations
   const sysDev = Math.abs(sysVal - baseSys) / baseSys;
   const diaDev = Math.abs(diaVal - baseDia) / baseDia;
   const hrDev = Math.abs(hrVal - baseHr) / baseHr;
@@ -238,16 +256,18 @@ function checkVitalsAgainstProfile() {
 
   let message = "";
   if (isDeviatedAbove15) {
-    message = `CẢNH BÁO! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với chỉ số bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Cháu đã tự động bật nút gửi cảnh báo cho con cháu qua Zalo ngay cho ông bà!`;
+    message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Cháu đã bật nút gửi tin nhắn báo động Zalo chủ động cho con cháu ngay cho ông bà!`;
   } else {
-    message = `Huyết áp ${sysVal}/${diaVal} mmHg và Nhịp tim ${hrVal} nhịp/phút của ông bà nằm trong mức AN TOÀN, chỉ chênh lệch nhẹ dưới 15% so với hồ sơ sức khỏe (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút). Ông bà tiếp tục duy trì sức khỏe nhé!`;
+    message = `Huyết áp ${sysVal}/${diaVal} mmHg và Nhịp tim ${hrVal} nhịp/phút của ông bà nằm trong mức AN TOÀN, chỉ chênh lệch nhẹ dưới 15% so với hồ sơ sức khỏe. Ông bà tiếp tục duy trì nhé!`;
   }
+
+  currentAlertDetails = `Huyết áp thực tế: ${sysVal}/${diaVal} mmHg, Nhịp tim: ${hrVal} bpm (Hồ sơ chuẩn: ${baseSys}/${baseDia} mmHg, ${baseHr} bpm)`;
 
   renderResult({
     action_type: isDeviatedAbove15 ? "EMERGENCY" : "HEALTH_CHAT",
     medicine_name: `Huyết áp: ${sysVal}/${diaVal} mmHg`,
     dosage: `Nhịp tim: ${hrVal} nhịp/phút`,
-    expiry_date: `Hồ sơ gốc: ${baseSys}/${baseDia} mmHg, ${baseHr} bpm`,
+    expiry_date: `Chuẩn hồ sơ: ${baseSys}/${baseDia} mmHg, ${baseHr} bpm`,
     is_expired: false,
     is_blurry: false,
     speech_message: message,
@@ -255,15 +275,13 @@ function checkVitalsAgainstProfile() {
   });
 }
 
-// 5. MEDICINE REMINDER SCHEDULER
+// 5. MEDICINE REMINDERS
 function initMedicineReminders() {
   const savedReminders = localStorage.getItem('MEDICINE_REMINDERS');
   if (savedReminders) {
     try { medicineReminders = JSON.parse(savedReminders); } catch(e){}
   }
   renderReminderList();
-
-  // Background interval check every 15s
   setInterval(checkMedicineAlarms, 15000);
 }
 
@@ -313,8 +331,8 @@ function playAlarmChime() {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 note
-    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.2); // A5 note
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.2);
     gain.gain.setValueAtTime(0.3, ctx.currentTime);
     osc.connect(gain);
     gain.connect(ctx.destination);
@@ -323,7 +341,7 @@ function playAlarmChime() {
   } catch(e){}
 }
 
-// 6. PWA INSTALLATION PROMPT
+// 6. PWA INSTALL PROMPT
 function initPwaInstall() {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -336,9 +354,6 @@ function initPwaInstall() {
     if (deferredInstallPrompt) {
       deferredInstallPrompt.prompt();
       deferredInstallPrompt.userChoice.then((choice) => {
-        if (choice.outcome === 'accepted') {
-          console.log('User accepted PWA install');
-        }
         deferredInstallPrompt = null;
         document.getElementById('btnInstallPwa').classList.add('hidden');
         document.getElementById('pwaInstallBanner').classList.add('hidden');
@@ -350,9 +365,22 @@ function initPwaInstall() {
   document.getElementById('btnBannerInstall').addEventListener('click', installAction);
 }
 
-// SETUP ALL EVENT LISTENERS
+// 7. SETUP EVENT LISTENERS
 function setupEventListeners() {
-  // Health Profile Modal
+  // Quick Start Controls
+  document.getElementById('btnQuickStart').addEventListener('click', () => {
+    document.getElementById('quickStartModal').classList.remove('hidden');
+  });
+  document.getElementById('btnCloseQuickStart').addEventListener('click', () => {
+    document.getElementById('quickStartModal').classList.add('hidden');
+  });
+  document.getElementById('quickStartForm').addEventListener('submit', handleQuickStart);
+
+  // Google Login & Logout Controls
+  document.getElementById('btnGoogleLogin').addEventListener('click', handleGoogleLogin);
+  document.getElementById('btnGoogleLogout').addEventListener('click', handleLogout);
+
+  // Health Profile Modal Controls
   document.getElementById('btnOpenHealthProfile').addEventListener('click', () => {
     updateHealthProfileModalFields();
     document.getElementById('healthProfileModal').classList.remove('hidden');
@@ -372,9 +400,9 @@ function setupEventListeners() {
         acceptAllDevices: true,
         optionalServices: ['battery_service', 'heart_rate', 'blood_pressure']
       }).then(device => {
-        showToastAlert("KẾT NỐI BLUETOOTH", `Đã kết nối thành công với thiết bị đo: ${device.name || 'Máy Đo Huyết Áp'}`);
+        showToastAlert("KẾT NỐI BLUETOOTH", `Đã kết nối thành công với máy đo: ${device.name || 'Thiết bị Huyết Áp'}`);
       }).catch(err => {
-        showToastAlert("KẾT NỐI BLUETOOTH", "Chưa chọn được thiết bị Bluetooth hoặc trình duyệt cần bật Bluetooth.");
+        showToastAlert("KẾT NỐI BLUETOOTH", "Chưa chọn được thiết bị Bluetooth.");
       });
     } else {
       showToastAlert("BLUETOOTH", "Trình duyệt này chưa hỗ trợ Web Bluetooth API.");
@@ -396,7 +424,7 @@ function setupEventListeners() {
   document.getElementById('btnAnalyzeImage').addEventListener('click', () => {
     if (currentBase64Image) {
       analyzeWithGemini({
-        prompt: `Phân tích ảnh đơn thuốc / bao bì thuốc này. Đối chiếu với Hồ sơ sức khỏe của bệnh nhân (${healthProfile.conditions.join(', ')}).`,
+        prompt: `Phân tích ảnh đơn thuốc / bao bì thuốc này. Đối chiếu với Hồ sơ sức khỏe của bệnh nhân (${(healthProfile.conditions || []).join(', ')}).`,
         base64Image: currentBase64Image
       });
     }
@@ -409,16 +437,8 @@ function setupEventListeners() {
     if (currentSpeechMessage) speakText(currentSpeechMessage);
   });
 
-  // ZALO EMERGENCY ALERT BUTTON
-  document.getElementById('btnSendZaloAlert').addEventListener('click', () => {
-    const phone = healthProfile.familyPhone || "0912345678";
-    const alertMsg = `[CẢNH BÁO SỨC KHỎE MẮT THẤY TAI NGHE] Cảnh báo từ ứng dụng Cháu AI cho ông/bà: ${currentSpeechMessage}`;
-    const zaloUrl = `https://zalo.me/${phone}`;
-    const smsUrl = `sms:${phone}?body=${encodeURIComponent(alertMsg)}`;
-    
-    // Open Zalo or SMS
-    window.open(zaloUrl, '_blank') || (window.location.href = smsUrl);
-  });
+  // ACTIVE ZALO EMERGENCY ALERT BUTTON
+  document.getElementById('btnSendZaloAlert').addEventListener('click', triggerActiveZaloAlert);
 
   // Medicine Reminder Modal
   document.getElementById('btnAddReminder').addEventListener('click', () => {
@@ -453,6 +473,37 @@ function setupEventListeners() {
       analyzeWithGemini({ prompt: text });
     });
   });
+}
+
+// ACTIVE ZALO ALERT HANDLER
+function triggerActiveZaloAlert() {
+  const phone = (healthProfile.familyPhone || "0901234567").replace(/\D/g, '');
+  const cleanMessage = cleanSpeechText(currentSpeechMessage) || "Ông/bà đang gặp tình trạng cần chú ý sức khỏe!";
+  const details = currentAlertDetails ? ` (Chỉ số: ${currentAlertDetails})` : "";
+  
+  const alertText = `CẢNH BÁO SỨC KHỎE TỪ MẮT THẤY TAI NGHE: Ông/bà đang gặp tình trạng [${cleanMessage}]${details}. Hãy kiểm tra ngay!`;
+
+  // Try Web Share API on mobile
+  if (navigator.share) {
+    navigator.share({
+      title: 'CẢNH BÁO SỨC KHỎE TỪ MẮT THẤY TAI NGHE',
+      text: alertText,
+      url: window.location.href
+    }).catch(() => openZaloOrSmsFallback(phone, alertText));
+  } else {
+    openZaloOrSmsFallback(phone, alertText);
+  }
+}
+
+function openZaloOrSmsFallback(phone, alertText) {
+  const zaloUrl = `https://zalo.me/${phone}`;
+  const smsUrl = `sms:${phone}?body=${encodeURIComponent(alertText)}`;
+  
+  // Try opening Zalo link
+  const opened = window.open(zaloUrl, '_blank');
+  if (!opened) {
+    window.location.href = smsUrl;
+  }
 }
 
 // IMAGE SELECTION & BASE64
@@ -502,7 +553,7 @@ function stopVoiceInput() {
   if (speechRecognition) { try { speechRecognition.stop(); } catch(e){} }
 }
 
-// CALL GEMINI REST API WITH HEALTH PROFILE CONTEXT
+// CALL GEMINI REST API
 async function analyzeWithGemini({ prompt, base64Image = null }) {
   const apiKey = localStorage.getItem('GEMINI_API_KEY') || "AIzaSy_demo_default_key";
   
@@ -513,10 +564,9 @@ async function analyzeWithGemini({ prompt, base64Image = null }) {
   document.getElementById('imagePreviewSection').classList.add('hidden');
   loadingIndicator.scrollIntoView({ behavior: 'smooth' });
 
-  // Include Health Profile Context in prompt
-  const profileContext = `[HỒ SƠ SỨC KHỎE BỆNH NHÂN]: Bệnh nền: ${healthProfile.conditions.join(', ') || 'Không'}. Chỉ số Huyết áp khỏe mạnh: ${healthProfile.baseSystolic}/${healthProfile.baseDiastolic} mmHg, Nhịp tim: ${healthProfile.baseHeartRate} bpm. Thuốc đang dùng: ${healthProfile.dailyMedicines || 'Chưa khai báo'}.`;
+  const profileContext = `[HỒ SƠ SỨC KHỎE BỆNH NHÂN]: Bệnh nhân: ${healthProfile.userName}. Bệnh nền: ${(healthProfile.conditions || []).join(', ') || 'Không'}. Huyết áp chuẩn: ${healthProfile.baseSystolic}/${healthProfile.baseDiastolic} mmHg, Nhịp tim chuẩn: ${healthProfile.baseHeartRate} bpm. Thuốc hằng ngày: ${healthProfile.dailyMedicines || 'Chưa có'}.`;
   
-  const finalPrompt = `${profileContext}\n\n[CÂU HỎI / YÊU CẦU CỦA ÔNG BÀ]: ${prompt}`;
+  const finalPrompt = `${profileContext}\n\n[YÊU CẦU / CÂU HỎI CỦA ÔNG BÀ]: ${prompt}`;
 
   const contentsParts = [{ text: finalPrompt }];
   if (base64Image) {
@@ -556,15 +606,14 @@ async function analyzeWithGemini({ prompt, base64Image = null }) {
   if (success && rawJsonResult) {
     renderResult(rawJsonResult);
   } else {
-    // Intelligent Fallback response based on health profile
     renderResult({
       action_type: "HEALTH_CHAT",
       medicine_name: "Tư vấn sức khỏe Cháu AI",
-      dosage: "Đo huyết áp & uống thuốc đúng giờ",
+      dosage: "Uống thuốc đúng giờ & đo huyết áp",
       expiry_date: "Xem trên bao bì",
       is_expired: false,
       is_blurry: false,
-      speech_message: `Cháu chào ông bà! Cháu đã ghi nhận câu hỏi. Hồ sơ sức khỏe của ông bà ghi nhận bệnh nền ${healthProfile.conditions.join(', ') || 'sức khỏe bình thường'}. Ông bà nhớ giữ ấm cơ thể và uống thuốc đúng liều nhé!`,
+      speech_message: `Cháu chào ${healthProfile.userName || 'ông bà'} ạ! Cháu đã ghi nhận câu hỏi. Ông bà nhớ giữ ấm cơ thể, đo huyết áp thường xuyên và uống thuốc đúng liều nhé!`,
       alert_children: false
     });
   }
@@ -579,7 +628,41 @@ function parseGeminiJsonResponse(text) {
   } catch(e) { return null; }
 }
 
-// RENDER RESULT & VIETNAMESE TTS (0.9x SPEED)
+// CLEAN TTS SPEECH TEXT (REMOVE ALL JSON CODES & KEYS)
+function cleanSpeechText(text) {
+  if (!text) return "";
+  let cleaned = String(text);
+
+  // If text is raw JSON string, parse speech_message property directly
+  if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
+    try {
+      const obj = JSON.parse(cleaned);
+      if (obj.speech_message) return obj.speech_message;
+    } catch(e){}
+  }
+
+  // Remove markdown code blocks
+  cleaned = cleaned.replace(/```json[\s\S]*?```/gi, '');
+  cleaned = cleaned.replace(/```[\s\S]*?```/gi, '');
+
+  // Remove JSON keys and raw code syntax
+  cleaned = cleaned.replace(/"action_type"\s*:\s*".*?"/gi, '');
+  cleaned = cleaned.replace(/"medicine_name"\s*:\s*".*?"/gi, '');
+  cleaned = cleaned.replace(/"dosage"\s*:\s*".*?"/gi, '');
+  cleaned = cleaned.replace(/"expiry_date"\s*:\s*".*?"/gi, '');
+  cleaned = cleaned.replace(/"is_expired"\s*:\s*(true|false)/gi, '');
+  cleaned = cleaned.replace(/"is_blurry"\s*:\s*(true|false)/gi, '');
+  cleaned = cleaned.replace(/"alert_children"\s*:\s*(true|false)/gi, '');
+  cleaned = cleaned.replace(/"speech_message"\s*:\s*"/gi, '');
+
+  // Strip brackets, curly braces, quotes
+  cleaned = cleaned.replace(/[{}[\]"]/g, ' ');
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+  return cleaned;
+}
+
+// RENDER RESULT & TRIGGER TTS
 function renderResult(data) {
   const {
     action_type = "HEALTH_CHAT",
@@ -592,13 +675,15 @@ function renderResult(data) {
     alert_children = false
   } = data;
 
-  currentSpeechMessage = speech_message;
-  document.getElementById('speechMessageText').textContent = speech_message;
+  // Clean raw speech message to ensure warm natural Vietnamese spoken sentence only
+  const cleanMessage = cleanSpeechText(speech_message);
+  currentSpeechMessage = cleanMessage;
+
+  document.getElementById('speechMessageText').textContent = cleanMessage;
   document.getElementById('valMedicine').textContent = medicine_name || "Chưa xác định";
   document.getElementById('valDosage').textContent = dosage || "Theo chỉ dẫn bác sĩ";
   document.getElementById('valExpiry').textContent = expiry_date || "Chưa rõ";
 
-  // Badges & Action Boxes
   const badgeExpired = document.getElementById('badgeExpired');
   const badgeBlurry = document.getElementById('badgeBlurry');
   const badgeAlert = document.getElementById('badgeAlert');
@@ -619,27 +704,67 @@ function renderResult(data) {
   resultSection.classList.remove('hidden');
   resultSection.scrollIntoView({ behavior: 'smooth' });
 
-  // SPEAK TEXT IN VIETNAMESE AT 0.9x SPEED
-  speakText(speech_message);
+  // SPEAK CLEAN VIETNAMESE VOICE AT 0.85x SPEED
+  speakText(cleanMessage);
 
   if (is_blurry) {
-    showToastAlert("📷 ẢNH MỜ HOẶC KHÓ ĐỌC", "Cháu thấy ảnh hơi mờ nên không đoán mò. Cháu đã gửi thông báo cho con cháu kiểm tra lại giúp ông bà nhé!");
+    showToastAlert("📷 ẢNH MỜ HOẶC KHÓ ĐỌC", "Cháu thấy ảnh hơi mờ nên không đoán mò. Cháu đã bật nút gửi báo động Zalo cho con cháu kiểm tra giúp ông bà nhé!");
   } else if (is_expired) {
     showToastAlert("⚠️ THUỐC HẾT HẠN", "Cháu phát hiện thuốc này đã HẾT HẠN SỬ DỤNG. Ông bà tuyệt đối KHÔNG ĐƯỢC UỐNG!");
   }
 }
 
-// VIETNAMESE TTS SPEECH (0.9x SPEED)
+// TTS VOICE SELECTION & PLAYBACK (RATE 0.85x)
+function initTtsVoices() {
+  if (!('speechSynthesis' in window)) return;
+  
+  const populateVoices = () => {
+    const voices = window.speechSynthesis.getVoices();
+    vietnameseVoice = voices.find(v => v.lang.includes('vi') || v.lang.includes('VI') || v.name.toLowerCase().includes('vietnamese'));
+  };
+
+  populateVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoices;
+  }
+}
+
 function speakText(text) {
   if (!('speechSynthesis' in window)) return;
+  
+  const cleanedText = cleanSpeechText(text);
+  if (!cleanedText) return;
+
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.9;
+
+  const utterance = new SpeechSynthesisUtterance(cleanedText);
+  utterance.rate = 0.85; // Slow, clear rate for elderly ears (0.85x)
   utterance.pitch = 1.0;
   utterance.lang = 'vi-VN';
+
+  // Find Vietnamese Voice
   const voices = window.speechSynthesis.getVoices();
-  const viVoice = voices.find(v => v.lang.includes('vi') || v.lang.includes('VI'));
-  if (viVoice) utterance.voice = viVoice;
+  const viVoice = vietnameseVoice || voices.find(v => v.lang.includes('vi') || v.lang.includes('VI'));
+
+  const noticeEl = document.getElementById('ttsFallbackNotice');
+  if (viVoice) {
+    utterance.voice = viVoice;
+    if (noticeEl) noticeEl.classList.add('hidden');
+  } else {
+    // Device has no native Vietnamese voice installed: show giant text notice for senior readability
+    if (noticeEl) noticeEl.classList.remove('hidden');
+  }
+
+  const btnSpeakAgain = document.getElementById('btnSpeakAgain');
+  if (btnSpeakAgain) btnSpeakAgain.classList.add('pulse-ring');
+  
+  utterance.onend = () => {
+    if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring');
+  };
+  utterance.onerror = () => {
+    if (btnSpeakAgain) btnSpeakAgain.classList.remove('pulse-ring');
+  };
+
   window.speechSynthesis.speak(utterance);
 }
 

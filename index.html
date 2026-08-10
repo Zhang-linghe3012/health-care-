@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MẮT THẤY TAI NGHE – Trợ Lý Y Tế & Kết Nối Tình Thân V2</title>
+  <title>MẮT THẤY TAI NGHE – Trợ Lý Y Tế & Kết Nối Tình Thân</title>
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#059669">
@@ -34,10 +34,13 @@
       </div>
 
       <div class="header-actions">
-        <!-- Google Login Button / User Avatar -->
-        <div id="googleAuthContainer">
+        <!-- Auth Options: Quick Start & Google Login -->
+        <div id="authButtonsContainer" class="auth-buttons-group">
+          <button id="btnQuickStart" class="btn-quick-start">
+            🚀 Bắt Đầu Nhanh
+          </button>
           <button id="btnGoogleLogin" class="btn-gmail-login">
-            <span class="g-icon">📧</span> Đăng Nhập Gmail
+            <span class="g-icon">📧</span> Gmail
           </button>
         </div>
 
@@ -52,16 +55,16 @@
     </div>
   </header>
 
-  <!-- Google User Logged In Profile Bar -->
+  <!-- Logged In User Profile Bar -->
   <div id="userProfileBar" class="user-profile-bar hidden">
     <div class="user-info">
-      <img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar" class="user-avatar">
+      <img id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar" class="user-avatar">
       <div>
         <span id="userName" class="user-name">Ông/Bà</span>
-        <span id="userEmail" class="user-email">email@gmail.com</span>
+        <span id="userEmail" class="user-email">Chế độ xem cá nhân</span>
       </div>
     </div>
-    <button id="btnGoogleLogout" class="btn-logout">Đăng Xuất</button>
+    <button id="btnGoogleLogout" class="btn-logout">Đổi Tài Khoản</button>
   </div>
 
   <!-- PWA Installation Sticky Banner -->
@@ -192,9 +195,14 @@
           </button>
         </div>
 
-        <!-- Speech Message Card (Giant Text 24px) -->
+        <!-- Speech Message Display (Giant Text 26px for High Visibility) -->
         <div class="speech-message-box">
           <p id="speechMessageText" class="speech-text">...</p>
+        </div>
+
+        <!-- Fallback Text Reading Alert if Device Has No Vietnamese Voice -->
+        <div id="ttsFallbackNotice" class="tts-fallback-notice hidden">
+          <span>💡 <em>Thiết bị chưa có sẵn giọng đọc Tiếng Việt. Văn bản chữ to ở trên đã được phóng to để ông bà đọc dễ dàng!</em></span>
         </div>
 
         <!-- Details Grid -->
@@ -219,15 +227,15 @@
         <div class="badges-group">
           <span id="badgeExpired" class="badge badge-danger hidden">⚠️ THUỐC ĐÃ HẾT HẠN</span>
           <span id="badgeBlurry" class="badge badge-warning hidden">📷 ẢNH MỜ - ĐÃ BÁO CON CHÁU</span>
-          <span id="badgeAlert" class="badge badge-alert hidden">🚨 CHỈ SỐ LỆCH >15% SO VỚI HỒ SƠ</span>
+          <span id="badgeAlert" class="badge badge-alert hidden">🚨 CẢNH BÁO SỨC KHỎE KHẨN CẤP</span>
         </div>
 
-        <!-- ZALO & EMERGENCY ALERT ACTION BOX -->
+        <!-- ACTIVE ZALO EMERGENCY ALERT ACTION BOX -->
         <div id="alertActionBox" class="alert-action-box hidden">
-          <p class="alert-action-title">📱 KẾT NỐI TÌNH THÂN KHẨN CẤP:</p>
+          <p class="alert-action-title">📱 KẾT NỐI VỚI CON CHÁU CHỦ ĐỘNG QUA ZALO:</p>
           <div class="alert-buttons">
             <button id="btnSendZaloAlert" class="btn-zalo-emergency">
-              <span class="zalo-icon">💬</span> 🚨 GỬI CẢNH BÁO CHO CON CHÁU QUA ZALO
+              <span class="zalo-icon">💬</span> 💬 GỬI BÁO ĐỘNG BẰNG ZALO CHỦ ĐỘNG
             </button>
             <a id="btnCallChildren" href="tel:115" class="btn-emergency">📞 Gọi Khẩn Cấp 115</a>
           </div>
@@ -259,11 +267,37 @@
         <button class="chip-btn">"Hôm nay ông cần uống những thuốc gì?"</button>
         <button class="chip-btn">"Huyết áp 145/95 của bà có cao quá không?"</button>
         <button class="chip-btn">"Xem giúp bà thuốc này còn hạn dùng không?"</button>
-        <button class="chip-btn">"Ông bị mệt và hơi tức ngực quá cháu ơi"</button>
+        <button class="chip-btn">"Ông bị mệt và hơi chóng mặt quá cháu ơi"</button>
       </div>
     </section>
 
   </main>
+
+  <!-- QUICK START / PROFILE SETUP MODAL -->
+  <div id="quickStartModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>🚀 Bắt Đầu Nhanh (Không cần Google)</h2>
+        <button id="btnCloseQuickStart" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="help-text">Ông/bà chỉ cần nhập thông tin cơ bản để sử dụng ngay:</p>
+        <form id="quickStartForm">
+          <div class="form-group">
+            <label for="qsUserName">Tên đại diện của Ông/Bà:</label>
+            <input type="text" id="qsUserName" placeholder="Ví dụ: Ông Nông" required>
+          </div>
+          <div class="form-group">
+            <label for="qsZaloPhone">📱 Số điện thoại Zalo của Con/Cháu (Để gửi cảnh báo):</label>
+            <input type="tel" id="qsZaloPhone" placeholder="Ví dụ: 0901234567" required>
+          </div>
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">
+            🚀 BẮT ĐẦU SỬ DỤNG NGAY
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- HEALTH PROFILE MODAL -->
   <div id="healthProfileModal" class="modal-overlay hidden">
@@ -276,7 +310,21 @@
         <form id="healthProfileForm">
           
           <div class="form-section">
-            <h3 class="form-section-title">1. Bệnh Nền Cần Chú Ý:</h3>
+            <h3 class="form-section-title">1. Tên Bệnh Nhân & Số Điện Thoại Zalo Con Cháu:</h3>
+            <div class="inputs-row">
+              <div class="form-group">
+                <label for="profileUserName">Tên đại diện Ông/Bà:</label>
+                <input type="text" id="profileUserName" placeholder="Ông/Bà" required>
+              </div>
+              <div class="form-group">
+                <label for="familyPhone">📱 Số điện thoại Zalo của Con/Cháu:</label>
+                <input type="tel" id="familyPhone" placeholder="0901234567" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="form-section-title">2. Bệnh Nền Cần Chú Ý:</h3>
             <div class="checkbox-grid">
               <label class="checkbox-label"><input type="checkbox" name="condition" value="Cao huyết áp"> Cao Huyết Áp</label>
               <label class="checkbox-label"><input type="checkbox" name="condition" value="Tiểu đường"> Tiểu Đường</label>
@@ -287,7 +335,7 @@
           </div>
 
           <div class="form-section">
-            <h3 class="form-section-title">2. Chỉ Số Huyết Áp & Nhịp Tim Bình Thường (Lúc Khỏe Mạnh):</h3>
+            <h3 class="form-section-title">3. Chỉ Số Huyết Áp & Nhịp Tim Bình Thường (Lúc Khỏe Mạnh):</h3>
             <div class="inputs-row">
               <div class="form-group">
                 <label for="baseSystolic">Huyết áp Tâm Thu Chuẩn (mmHg):</label>
@@ -305,13 +353,8 @@
           </div>
 
           <div class="form-section">
-            <h3 class="form-section-title">3. Danh Sách Thuốc Uống Hằng Ngày:</h3>
+            <h3 class="form-section-title">4. Danh Sách Thuốc Uống Hằng Ngày:</h3>
             <textarea id="dailyMedicinesText" rows="3" placeholder="Ví dụ: Amlodipine 5mg (1 viên buổi sáng), Metformin 500mg (1 viên sau ăn tối)..."></textarea>
-          </div>
-
-          <div class="form-section">
-            <h3 class="form-section-title">4. Số Điện Thoại & Zalo Của Con Cháu (Để Gửi Cảnh Báo):</h3>
-            <input type="tel" id="familyPhone" placeholder="Ví dụ: 0912345678" value="0912345678">
           </div>
 
           <button type="submit" class="btn-primary btn-save-profile">💾 LƯU HỒ SƠ SỨC KHỎE</button>
@@ -354,7 +397,7 @@
   <!-- Footer -->
   <footer class="app-footer">
     <p>Ứng Dụng Y Tế & Kết Nối Tình Thân "MẮT THẤY TAI NGHE"</p>
-    <p class="copyright">© 2026 Powered by Google Gemini AI & Google Identity</p>
+    <p class="copyright">© 2026 Powered by Google Gemini AI</p>
   </footer>
 
   <script src="app.js"></script>

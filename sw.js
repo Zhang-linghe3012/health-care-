@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mat-thay-tai-nghe-v2';
+const CACHE_NAME = 'mat-thay-tai-nghe-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -13,7 +13,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
-  console.log('[ServiceWorker V2] Install event');
+  console.log('[ServiceWorker V3] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS_TO_CACHE))
@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  console.log('[ServiceWorker V2] Activate event');
+  console.log('[ServiceWorker V3] Activate event');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -38,7 +38,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Bypass caching for Gemini API and Google GIS requests
   if (event.request.url.includes('generativelanguage.googleapis.com') ||
       event.request.url.includes('accounts.google.com')) {
     return;
