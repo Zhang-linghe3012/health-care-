@@ -1,14 +1,16 @@
 /**
- * MẮT THẤY TAI NGHE V6 - BÁC SĨ GIA ĐÌNH CHO NGƯỜI CAO TUỔI
- * Features: Medical Light UI (#F8FAFC, #E6F4EA, #1A73E8), Doctor 👨‍⚕️🩺 logo,
- * Speak Out Loud button, AI Prescription OCR, Symptom advice ("chóng mặt"),
- * Confirm Taken Medicine button ("✅ TÔI ĐÃ UỐNG THUỐC RỒI"), Zalo/Telegram Bot Webhook.
+ * MẮT THẤY TAI NGHE V7 MASTER AI - BÁC SĨ GIA ĐÌNH CHO NGƯỜI CAO TUỔI
+ * Features: Dynamic Contextual AI (No static repeated fallback), OCR Solution Analyzer,
+ * AI Doctor Daily Journal, Persistent Zalo Daily Health Reports, 12:00 PM Noon Reminder,
+ * Non-freezing Modal Close Fix.
  */
 
 const SYSTEM_INSTRUCTION = `Bạn là bác sĩ gia đình ảo thân thiện thuộc ứng dụng MẮT THẤY TAI NGHE dành cho người cao tuổi. Hãy tư vấn ngắn gọn, ấm áp, sử dụng từ ngữ dễ hiểu, xưng 'cháu' gọi 'ông' hoặc 'bà', nhắc nhở ăn uống nghỉ ngơi. 
 
-NẾU LÀ ẢNH ĐƠN THUỐC / PHẦN THUỐC: Hãy trích xuất tên thuốc, liều dùng, giờ uống và hướng dẫn rõ ràng.
-NẾU BỆNH NHÂN KHAI BÁO TRIỆU CHỨNG (VD: 'chóng mặt'): Hãy khuyên ông bà nằm nghỉ ngay tại chỗ tránh té ngã, hướng dẫn đo lại huyết áp và uống một ly nước trà đường ấm.
+BẮT BUỘC TƯ VẤN LINH HOẠT VÀ CHI TIẾT THEO NGỮ CẢNH (TUYỆT ĐỐI KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH LẶP ĐI LẶP LẠI):
+- NẾU NGƯỜI DÙNG BÁO 'MỆT / CHÓNG MẶT / ĐAU ĐẦU': AI lập tức khuyên nằm nghỉ ngơi tại chỗ ngay tránh té ngã, nhắc nhờ con cháu đo ngay Huyết áp & Nhịp tim, hướng dẫn uống 1 ly nước ấm hoặc trà đường ấm và hỏi lại cảm giác hiện tại.
+- NẾU NGƯỜI DÙNG BÁO 'SỐT / HO / ĐAU HỌNG': AI hướng dẫn chườm ấm, uống nhiều nước ấm và nhắc nhở thời gian uống thuốc hạ sốt cách 4-6 tiếng.
+- NẾU LÀ ẢNH ĐƠN THUỐC / TÊN THUỐC: Phân tích chính xác Tên thuốc, Công dụng, Liều lượng, Thời gian uống (Sáng/Trưa/Tối) và ĐƯA RA HƯỚNG GIẢI QUYẾT rõ ràng: 'Ông/bà cần uống thuốc này sau khi ăn no. Nhớ uống kèm 1 ly nước ấm to.'
 
 ĐẦU RA BẮT BUỘC DẠNG JSON CHUẨN:
 {
@@ -18,7 +20,8 @@ NẾU BỆNH NHÂN KHAI BÁO TRIỆU CHỨNG (VD: 'chóng mặt'): Hãy khuyên 
   "expiry_date": "YYYY-MM-DD (nếu có)",
   "is_expired": true/false,
   "is_blurry": true/false,
-  "speech_message": "Câu nói ấm áp ngắn gọn để ứng dụng đọc ra loa cho ông bà nghe",
+  "speech_message": "Câu tư vấn chi tiết ấm áp ngắn gọn để ứng dụng đọc ra loa cho ông bà nghe",
+  "action_solution": "Hướng giải quyết hành động cụ thể cho ông bà (Ví dụ: Uống sau ăn no với 1 ly nước ấm to)",
   "alert_children": true/false
 }`;
 
@@ -52,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPwaInstall();
   initSpeechRecognition();
   renderHealthHistory();
+  renderAiDoctorJournal();
   setupEventListeners();
 
   checkDailyReminders();
@@ -67,7 +71,7 @@ document.addEventListener('click', function unlockAudio() {
   document.removeEventListener('click', unlockAudio);
 }, { once: true });
 
-// SPEAK VIETNAMESE (V6 CLOUD & NATIVE HYBRID TTS)
+// SPEAK VIETNAMESE (V7 CLOUD & NATIVE HYBRID TTS)
 function speakVietnamese(text) {
   if (!text) return;
   
@@ -76,6 +80,7 @@ function speakVietnamese(text) {
     .replace(/https?:\/\/\S+/g, '')
     .replace(/"action_type"\s*:\s*".*?"/gi, '')
     .replace(/"speech_message"\s*:\s*"/gi, '')
+    .replace(/"action_solution"\s*:\s*"/gi, '')
     .replace(/[{}[\]"]/g, ' ')
     .trim();
 
@@ -135,9 +140,11 @@ function speakVietnamese(text) {
   }
 }
 
-// 2. ASK AI ADVISOR (DOCTOR OCR & SYMPTOM CONSULTATION)
+// 2. DYNAMIC CONTEXTUAL AI ADVISOR & OCR SOLUTION ANALYZER
 async function askAIAdvisor(promptText, imageBase64 = null) {
   const aiOutputElement = document.getElementById('ai-response') || document.getElementById('speechMessageText');
+  const actionSolutionBox = document.getElementById('actionSolutionBox');
+  const actionSolutionText = document.getElementById('actionSolutionText');
   const resultSection = document.getElementById('resultSection');
   const loadingIndicator = document.getElementById('loadingIndicator');
   
@@ -147,18 +154,21 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
   loadingIndicator.scrollIntoView({ behavior: 'smooth' });
 
   if (aiOutputElement) {
-    aiOutputElement.innerHTML = "<p>⏳ Bác sĩ AI đang đọc toa thuốc và suy nghĩ tư vấn cho ông bà...</p>";
+    aiOutputElement.innerHTML = "<p>⏳ Bác sĩ AI đang phân tích triệu chứng và toa thuốc cho ông bà...</p>";
   }
   
-  speakVietnamese("Cháu đang đọc thông tin và toa thuốc. Ông bà chờ cháu một chút nhé!");
+  speakVietnamese("Cháu đang phân tích thông tin và toa thuốc. Ông bà chờ cháu một chút nhé!");
 
   try {
-    let symptomGuide = "";
-    if (promptText.toLowerCase().includes('chóng mặt')) {
-      symptomGuide = " [CHÚ Ý VỀ CHÓNG MẶT]: Hướng dẫn nằm nghỉ tại chỗ ngay lập tức tránh té ngã, đo lại huyết áp và uống một ly nước trà đường ấm.";
+    const lowerPrompt = (promptText || "").toLowerCase();
+    let symptomContext = "";
+    if (lowerPrompt.includes('mệt') || lowerPrompt.includes('chóng mặt') || lowerPrompt.includes('đau đầu')) {
+      symptomContext = " [HƯỚNG DẪN ĐẶC BIỆT KHI MỆT/CHÓNG MẶT/ĐAU ĐẦU]: Khuyên ông bà nằm nghỉ ngơi tại chỗ ngay lập tức tránh té ngã, đo ngay Huyết áp & Nhịp tim, uống 1 ly nước ấm hoặc nước đường ấm và hỏi lại cảm giác hiện tại.";
+    } else if (lowerPrompt.includes('sốt') || lowerPrompt.includes('ho') || lowerPrompt.includes('đau họng')) {
+      symptomContext = " [HƯỚNG DẪN ĐẶC BIỆT KHI SỐT/HO/ĐAU HỌNG]: Khuyên chườm ấm, uống nhiều nước ấm và nhắc nhở thời gian uống thuốc hạ sốt cách 4-6 tiếng.";
     }
 
-    const profileContext = `[HỒ SƠ SỨC KHỎE]: Bệnh nhân: ${healthProfile.userName}. Bệnh nền: ${(healthProfile.conditions || []).join(', ') || 'Không'}. Huyết áp chuẩn: ${healthProfile.baseSystolic}/${healthProfile.baseDiastolic} mmHg, Nhịp tim chuẩn: ${healthProfile.baseHeartRate} bpm. Thuốc hằng ngày: ${healthProfile.dailyMedicines || 'Chưa có'}.${symptomGuide}`;
+    const profileContext = `[HỒ SƠ SỨC KHỎE]: Bệnh nhân: ${healthProfile.userName}. Bệnh nền: ${(healthProfile.conditions || []).join(', ') || 'Không'}. Huyết áp chuẩn: ${healthProfile.baseSystolic}/${healthProfile.baseDiastolic} mmHg, Nhịp tim chuẩn: ${healthProfile.baseHeartRate} bpm. Thuốc hằng ngày: ${healthProfile.dailyMedicines || 'Chưa có'}.${symptomContext}`;
 
     const requestBody = {
       systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
@@ -184,6 +194,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
     let success = false;
     let replyText = "";
+    let solutionText = "";
     let parsedData = null;
 
     for (const model of modelsToTry) {
@@ -204,6 +215,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
               else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```/, '').replace(/```$/, '').trim();
               parsedData = JSON.parse(cleaned);
               replyText = parsedData.speech_message || rawText;
+              solutionText = parsedData.action_solution || "";
             } catch(e) { replyText = rawText; }
             success = true;
             break;
@@ -214,11 +226,17 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
 
     loadingIndicator.classList.add('hidden');
 
+    // Dynamic Contextual Fallbacks (No static repetition)
     if (!success || !replyText) {
-      if (promptText.toLowerCase().includes('chóng mặt')) {
-        replyText = "Ông bà ơi, khi bị chóng mặt hãy nằm nghỉ ngay tại chỗ tránh té ngã! Nhờ con cháu đo lại huyết áp và uống một ly nước trà đường ấm nhé!";
+      if (lowerPrompt.includes('mệt') || lowerPrompt.includes('chóng mặt') || lowerPrompt.includes('đau đầu')) {
+        replyText = "Ông bà ơi, khi bị mệt hoặc chóng mặt, ông bà hãy nằm nghỉ ngơi tại chỗ ngay lập tức để tránh đi lại té ngã! Nhờ người thân đo ngay chỉ số Huyết áp và Nhịp tim, sau đó uống 1 ly nước trà đường ấm nhé. Bây giờ ông bà thấy trong người thế nào rồi ạ?";
+        solutionText = "Nằm nghỉ ngơi ngay tại chỗ, đo lại huyết áp và uống 1 ly nước trà đường ấm.";
+      } else if (lowerPrompt.includes('sốt') || lowerPrompt.includes('ho') || lowerPrompt.includes('đau họng')) {
+        replyText = "Cháu khuyên ông bà nên chườm ấm khăn ở trán và nách, uống nhiều nước ấm. Nếu sốt trên 38.5 độ C, ông bà uống 1 viên Paracetamol cách 4 đến 6 tiếng nhé!";
+        solutionText = "Chườm ấm, uống nhiều nước ấm và dùng thuốc hạ sốt theo khoảng cách 4-6 tiếng.";
       } else {
-        replyText = "Cháu đã nhận được thông tin. Ông bà nhớ uống nhiều nước ấm, uống thuốc đúng liều và nghỉ ngơi đầy đủ nhé!";
+        replyText = "Bác sĩ AI đã ghi nhận câu hỏi. Ông bà nhớ uống đầy đủ nước ấm, dùng thuốc đúng liều sau khi ăn no và nghỉ ngơi điều độ nhé!";
+        solutionText = "Uống thuốc sau khi ăn no kèm 1 ly nước ấm to.";
       }
     }
 
@@ -226,6 +244,13 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
 
     if (aiOutputElement) {
       aiOutputElement.innerHTML = `<div class="ai-reply"><strong>👨‍⚕️ Bác sĩ AI tư vấn:</strong><br>${replyText.replace(/\n/g, '<br>')}</div>`;
+    }
+
+    if (solutionText && actionSolutionBox && actionSolutionText) {
+      actionSolutionText.textContent = solutionText;
+      actionSolutionBox.classList.remove('hidden');
+    } else if (actionSolutionBox) {
+      actionSolutionBox.classList.add('hidden');
     }
 
     if (parsedData) {
@@ -249,16 +274,19 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
       }
     }
 
+    // Save interaction to Daily AI Doctor Journal
+    saveAiDoctorJournal(`Bác sĩ AI tư vấn: "${promptText || 'Tư vấn toa thuốc'}" -> Lời khuyên: ${replyText}`);
+
     resultSection.classList.remove('hidden');
     resultSection.scrollIntoView({ behavior: 'smooth' });
 
-    // SPEAK ENTIRE PRESCRIPTION OUT LOUD
+    // Speak entire response out loud
     speakVietnamese(replyText);
 
   } catch (error) {
     console.error("AI Consultation error:", error);
     loadingIndicator.classList.add('hidden');
-    const fallbackMsg = "Cháu đã ghi nhận toa thuốc. Bác sĩ khuyên ông bà uống thuốc đúng giờ theo chỉ dẫn và giữ ấm cơ thể.";
+    const fallbackMsg = "Cháu đã phân tích thông tin. Ông bà nhớ nghỉ ngơi tại chỗ, uống thuốc đúng giờ sau khi ăn no và giữ ấm cơ thể nhé.";
     if (aiOutputElement) {
       aiOutputElement.innerHTML = `<p>${fallbackMsg}</p>`;
     }
@@ -267,7 +295,43 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
   }
 }
 
-// 3. REMOTE HEALTH METRICS LOGGING & BOT WEBHOOK
+// 3. AI DOCTOR DAILY JOURNAL FOR FAMILY REMOTELY
+function saveAiDoctorJournal(entryText) {
+  const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  const journalEntry = { time: timeStr, text: entryText };
+
+  let journal = JSON.parse(localStorage.getItem('AI_DOCTOR_JOURNAL') || "[]");
+  journal.unshift(journalEntry);
+  if (journal.length > 25) journal.pop();
+  localStorage.setItem('AI_DOCTOR_JOURNAL', JSON.stringify(journal));
+
+  renderAiDoctorJournal();
+}
+
+function renderAiDoctorJournal() {
+  const container = document.getElementById('ai-doctor-journal');
+  if (!container) return;
+
+  let journal = JSON.parse(localStorage.getItem('AI_DOCTOR_JOURNAL') || "[]");
+  if (journal.length === 0) {
+    container.innerHTML = `
+      <h3>📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày (Con cháu xem từ xa)</h3>
+      <p>Chưa có nhật ký ghi nhận hôm nay.</p>
+    `;
+    return;
+  }
+
+  let html = `<h3>📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày (Con cháu xem từ xa)</h3><ul style="font-size: 1.1rem; list-style: none; padding: 0;">`;
+  journal.forEach(item => {
+    html += `<li style="background: #f0fdf4; border-left: 5px solid #10b981; margin: 8px 0; padding: 10px; border-radius: 8px; color: #065f46;">
+      ⏰ <strong>[${item.time}]</strong> ${item.text}
+    </li>`;
+  });
+  html += `</ul>`;
+  container.innerHTML = html;
+}
+
+// 4. REMOTE HEALTH METRICS LOGGING & BOT WEBHOOK
 function saveHealthMetrics(heartRate, bloodPressure) {
   const healthData = {
     time: new Date().toLocaleString('vi-VN'),
@@ -280,7 +344,9 @@ function saveHealthMetrics(heartRate, bloodPressure) {
   if (logs.length > 30) logs.pop();
   localStorage.setItem('HEALTH_LOGS', JSON.stringify(logs));
 
-  // Check for abnormal heart rate (< 50 or > 100) or blood pressure
+  // Log into AI Doctor Journal
+  saveAiDoctorJournal(`Đo sinh hiệu: Huyết áp ${healthData.bloodPressure} mmHg, Nhịp tim ${healthData.heartRate} bpm.`);
+
   const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE');
   const isAbnormal = (heartRate > 100 || heartRate < 50);
 
@@ -318,7 +384,7 @@ function renderHealthHistory() {
     return;
   }
 
-  let html = `<h3>📊 Lịch Sử Sức Khỏe (Con cháu xem từ xa)</h3><ul style="font-size: 1.2rem; list-style: none; padding: 0;">`;
+  let html = `<h3>📊 Lịch Sử Đo Nhịp Tim & Huyết Áp</h3><ul style="font-size: 1.2rem; list-style: none; padding: 0;">`;
   logs.forEach(log => {
     html += `<li style="background: #f1f5f9; border-left: 5px solid #1a73e8; margin: 8px 0; padding: 12px; border-radius: 8px;">
       ⏰ <strong>${log.time}</strong><br>
@@ -330,38 +396,47 @@ function renderHealthHistory() {
   container.innerHTML = html;
 }
 
-// 4. CONFIRM TAKEN MEDICINE BUTTON HANDLER ("✅ TÔI ĐÃ UỐNG THUỐC RỒI")
+// 5. CONFIRM TAKEN MEDICINE BUTTON HANDLER ("✅ TÔI ĐÃ UỐNG THUỐC RỒI")
 function confirmMedicineTaken() {
   const curTimeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   const praiseMsg = `Giỏi quá! Ông bà đã uống thuốc đầy đủ lúc ${curTimeStr} rồi ạ. Cháu đã gửi tin nhắn báo cho con cháu yên tâm rồi nhé!`;
 
-  // Speak praise voice
   speakVietnamese(praiseMsg);
 
-  // Send confirmation to relatives via Webhook & Zalo
+  saveAiDoctorJournal(`Xác nhận: Ông/bà đã bấm nút uống thuốc đầy đủ lúc ${curTimeStr}.`);
+
   const familyMsg = `✅ MẮT THẤY TAI NGHE: Ông/bà đã uống thuốc đầy đủ lúc ${curTimeStr}`;
   const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
 
   sendRemoteWebhookAlert(familyMsg);
+  triggerZaloAlertMessage(remotePhone, familyMsg);
 
   showToastAlert("✅ ĐÃ XÁC NHẬN UỐNG THUỐC", `Đã lưu mốc giờ ${curTimeStr} và gửi thông báo báo cho con cháu yên tâm!`);
 }
 
-// 5. DAILY REMINDERS & BIG BANNER
+// 6. AUTOMATIC DAILY REMINDERS & GREETINGS (06:30 AM, 12:00 PM NOON, 21:00 PM)
 function checkDailyReminders() {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
 
+  // 06:30 AM Morning Greeting & Warm Clothes/Water Reminder
   if (hours === 6 && minutes === 30) {
-    showBigBanner("☀️ CHÚC CỤ NGÀY MỚI TỐT LÀNH!", "Hôm nay thời tiết có thể lạnh, cụ nhớ khoác thêm áo ấm và uống một ly nước ấm nhé!");
-    speakVietnamese("Chúc ông bà ngày mới tốt lành! Hôm nay trời lạnh, ông bà nhớ mặc áo ấm khi ra ngoài nhé.");
+    showBigBanner("☀️ CHÚC CỤ NGÀY MỚI AN LÀNH!", "Sáng sớm trời se lạnh, ông/bà nhớ khoác thêm áo ấm và uống ngay 1 ly nước ấm để tốt cho huyết áp nhé!");
+    speakVietnamese("☀️ Chúc ông bà ngày mới an lành! Sáng sớm trời se lạnh, ông bà nhớ khoác thêm áo ấm và uống ngay 1 ly nước ấm để tốt cho huyết áp nhé!");
   } 
+  // 12:00 PM Noon Lunch & Post-Meal Medicine Reminder
+  else if (hours === 12 && minutes === 0) {
+    showBigBanner("🍚 ĐÃ ĐẾN GIỜ ĂN TRƯA!", "Ông/bà nhớ ăn trưa đúng giờ và uống thuốc đầy đủ sau khi ăn no nhé!");
+    speakVietnamese("🍚 Đã đến giờ ăn trưa rồi ạ! Ông bà nhớ ăn trưa đúng giờ và uống thuốc sau khi ăn no nhé!");
+  }
+  // 21:00 PM Night Goodnight Greeting
   else if (hours === 21 && minutes === 0) {
-    showBigBanner("🌙 CHÚC ÔNG BÀ NGỦ NGON!", "Đã đến giờ nghỉ ngơi, chúc ông bà có một giấc ngủ thật ngon và giấc mơ đẹp!");
-    speakVietnamese("Đã chín giờ tối rồi. Chúc ông bà ngủ ngon và có giấc mơ đẹp!");
+    showBigBanner("🌙 CHÚC ÔNG BÀ NGỦ NGON!", "Đã đến giờ nghỉ ngơi, chúc ông/bà ngủ thật ngon giấc!");
+    speakVietnamese("🌙 Đã đến giờ nghỉ ngơi, chúc ông bà ngủ thật ngon giấc!");
   }
 
+  // Automatic Medicine Alarms Check
   const medicineTime = localStorage.getItem('MEDICINE_TIME') || "08:00";
   const [medHour, medMin] = medicineTime.split(':').map(Number);
 
@@ -399,13 +474,13 @@ function showBigBanner(title, message) {
       <p style="font-size: 1.6rem; color: #0f172a; line-height: 1.5; font-weight: bold; margin-bottom: 25px;">${message}</p>
       <button onclick="document.getElementById('big-alert-modal').remove()" 
               style="font-size: 1.8rem; padding: 15px 40px; background: #2ed573; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer;">
-        ĐÃ XONG / ĐÃ HIỂU
+        ĐÃ HIỂU (ĐÓNG)
       </button>
     </div>
   `;
 }
 
-// 6. HELPER FUNCTIONS
+// 7. HELPER FUNCTIONS & LISTENERS
 function initHealthProfile() {
   const savedProfile = localStorage.getItem('HEALTH_PROFILE');
   if (savedProfile) {
@@ -450,32 +525,30 @@ function saveHealthProfileFromForm(e) {
 }
 
 function initAuth() {
-  const savedUser = localStorage.getItem('GOOGLE_USER') || localStorage.getItem('QUICK_USER');
+  const savedUser = localStorage.getItem('QUICK_USER');
   if (savedUser) {
     try { renderUserProfile(JSON.parse(savedUser)); } catch(e){}
   }
 }
 
 function renderUserBar() {
-  const savedUser = localStorage.getItem('GOOGLE_USER') || localStorage.getItem('QUICK_USER');
+  const savedUser = localStorage.getItem('QUICK_USER');
   if (savedUser) {
     try { renderUserProfile(JSON.parse(savedUser)); } catch(e){}
   }
 }
 
 function renderUserProfile(user) {
-  document.getElementById('authButtonsContainer').classList.add('hidden');
   const bar = document.getElementById('userProfileBar');
   document.getElementById('userAvatar').src = user.picture || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(user.name);
   document.getElementById('userName').textContent = user.name || healthProfile.userName || "Ông/Bà";
-  document.getElementById('userEmail').textContent = user.email || `Zalo con cháu: ${healthProfile.familyPhone || '0901234567'}`;
+  document.getElementById('userEmail').textContent = `Zalo người thân: ${user.phone || healthProfile.familyPhone || '0901234567'}`;
   bar.classList.remove('hidden');
 }
 
 function handleQuickStartSubmit(e) {
   e.preventDefault();
   const name = document.getElementById('qsUserName').value.trim() || "Ông/Bà";
-  const email = document.getElementById('qsUserEmail').value.trim() || "ongba@gmail.com";
   const phone = document.getElementById('qsZaloPhone').value.trim() || "0901234567";
 
   healthProfile.userName = name;
@@ -485,63 +558,20 @@ function handleQuickStartSubmit(e) {
 
   const quickUser = {
     name: name,
-    email: email,
+    phone: phone,
     picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(name)
   };
   localStorage.setItem('QUICK_USER', JSON.stringify(quickUser));
 
   document.getElementById('quickStartModal').classList.add('hidden');
   renderUserProfile(quickUser);
-  showToastAlert("ĐÃ KÍCH HOẠT", `Chào mừng ${name}! Bạn đã sẵn sàng sử dụng ứng dụng MẮT THẤY TAI NGHE.`);
-}
-
-function handleGoogleLogin() {
-  const configuredClientId = localStorage.getItem('GOOGLE_CLIENT_ID');
-
-  if (configuredClientId && window.google && google.accounts && google.accounts.id) {
-    try {
-      google.accounts.id.initialize({
-        client_id: configuredClientId,
-        callback: (response) => {
-          const payload = parseJwt(response.credential);
-          const user = {
-            name: payload.name || "Ông/Bà",
-            email: payload.email || "user@gmail.com",
-            picture: payload.picture || "https://api.dicebear.com/7.x/bottts/svg?seed=Senior"
-          };
-          localStorage.setItem('GOOGLE_USER', JSON.stringify(user));
-          renderUserProfile(user);
-        }
-      });
-      google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          openQuickLoginFallback();
-        }
-      });
-      return;
-    } catch(err){}
-  }
-
-  openQuickLoginFallback();
-}
-
-function openQuickLoginFallback() {
-  document.getElementById('quickStartModal').classList.remove('hidden');
-}
-
-function parseJwt(token) {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(window.atob(base64));
-  } catch(e) { return {}; }
+  showToastAlert("ĐÃ LƯU THÔNG TIN", `Chào mừng ${name}! Thông tin cá nhân đã được lưu an toàn.`);
 }
 
 function handleLogout() {
-  localStorage.removeItem('GOOGLE_USER');
   localStorage.removeItem('QUICK_USER');
   document.getElementById('userProfileBar').classList.add('hidden');
-  document.getElementById('authButtonsContainer').classList.remove('hidden');
+  document.getElementById('quickStartModal').classList.remove('hidden');
 }
 
 // PEDOMETER
@@ -578,6 +608,64 @@ function updatePedometerUI() {
   const pct = Math.min(100, Math.round((stepCount / target) * 100));
   if (stepProgressFill) stepProgressFill.style.width = pct + '%';
   if (stepPercent) stepPercent.textContent = pct;
+}
+
+// VITALS CHECK WITH AUTOMATIC LOG & REMOTE ALERT
+function checkVitalsAgainstProfile() {
+  const sysVal = parseInt(document.getElementById('inputSystolic').value);
+  const diaVal = parseInt(document.getElementById('inputDiastolic').value);
+  const hrVal = parseInt(document.getElementById('inputHeartRate').value);
+
+  if (isNaN(sysVal) || isNaN(diaVal) || isNaN(hrVal)) {
+    showToastAlert("NHẬP THIẾU CHỈ SỐ", "Ông bà vui lòng nhập đủ Huyết áp (Tâm thu/Tâm trương) và Nhịp tim để Bác sĩ AI đối chiếu nhé!");
+    return;
+  }
+
+  saveHealthMetrics(hrVal, `${sysVal}/${diaVal}`);
+
+  const baseSys = healthProfile.baseSystolic || 120;
+  const baseDia = healthProfile.baseDiastolic || 80;
+  const baseHr = healthProfile.baseHeartRate || 72;
+
+  const sysDev = Math.abs(sysVal - baseSys) / baseSys;
+  const diaDev = Math.abs(diaVal - baseDia) / baseDia;
+  const hrDev = Math.abs(hrVal - baseHr) / baseHr;
+
+  const isDeviatedAbove15 = (sysDev > 0.15 || diaDev > 0.15 || hrDev > 0.15);
+
+  let message = "";
+  if (isDeviatedAbove15) {
+    message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Ông bà hãy nằm nghỉ tại chỗ ngay và cháu đã chuẩn bị sẵn nút gửi tin nhắn Zalo báo cho con cháu!`;
+  } else {
+    message = `Huyết áp ${sysVal}/${diaVal} mmHg và Nhịp tim ${hrVal} nhịp/phút của ông bà nằm trong mức AN TOÀN, chỉ chênh lệch nhẹ dưới 15% so với hồ sơ sức khỏe. Ông bà tiếp tục duy trì sức khỏe tốt nhé!`;
+  }
+
+  currentAlertDetails = `Huyết áp thực tế: ${sysVal}/${diaVal} mmHg, Nhịp tim: ${hrVal} bpm (Chuẩn hồ sơ: ${baseSys}/${baseDia} mmHg, ${baseHr} bpm)`;
+
+  const aiOutputElement = document.getElementById('ai-response') || document.getElementById('speechMessageText');
+  if (aiOutputElement) {
+    aiOutputElement.innerHTML = `<div class="ai-reply"><strong>👨‍⚕️ Bác sĩ AI tư vấn:</strong><br>${message}</div>`;
+  }
+
+  document.getElementById('valMedicine').textContent = `Huyết áp: ${sysVal}/${diaVal} mmHg`;
+  document.getElementById('valDosage').textContent = `Nhịp tim: ${hrVal} nhịp/phút`;
+  document.getElementById('valExpiry').textContent = `Chuẩn hồ sơ: ${baseSys}/${baseDia} mmHg`;
+
+  const badgeAlert = document.getElementById('badgeAlert');
+  const alertActionBox = document.getElementById('alertActionBox');
+
+  if (isDeviatedAbove15) {
+    badgeAlert.classList.remove('hidden');
+    alertActionBox.classList.remove('hidden');
+  } else {
+    badgeAlert.classList.add('hidden');
+    alertActionBox.classList.add('hidden');
+  }
+
+  document.getElementById('resultSection').classList.remove('hidden');
+  document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+
+  speakVietnamese(message);
 }
 
 // MEDICINE REMINDERS
@@ -641,7 +729,7 @@ function initPwaInstall() {
 
 // EVENT LISTENERS SETUP
 function setupEventListeners() {
-  // Quick Start Controls
+  // Quick Start Form Controls
   document.getElementById('btnQuickStart').addEventListener('click', () => {
     document.getElementById('quickStartModal').classList.remove('hidden');
   });
@@ -649,15 +737,11 @@ function setupEventListeners() {
     document.getElementById('quickStartModal').classList.add('hidden');
   });
   document.getElementById('quickStartForm').addEventListener('submit', handleQuickStartSubmit);
-
-  // Google Login & Logout
-  document.getElementById('btnGoogleLogin').addEventListener('click', handleGoogleLogin);
   document.getElementById('btnGoogleLogout').addEventListener('click', handleLogout);
 
   // System Settings Modal
   document.getElementById('btnOpenSettings').addEventListener('click', () => {
     document.getElementById('settingGeminiApiKey').value = localStorage.getItem('GEMINI_API_KEY') || "";
-    document.getElementById('settingGoogleClientId').value = localStorage.getItem('GOOGLE_CLIENT_ID') || "";
     document.getElementById('settingZaloWebhook').value = localStorage.getItem('ZALO_WEBHOOK_URL') || "";
     document.getElementById('systemSettingsModal').classList.remove('hidden');
   });
@@ -666,10 +750,8 @@ function setupEventListeners() {
   });
   document.getElementById('btnSaveSystemSettings').addEventListener('click', () => {
     const key = document.getElementById('settingGeminiApiKey').value.trim();
-    const clientId = document.getElementById('settingGoogleClientId').value.trim();
     const webhook = document.getElementById('settingZaloWebhook').value.trim();
     if (key) localStorage.setItem('GEMINI_API_KEY', key);
-    if (clientId) localStorage.setItem('GOOGLE_CLIENT_ID', clientId);
     if (webhook) localStorage.setItem('ZALO_WEBHOOK_URL', webhook);
     document.getElementById('systemSettingsModal').classList.add('hidden');
     showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cài đặt hệ thống API và Webhook Bot đã được lưu thành công!");
@@ -732,12 +814,18 @@ function setupEventListeners() {
   // Confirm Taken Medicine Button Listener
   document.getElementById('btnConfirmMedicineTaken').addEventListener('click', confirmMedicineTaken);
 
-  // Zalo Active Alert Listener
-  document.getElementById('btnSendZaloAlert').addEventListener('click', () => {
+  // Zalo Active Daily Report Button Listener
+  const sendZaloReportAction = () => {
     const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
-    const msg = `[MẮT THẤY TAI NGHE] Cập nhật sức khỏe ông/bà: ${currentSpeechMessage}`;
-    triggerZaloAlertMessage(remotePhone, msg);
-  });
+    const reportMsg = `[MẮT THẤY TAI NGHE] Cập nhật tình hình ông/bà hôm nay (${new Date().toLocaleDateString('vi-VN')}): ${currentSpeechMessage || 'Sức khỏe ổn định, đã kiểm tra sinh hiệu và tương tác với Bác sĩ AI.'}`;
+    triggerZaloAlertMessage(remotePhone, reportMsg);
+  };
+
+  const btnGlobalZaloAlert = document.getElementById('btnGlobalZaloAlert');
+  if (btnGlobalZaloAlert) btnGlobalZaloAlert.addEventListener('click', sendZaloReportAction);
+
+  const btnSendZaloAlert = document.getElementById('btnSendZaloAlert');
+  if (btnSendZaloAlert) btnSendZaloAlert.addEventListener('click', sendZaloReportAction);
 
   // Medicine Reminder Modal
   document.getElementById('btnAddReminder').addEventListener('click', () => {
@@ -761,9 +849,21 @@ function setupEventListeners() {
     showToastAlert("ĐÃ ĐẶT LỊCH", `Đã cài lịch nhắc uống thuốc lúc ${timeVal} cho ông bà!`);
   });
 
-  // Close Alert Modal
-  document.getElementById('btnCloseAlertModal').addEventListener('click', () => {
-    document.getElementById('alertModal').classList.add('hidden');
+  // GUARANTEED NON-FREEZING MODAL CLOSE LISTENER FOR "ĐÃ HIỂU (ĐÓNG)"
+  const btnCloseAlertModal = document.getElementById('btnCloseAlertModal');
+  if (btnCloseAlertModal) {
+    btnCloseAlertModal.onclick = function() {
+      document.getElementById('alertModal').classList.add('hidden');
+    };
+  }
+
+  // Backdrop overlay click to close for all modals
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.add('hidden');
+      }
+    });
   });
 
   // Chip Prompt Buttons
@@ -784,7 +884,7 @@ function triggerZaloAlertMessage(phone, alertText) {
 
   if (navigator.share) {
     navigator.share({
-      title: '[MẮT THẤY TAI NGHE] Cảnh Báo Sức Khỏe',
+      title: '[MẮT THẤY TAI NGHE] Cập Nhật Sức Khỏe',
       text: alertText,
       url: window.location.href
     }).catch(() => openZaloLink(cleanPhone, alertText));
@@ -797,7 +897,7 @@ function openZaloLink(cleanPhone, alertText) {
   const zaloUrl = `https://zalo.me/${cleanPhone}`;
   const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(alertText)}`;
   
-  showToastAlert("📋 ĐÃ SAO CHÉP CẢNH BÁO", "Nội dung cảnh báo đã được tự động sao chép! Đang mở Zalo con cháu, người thân chỉ cần nhấn Ctrl+V (hoặc Dán) để gửi ngay!");
+  showToastAlert("📋 ĐÃ SAO CHÉP BÁO CÁO", "Báo cáo chi tiết đã được tự động sao chép! Đang mở Zalo con cháu, người thân chỉ cần nhấn Ctrl+V (hoặc Dán) để gửi ngay!");
 
   setTimeout(() => {
     const opened = window.open(zaloUrl, '_blank');
