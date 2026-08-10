@@ -1,30 +1,34 @@
-# 👁️👂 MẮT THẤY TAI NGHE (V4 - SỬA LỖI KỸ THUẬT TRIỆT ĐỂ)
+# 👁️👂 MẮT THẤY TAI NGHE (V5 - HỖ TRỢ NGƯỜI CAO TUỔI & GIA ĐÌNH)
 
-Ứng dụng **Progressive Web App (PWA V4)** hỗ trợ người cao tuổi đọc đơn thuốc, chẩn đoán sinh hiệu, đếm bước chân, nhắc lịch uống thuốc và gửi báo động trực tiếp qua Zalo bằng Gemini AI & Cloud TTS.
+Ứng dụng **Progressive Web App (PWA V5)** hỗ trợ người cao tuổi đọc đơn thuốc, bác sĩ gia đình AI tư vấn, chẩn đoán sinh hiệu, đếm bước chân, lưu lịch sử sức khỏe từ xa cho con cháu và hiển thị bảng nhắc nhở siêu to khổng lồ hằng ngày.
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-health--care---blue?style=flat-square&logo=github)](https://github.com/Zhang-linghe3012/health-care-.git)
-[![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6_%2F_2.5_Flash-green?style=flat-square&logo=google)](https://ai.google.dev/)
-[![PWA Ready](https://img.shields.io/badge/PWA-V4_Offline_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
+[![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6_%2F_1.5_Flash-green?style=flat-square&logo=google)](https://ai.google.dev/)
+[![PWA Ready](https://img.shields.io/badge/PWA-V5_Offline_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
 
 ---
 
-## 🛠️ Đã Khắc Phục Triệt Để 3 Vấn Đề Kỹ Thuật (Bản V4)
+## 🌟 Chi Tiết Bộ Mã Nguồn Nâng Cấp (Bản V5)
 
-1. **Xử Lý Đăng Nhập Gmail Và Dự Phòng An Toàn**:
-   - Khi chưa có Google Client ID hoặc GIS bị gián đoạn, ứng dụng tự động mở **Form Đăng Nhập Nhanh** (lưu Tên + Email vào `localStorage`) giúp người dùng vào thẳng ứng dụng không bao giờ bị đơ/treo giao diện.
-   - Thêm ô cấu hình `Google OAuth Client ID` trong Cài Đặt kèm hướng dẫn tạo Client ID nếu muốn bật Google OAuth2 thật.
+1. **Khởi Tạo Âm Thanh & Giọng Đọc V5 (`speakVietnamese`)**:
+   - Tự động mở khóa quyền Audio Context (`unlockAudio`) bằng sự kiện chạm màn hình đầu tiên của người dùng.
+   - Ưu tiên 1: Web Speech Synthesis với giọng `vi-VN` / `vi_VN` phát ở tốc độ **0.82x** chậm rãi, dễ nghe cho người lớn tuổi.
+   - Ưu tiên 2: Fallback sang Google Translate Cloud TTS API (`https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=...`) audio element (rate 0.85x) kèm xử lý lỗi Autoplay bị chặn.
 
-2. **Hàm `speakVietnamese(text)` Phát Âm Thanh Tiếng Việt Chuẩn (Cloud TTS Fallback)**:
-   - **Bước 1**: Tách lọc triệt để mã JSON, ký tự rác, câu lệnh code; chỉ phát phần lời nói ấm áp Tiếng Việt `speech_message`.
-   - **Bước 2**: Kiểm tra `speechSynthesis` giọng `vi-VN` / `vi_VN` phát ở tốc độ **0.85x**.
-   - **Bước 3**: Nếu thiết bị KHÔNG có giọng Việt, tự động gọi Google Translate Cloud TTS API (`https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=...`) tải file mp3 giọng Việt chuẩn phát qua HTML5 Audio element!
+2. **Bác Sĩ AI Tư Vấn & Đọc Toa Thuốc / OCR (`askAIAdvisor`)**:
+   - Bác sĩ gia đình ảo tư vấn ngắn gọn, ấm áp, xưng "cháu" gọi "ông/bà".
+   - Phân tích ảnh đơn thuốc/bao bì hoặc văn bản, liệt kê tên thuốc, liều dùng và giờ uống rõ ràng.
+   - Hiển thị khối phản hồi `👨‍⚕️ Bác sĩ AI tư vấn:` và phát âm thanh loa tự động.
 
-3. **Tính Năng Gửi Cảnh Báo Zalo Với Tự Động Sao Chép Clipboard & Web Share**:
-   - Nhập *"📱 Số điện thoại Zalo người thân"* trong Hồ sơ sức khỏe.
-   - Khi bấm **"💬 GỬI BÁO ĐỘNG/KẾT QUẢ QUA ZALO"**:
-     - Định dạng tin nhắn chuẩn: `"[MẮT THẤY TAI NGHE] Cập nhật sức khỏe ông/bà: ..."`
-     - Trên điện thoại: Kích hoạt `navigator.share` chọn ứng dụng Zalo gửi cho con cháu.
-     - Trên máy tính: Tự động `navigator.clipboard.writeText()` sao chép văn bản vào bộ nhớ tạm + tự động mở `https://zalo.me/[SĐT]` và hiển thị thông báo nhắc nhở nhấn Ctrl+V để dán gửi ngay!
+3. **Theo Dõi Sức Khỏe Từ Xa Cho Con Cháu (`saveHealthMetrics`, `renderHealthHistory`)**:
+   - Lưu 30 bản ghi đo nhịp tim, huyết áp gần nhất vào `localStorage` (`HEALTH_LOGS`).
+   - Hiển thị danh sách **📊 Lịch Sử Sức Khỏe (Con cháu xem từ xa)** trực quan.
+   - Tự động gửi cảnh báo qua Zalo nếu nhịp tim bất thường (< 50 bpm hoặc > 100 bpm) hoặc huyết áp lệch cao.
+
+4. **Thông Báo Nhắc Nhở Uống Thuốc Bự, Dài & Lời Chúc Thời Tiết (`checkDailyReminders`, `showBigBanner`)**:
+   - 06:30 AM: Banner & Giọng đọc `☀️ CHÚC CỤ NGÀY MỚI TỐT LÀNH! Hôm nay thời tiết có thể lạnh, cụ nhớ khoác thêm áo ấm và uống một ly nước ấm nhé!`.
+   - 21:00 PM: Banner & Giọng đọc `🌙 CHÚC ÔNG BÀ NGỦ NGON! Đã đến giờ nghỉ ngơi, chúc ông bà có một giấc ngủ thật ngon và giấc mơ đẹp!`.
+   - Nhắc uống thuốc tự động với Bảng thông báo khổng lồ (`#big-alert-modal`) font chữ 2.2rem/1.6rem siêu to, sắc nét kèm nút bấm hoàn thành 50px.
 
 ---
 
