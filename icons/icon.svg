@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#059669"/>
+  <rect x="20" y="20" width="472" height="472" rx="80" fill="none" stroke="#6ee7b7" stroke-width="12"/>
+  <!-- Eye Icon (MẮT THẤY) -->
+  <g transform="translate(110, 110)">
+    <path d="M 146 50 C 70 50 10 130 10 130 C 10 130 70 210 146 210 C 222 210 282 130 282 130 C 282 130 222 50 146 50 Z" fill="#1e293b" stroke="#ffffff" stroke-width="16"/>
+    <circle cx="146" cy="130" r="50" fill="#38bdf8"/>
+    <circle cx="146" cy="130" r="24" fill="#0f172a"/>
+    <circle cx="160" cy="116" r="10" fill="#ffffff"/>
+  </g>
+  <!-- Ear & Mic Icon (TAI NGHE) -->
+  <g transform="translate(180, 260)">
+    <rect x="50" y="20" width="52" height="90" rx="26" fill="#3b82f6" stroke="#ffffff" stroke-width="10"/>
+    <path d="M 20 60 C 20 110 132 110 132 60" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+    <line x1="76" y1="115" x2="76" y2="155" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+    <line x1="40" y1="155" x2="112" y2="155" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>

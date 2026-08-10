@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MẮT THẤY TAI NGHE – Trợ Lý AI Cho Người Cao Tuổi</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#059669">
+  <meta name="description" content="Ứng dụng MẮT THẤY TAI NGHE - Trợ lý y tế và đọc đơn thuốc thông minh dành cho người cao tuổi bằng Gemini AI">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  
+  <!-- Fonts & Stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-group">
+        <span class="app-icon">👁️👂</span>
+        <div>
+          <h1 class="app-title">MẮT THẤY TAI NGHE</h1>
+          <p class="app-subtitle">Trợ Lý "Cháu Ngoan AI" Cho Ông Bà</p>
+        </div>
+      </div>
+      <button id="btnSettings" class="btn-icon" aria-label="Cài đặt API Key">⚙️ Key</button>
+    </div>
+  </header>
+
+  <!-- API Key Modal / Settings Panel -->
+  <div id="settingsModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>🔑 Cài Đặt Gemini API Key</h2>
+        <button id="btnCloseSettings" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="help-text">Dán mã <strong>Gemini API Key</strong> của bạn vào đây để kết nối với Cháu AI:</p>
+        <div class="input-group">
+          <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off">
+          <button id="btnToggleKeyVisibility" class="btn-secondary">👁️ Hiện</button>
+        </div>
+        <div class="model-select-group">
+          <label for="modelSelect">Mô hình AI:</label>
+          <select id="modelSelect">
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Khuyên dùng - Nhanh & Chính xác)</option>
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+          </select>
+        </div>
+        <button id="btnSaveKey" class="btn-primary">💾 Lưu API Key</button>
+        <p id="keyStatusMessage" class="status-msg"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+
+    <!-- API Key Notice Banner if not configured -->
+    <div id="apiKeyBanner" class="alert-banner warning-banner hidden">
+      <span>⚠️ Ông bà chưa nhập API Key. Hãy nhờ con cháu nhấn vào nút ⚙️ góc trên để cài đặt nhé!</span>
+    </div>
+
+    <!-- Hero Big Action Buttons (Target 22px-28px font, giant touch targets) -->
+    <section class="action-section">
+      <!-- Button 1: MẮT THẤY (Capture / Upload Image) -->
+      <button id="btnMatThay" class="btn-hero btn-green">
+        <span class="hero-icon">📷</span>
+        <div class="hero-text-group">
+          <span class="hero-title">MẮT THẤY</span>
+          <span class="hero-desc">Đọc Đơn Thuốc & Hạn Sử Dụng</span>
+        </div>
+      </button>
+      <!-- Hidden File/Camera Input -->
+      <input type="file" id="imageInput" accept="image/*" capture="environment" style="display: none;">
+
+      <!-- Button 2: TAI NGHE (Voice Speech Recognition) -->
+      <button id="btnTaiNghe" class="btn-hero btn-blue">
+        <span class="hero-icon">🎙️</span>
+        <div class="hero-text-group">
+          <span class="hero-title">TAI NGHE</span>
+          <span class="hero-desc">Hỏi Chuyện & Báo Sức Khỏe</span>
+        </div>
+      </button>
+    </section>
+
+    <!-- Voice Listening Active Pulse Indicator -->
+    <div id="listeningIndicator" class="listening-box hidden">
+      <div class="pulse-ring"></div>
+      <div class="listening-content">
+        <span class="mic-wave">🎙️</span>
+        <p class="listening-text">Cháu đang lắng nghe ông bà nói...</p>
+        <button id="btnStopListening" class="btn-small-danger">⏹️ Dừng nghe</button>
+      </div>
+    </div>
+
+    <!-- Processing / Loading State -->
+    <div id="loadingIndicator" class="loading-box hidden">
+      <div class="spinner"></div>
+      <p class="loading-text">Cháu đang đọc và suy nghĩ, ông bà chờ cháu chút nhé...</p>
+    </div>
+
+    <!-- Image Preview Area -->
+    <section id="imagePreviewSection" class="preview-section hidden">
+      <div class="preview-header">
+        <span>📸 Ảnh Đơn Thuốc / Bao Bì Đã Chọn:</span>
+        <button id="btnClearImage" class="btn-small-secondary">❌ Bỏ ảnh</button>
+      </div>
+      <img id="imagePreview" alt="Xem trước ảnh đơn thuốc" class="preview-img">
+      <button id="btnAnalyzeImage" class="btn-action-green">🔍 Nhờ Cháu AI Đọc Ảnh Này</button>
+    </section>
+
+    <!-- Results Display Card (Senior High-Contrast Design) -->
+    <section id="resultSection" class="result-section hidden">
+      <div class="result-card">
+        <div class="result-header">
+          <h2>💬 Lời Cháu Ngoan AI</h2>
+          <button id="btnSpeakAgain" class="btn-speech" title="Đọc lại giọng nói">
+            <span class="speaker-icon">🔊</span> Đọc Lại
+          </button>
+        </div>
+
+        <!-- Speech Message Card (Giant Text 24px) -->
+        <div class="speech-message-box">
+          <p id="speechMessageText" class="speech-text">...</p>
+        </div>
+
+        <!-- Details Grid (Medicine, Dosage, Expiry) -->
+        <div id="detailsGrid" class="details-grid">
+          <div class="detail-card" id="cardMedicine">
+            <span class="detail-label">💊 Tên Thuốc:</span>
+            <span id="valMedicine" class="detail-value">--</span>
+          </div>
+
+          <div class="detail-card" id="cardDosage">
+            <span class="detail-label">🕒 Liều Dùng & Giờ Uống:</span>
+            <span id="valDosage" class="detail-value">--</span>
+          </div>
+
+          <div class="detail-card" id="cardExpiry">
+            <span class="detail-label">📅 Hạn Sử Dụng (EXP):</span>
+            <span id="valExpiry" class="detail-value">--</span>
+          </div>
+        </div>
+
+        <!-- Status Badges -->
+        <div class="badges-group">
+          <span id="badgeExpired" class="badge badge-danger hidden">⚠️ THUỐC ĐÃ HẾT HẠN</span>
+          <span id="badgeBlurry" class="badge badge-warning hidden">📷 ẢNH MỜ - ĐÃ BÁO CON CHÁU</span>
+          <span id="badgeAlert" class="badge badge-alert hidden">🚨 CẢNH BÁO SỨC KHỎE</span>
+        </div>
+
+        <!-- Action Button for Elderly & Family Connection -->
+        <div id="alertActionBox" class="alert-action-box hidden">
+          <p class="alert-action-title">📱 Kết Nối Tình Thân Khẩn Cấp:</p>
+          <div class="alert-buttons">
+            <a id="btnCallChildren" href="tel:115" class="btn-emergency">📞 Gọi Điện Cho Con Cháu</a>
+            <button id="btnSendSms" class="btn-sms">💬 Báo Tin Cho Con Cháu</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Interactive Quick Prompts for Speech -->
+    <section class="quick-prompts">
+      <h3 class="prompts-title">💡 Gợi Ý Hỏi Cháu AI:</h3>
+      <div class="prompts-chips">
+        <button class="chip-btn">"Cháu ơi, hôm nay uống thuốc gì?"</button>
+        <button class="chip-btn">"Ông bị đau đầu, chóng mặt quá"</button>
+        <button class="chip-btn">"Xem giúp bà thuốc này còn hạn không?"</button>
+        <button class="chip-btn">"Bà vừa đo huyết áp 140/90"</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast Modal -->
+  <div id="alertModal" class="modal-overlay hidden">
+    <div class="modal-card modal-alert-card">
+      <div class="modal-alert-icon" id="modalAlertIcon">🚨</div>
+      <h2 id="modalAlertTitle" class="modal-alert-title">Thông Báo Khẩn Cấp</h2>
+      <p id="modalAlertBody" class="modal-alert-body">...</p>
+      <button id="btnCloseAlertModal" class="btn-giant-confirm">ĐÃ HỂU (ĐÓNG)</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>Ứng Dụng Y Tế & Kết Nối Tình Thân "MẮT THẤY TAI NGHE"</p>
+    <p class="copyright">© 2026 Powered by Gemini AI (Google Cloud)</p>
+  </footer>
+
+  <!-- App Script & PWA Service Worker Registration -->
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('PWA ServiceWorker registered:', reg.scope))
+          .catch(err => console.error('PWA ServiceWorker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
