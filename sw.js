@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mat-thay-tai-nghe-v1';
+const CACHE_NAME = 'mat-thay-tai-nghe-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -12,22 +12,17 @@ const ASSETS_TO_CACHE = [
   'https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800;900&display=swap'
 ];
 
-// Install Event - Cache Core Assets
 self.addEventListener('install', event => {
-  console.log('[ServiceWorker] Install event');
+  console.log('[ServiceWorker V2] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[ServiceWorker] Pre-caching offline assets');
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
+      .then(cache => cache.addAll(ASSETS_TO_CACHE))
       .then(() => self.skipWaiting())
   );
 });
 
-// Activate Event - Clean Up Old Caches
 self.addEventListener('activate', event => {
-  console.log('[ServiceWorker] Activate event');
+  console.log('[ServiceWorker V2] Activate event');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -42,10 +37,10 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Event - Cache First with Network Fallback strategy for static shell
 self.addEventListener('fetch', event => {
-  // Ignore API requests (Google Gemini API should always try network)
-  if (event.request.url.includes('generativelanguage.googleapis.com')) {
+  // Bypass caching for Gemini API and Google GIS requests
+  if (event.request.url.includes('generativelanguage.googleapis.com') ||
+      event.request.url.includes('accounts.google.com')) {
     return;
   }
 
@@ -66,7 +61,6 @@ self.addEventListener('fetch', event => {
           return networkResponse;
         });
       }).catch(() => {
-        // Fallback for html pages offline
         if (event.request.headers.get('accept').includes('text/html')) {
           return caches.match('./index.html');
         }

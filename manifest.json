@@ -1,7 +1,7 @@
 {
-  "name": "MẮT THẤY TAI NGHE – Trợ Lý AI Cho Người Cao Tuổi",
+  "name": "MẮT THẤY TAI NGHE – Trợ Lý Y Tế Cho Người Cao Tuổi",
   "short_name": "MẮT THẤY TAI NGHE",
-  "description": "Trợ lý y tế đọc đơn thuốc, hạn sử dụng và giao tiếp giọng nói 3 miền dành cho người cao tuổi bằng Gemini AI",
+  "description": "Trợ lý y tế đọc đơn thuốc, chẩn đoán sinh hiệu, nhắc lịch uống thuốc và cảnh báo khẩn cấp qua Zalo cho người cao tuổi bằng Gemini AI",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -19,6 +19,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "MẮT THẤY (Đọc Đơn)",
+      "short_name": "MẮT THẤY",
+      "description": "Chụp ảnh đơn thuốc hoặc bao bì thuốc",
+      "url": "./index.html?action=matthay",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "TAI NGHE (Giọng Nói)",
+      "short_name": "TAI NGHE",
+      "description": "Nói chuyện và tư vấn sức khỏe",
+      "url": "./index.html?action=tainghe",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

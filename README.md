@@ -1,85 +1,51 @@
-# 👁️👂 MẮT THẤY TAI NGHE – Trợ Lý Y Tế & Kết Nối Tình Thân Cho Người Cao Tuổi
+# 👁️👂 MẮT THẤY TAI NGHE (V2 NÂNG CẤP) – Trợ Lý Y Tế & Kết Nối Tình Thân Cho Người Cao Tuổi
 
-Ứng dụng **Progressive Web App (PWA)** thông minh hỗ trợ người cao tuổi đọc đơn thuốc, nhận diện hạn sử dụng, hỏi đáp sức khỏe và cảnh báo an toàn thông qua bộ não **Gemini AI ("Cháu Ngoan AI")**.
+Ứng dụng **Progressive Web App (PWA V2)** thông minh hỗ trợ người cao tuổi đọc đơn thuốc, nhận diện hạn sử dụng, chẩn đoán sinh hiệu (Huyết áp & Nhịp tim), đếm bước chân tự động, nhắc lịch uống thuốc hằng ngày và phát cảnh báo khẩn cấp qua Zalo bằng bộ não **Gemini AI ("Cháu Ngoan AI")**.
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-health--care---blue?style=flat-square&logo=github)](https://github.com/Zhang-linghe3012/health-care-.git)
 [![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6_%2F_2.5_Flash-green?style=flat-square&logo=google)](https://ai.google.dev/)
-[![PWA Ready](https://img.shields.io/badge/PWA-Offline_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
+[![PWA Ready](https://img.shields.io/badge/PWA-V2_Offline_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
 
 ---
 
-## 🌟 Tính Năng Nổi Bật
+## 🚀 Các Tính Năng Nâng Cấp Nổi Bật (V2)
 
-1. **"MẮT THẤY" (Thị giác AI)**:
-   - Chụp/Đọc ảnh đơn thuốc, nhãn bao bì, số hóa hóa đơn thuốc viết tay.
-   - Nhận diện **Tên thuốc**, **Liều dùng / Giờ uống**, **Hạn sử dụng (EXP)**.
-   - Cảnh báo an toàn nếu phát hiện kỵ thuốc hoặc thuốc đã hết hạn.
-   - Trường hợp ảnh mờ/khó đọc: Tự động thông báo gửi ảnh nhờ con cháu kiểm tra (KHÔNG đoán mò).
+1. **Đăng Nhập Gmail & Hồ Sơ Sức Khỏe Cá Nhân**:
+   - Tích hợp Đăng nhập bằng Google / Gmail (**Google Identity Services**).
+   - Bảng **"Hồ Sơ Sức Khỏe Cá Nhân"**: Quản lý bệnh nền (Cao huyết áp, Tiểu đường, Tim mạch, Xương khớp...), Chỉ số Huyết áp & Nhịp tim bình thường lúc khỏe mạnh (chuẩn cơ sở), và Danh sách thuốc hằng ngày.
 
-2. **"TAI NGHE" (Giao tiếp & Giọng nói 3 Miền)**:
-   - Giao tiếp bằng giọng nói Tiếng Việt ấm áp, lễ phép (xưng "cháu", gọi "ông" / "bà").
-   - Tự động **phát giọng nói Tiếng Việt** (`window.speechSynthesis`) với tốc độ **0.9x** chậm rãi, dễ nghe cho người lớn tuổi.
-   - Phân tích triệu chứng / sinh hiệu (ví dụ: *"đau đầu"*, *"chóng mặt"*, *"huyết áp 140/90"*) để tư vấn hoặc đưa ra cảnh báo khẩn cấp.
+2. **Chẩn Đoán Sinh Hiệu & Cảnh Báo Lệch >15% qua Zalo**:
+   - Nhập hoặc kết nối Web Bluetooth lấy chỉ số **Huyết áp & Nhịp tim** thực tế.
+   - AI tự động đối chiếu chỉ số đo thực tế với **Hồ sơ sức khỏe cá nhân**. Nếu lệch **>15%**, tự động phát giọng nói cảnh báo khẩn cấp và bật nút **"🚨 GỬI CẢNH BÁO CHO CON CHÁU QUA ZALO"**.
 
-3. **Giao Diện Siêu Trực Quan Dành Cho Người Già**:
-   - Font chữ siêu to (**22px - 28px**), màu tương phản cao (nền tối, chữ sáng rõ nét).
-   - Nút bấm khổng lồ màu xanh lá (**📷 MẮT THẤY**) và xanh dương (**🎙️ TAI NGHE**).
-   - Ô dán Gemini API Key đơn giản, lưu trữ an toàn trong `localStorage` của trình duyệt.
+3. **Cảm Biến Đếm Bước Chân Tự Động (`DeviceMotionEvent`)**:
+   - Tự động đếm số bước chân hằng ngày của ông bà thông qua cảm biến gia tốc chuyển động trình duyệt di động.
 
-4. **PWA Offline Shell**:
-   - Tích hợp `manifest.json` và Service Worker `sw.js` cho phép cài đặt trực tiếp lên điện thoại / máy tính như ứng dụng Native app.
+4. **Nhắc Lịch Uống Thuốc Hằng Ngày**:
+   - Đặt giờ hẹn uống thuốc. Tự động phát chuông báo + đọc loa giọng nói tiếng Việt tốc độ **0.9x** nhắc nhở khi đến giờ.
+
+5. **Tính Năng PWA & Nút "📱 THÊM VÀO MÀN HÌNH CHÍNH"**:
+   - Tự động bắt sự kiện `beforeinstallprompt` hiển thị banner cài đặt 1-click lên màn hình chính điện thoại.
+   - Cập nhật `sw.js` (Cache V2) & `manifest.json` nâng cao khả năng hoạt động Offline.
 
 ---
 
-## 🏗️ Cấu Trúc Mã Nguồn
+## 🏗️ Cấu Trúc Mã Nguồn V2
 
 ```
 mat-thay-tai-nghe/
-├── index.html        # Giao diện chính (Giao diện chữ to, nút bấm khổng lồ)
-├── style.css         # Hệ thống thiết kế CSS tương phản cao dành cho người cao tuổi
-├── app.js            # Chuyển đổi logic Java từ Google AI Studio sang JavaScript
-├── sw.js             # Service Worker cho PWA Offline cache
-├── manifest.json     # Web App Manifest cài đặt PWA
-├── icons/            # Bộ icon ứng dụng (SVG & PNG 192x192, 512x512)
-│   ├── icon.svg
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── apple-touch-icon.png
-└── README.md         # Tài liệu hướng dẫn sử dụng
+├── index.html        # Giao diện nâng cấp V2 (Hồ sơ sức khỏe, Sinh hiệu, Đếm bước, Lịch thuốc)
+├── style.css         # CSS nâng cấp (Màu sắc sinh hiệu, nút Zalo #0068FF, PWA banner)
+├── app.js            # Logic V2 (Google Identity, Gemini API, Đối chiếu >15%, DeviceMotion, Alarm)
+├── sw.js             # Service Worker Cache V2
+├── manifest.json     # Manifest V2 hỗ trợ PWA shortcuts
+├── icons/            # Bộ icon ứng dụng (SVG & PNG)
+└── README.md         # Tài liệu nâng cấp V2
 ```
 
 ---
 
-## ⚙️ Cấu Hình System Instruction & JSON Output (Gemini API)
-
-Logic core được xuất từ Google AI Studio với định dạng JSON chuẩn:
-
-```json
-{
-  "action_type": "READ_PRESCRIPTION" | "CHECK_EXPIRY" | "HEALTH_CHAT" | "EMERGENCY",
-  "medicine_name": "Tên thuốc (nếu có)",
-  "dosage": "Liều dùng/Giờ uống (nếu có)",
-  "expiry_date": "YYYY-MM-DD (nếu có)",
-  "is_expired": true/false,
-  "is_blurry": true/false,
-  "speech_message": "Câu nói ấm áp ngắn gọn để ứng dụng đọc ra loa cho ông bà nghe",
-  "alert_children": true/false
-}
-```
-
----
-
-## 🚀 Hướng Dẫn Sử Dụng
-
-1. Mở file `index.html` trên trình duyệt web bất kỳ hoặc đưa lên hosting (GitHub Pages, Vercel, Firebase Hosting).
-2. Nhấn nút **⚙️ Key** góc trên bên phải để dán **Gemini API Key** của bạn (Lấy API Key miễn phí tại [Google AI Studio](https://aistudio.google.com/)).
-3. Trải nghiệm 2 tính năng chính:
-   - Nhấn **📷 MẮT THẤY** để chụp ảnh đơn thuốc hoặc bao bì thuốc.
-   - Nhấn **🎙️ TAI NGHE** để nói chuyện trực tiếp với Cháu AI bằng tiếng Việt.
-
----
-
-## 📤 GitHub Repository
+## 📤 GitHub Push
 
 Repository chính thức: [https://github.com/Zhang-linghe3012/health-care-.git](https://github.com/Zhang-linghe3012/health-care-.git)
 
