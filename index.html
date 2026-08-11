@@ -3,462 +3,455 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MẮT THẤY TAI NGHE V7 MASTER AI – Bác Sĩ Gia Đình Cho Người Cao Tuổi</title>
+  <title>Mắt Thấy Tai Nghe - Chăm Sóc & Kết Nối Tình Thân V8</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#E6F4EA">
-  <meta name="description" content="Ứng dụng MẮT THẤY TAI NGHE V7 MASTER AI - Bác sĩ gia đình AI thông minh, đọc toa thuốc OCR, chẩn đoán sinh hiệu, nhật ký theo dõi trong ngày và báo tin con cháu qua Zalo">
+  <meta name="theme-color" content="#059669">
+  <meta name="description" content="MẮT THẤY TAI NGHE V8 - Báo cáo sức khỏe Zalo, nhắc nhở uống thuốc chạy ngầm và trợ lý AI y tế thông minh">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800;900&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background-color: #F4F7F6;
+      color: #2D3748;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .btn-elder {
+      font-size: 1.35rem;
+      padding: 1rem 1.75rem;
+      border-radius: 1.25rem;
+      font-weight: 800;
+      transition: transform 0.1s ease;
+    }
+    .btn-elder:active {
+      transform: scale(0.97);
+    }
+    .card-soft {
+      background: #FFFFFF;
+      border-radius: 1.5rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+      border: 2px solid #E2E8F0;
+    }
+    .text-elder {
+      font-size: 1.25rem;
+      line-height: 1.6;
+    }
+    /* Pulsing mic wave */
+    .pulse-mic {
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+  </style>
 </head>
-<body>
+<body class="pb-16">
 
-  <!-- Top Header / Navigation (Fresh Mint Green #E6F4EA) -->
-  <header class="app-header">
-    <div class="header-container">
-      <div class="logo-group">
-        <span class="app-icon">👨‍⚕️🩺</span>
-        <div>
-          <h1 class="app-title">MẮT THẤY TAI NGHE V7 MASTER AI</h1>
-          <p class="app-subtitle">Trợ Lý "Bác Sĩ Gia Đình" Thông Minh Cho Ông Bà</p>
+  <!-- ================= TẦNG 1: HEADER & CÁC TÍNH NĂNG ĐẦU TRANG ================= -->
+  <header class="bg-emerald-600 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto p-4 sm:p-5">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-4xl">👨‍⚕️🩺</span>
+          <div>
+            <h1 class="text-3xl font-extrabold tracking-wide flex items-center gap-2">
+              MẮT THẤY TAI NGHE V8
+            </h1>
+            <p class="text-emerald-100 text-sm sm:text-base italic font-medium">
+              "Bác sĩ gia đình AI y tế thông minh & Báo cáo sức khỏe Zalo"
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div class="header-actions">
-        <!-- Direct Form User Profile Button -->
-        <button id="btnQuickStart" class="btn-quick-start">
-          👤 Đăng Nhập / Nhập Tên
-        </button>
+        <!-- Cụm chức năng trên cùng -->
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <!-- User Profile Bar -->
+          <div id="user_profile" class="hidden flex items-center gap-2 bg-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold">
+            <img id="user_avatar" class="w-6 h-6 rounded-full border border-white" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar">
+            <span id="user_name" class="text-white">Ông/Bà</span>
+            <button onclick="logoutProfile()" class="text-red-200 ml-1 hover:text-white" title="Đổi thông tin"><i class="fa-solid fa-sign-out-alt"></i></button>
+          </div>
 
-        <button id="btnOpenHealthProfile" class="btn-icon btn-health-profile" title="Hồ sơ sức khỏe & Nhật ký AI">
-          📋 Hồ Sơ & Nhật Ký
-        </button>
-
-        <button id="btnOpenSettings" class="btn-icon" aria-label="Cài đặt hệ thống">
-          ⚙️ Cài Đặt
-        </button>
-
-        <button id="btnInstallPwa" class="btn-install-pwa hidden" title="Thêm vào màn hình chính">
-          📱 Cài App
-        </button>
+          <!-- Các nút bổ trợ -->
+          <button onclick="toggleModal('quickStartModal')" class="bg-emerald-700 hover:bg-emerald-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+            <i class="fa-solid fa-user"></i> 👤 Nhập Tên
+          </button>
+          <button onclick="toggleModal('medicalModal')" class="bg-emerald-700 hover:bg-emerald-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+            <i class="fa-solid fa-notes-medical"></i> 📋 Hồ Sơ Bệnh Nền
+          </button>
+          <button onclick="toggleModal('settingsModal')" class="bg-teal-700 hover:bg-teal-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+            <i class="fa-solid fa-cog"></i> ⚙️ Cài Đặt AI
+          </button>
+          <button id="installAppBtn" onclick="installPWA()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+            <i class="fa-solid fa-download"></i> Cài App
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Logged In User Profile Bar -->
-  <div id="userProfileBar" class="user-profile-bar hidden">
-    <div class="user-info">
-      <img id="userAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar" class="user-avatar">
-      <div>
-        <span id="userName" class="user-name">Ông/Bà</span>
-        <span id="userEmail" class="user-email">Zalo người thân: --</span>
-      </div>
-    </div>
-    <button id="btnGoogleLogout" class="btn-logout">Đổi Thông Tin</button>
-  </div>
-
   <!-- PWA Installation Sticky Banner -->
-  <div id="pwaInstallBanner" class="pwa-banner hidden">
-    <span>📱 Bấm vào đây để <strong>THÊM VÀO MÀN HÌNH CHÍNH</strong> điện thoại giúp ông bà mở ứng dụng nhanh hơn!</span>
-    <button id="btnBannerInstall" class="btn-banner-action">📱 Thêm Ngay</button>
+  <div id="pwaInstallBanner" class="bg-emerald-700 text-white text-center p-3 text-sm font-bold hidden">
+    <span>📱 Bấm vào đây để <strong class="underline cursor-pointer" onclick="installPWA()">THÊM VÀO MÀN HÌNH CHÍNH</strong> điện thoại giúp ông bà mở nhanh!</span>
   </div>
 
-  <!-- Main Container (Medical Light #F8FAFC) -->
-  <main class="main-container">
+  <!-- CONTAINER CHÍNH -->
+  <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
-    <!-- PERSISTENT GIANT ZALO ALERT BUTTON AT TOP -->
-    <section class="global-zalo-section">
-      <button id="btnGlobalZaloAlert" class="btn-zalo-emergency btn-giant-global">
-        <span class="zalo-icon">💬</span> 💬 GỬI BÁO ĐỘNG / KẾT QUẢ CHO CON CHÁU QUA ZALO
+    <!-- GIANT PERSISTENT ZALO REPORT BUTTON -->
+    <section class="w-full">
+      <button id="btnGlobalZaloAlert" class="w-full btn-elder bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-3 shadow-lg py-4">
+        <i class="fa-solid fa-share-nodes text-3xl"></i>
+        <span>📲 GỬI BÁO CÁO CHO CON CHÁU QUA ZALO</span>
       </button>
     </section>
 
-    <!-- STEP COUNTER WIDGET (Accelerometers Motion) -->
-    <section class="pedometer-card">
-      <div class="pedometer-header">
-        <span class="pedometer-icon">👟</span>
-        <div>
-          <h3>ĐẾM BƯỚC CHÂN HÔM NAY</h3>
-          <p class="pedometer-sub">Tự động đếm bằng cảm biến gia tốc chuyển động</p>
+    <!-- ================= TẦNG 2: MẮT THẤY & TAI NGHE (VISION OCR & GEMINI DOCTOR) ================= -->
+    <section class="card-soft p-6 border-l-8 border-emerald-500">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-2xl font-black text-emerald-800 flex items-center gap-2">
+          <i class="fa-solid fa-microchip"></i> Trợ Lý AI: Bác Sĩ Gia Đình
+        </h2>
+        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full">Trực tiếp 24/7</span>
+      </div>
+      <p class="text-gray-600 text-elder mb-4">Ông bà hãy chọn ảnh đơn thuốc hoặc nhấn giữ để nói chuyện, Bác sĩ AI sẽ phân tích toa thuốc và đọc to rõ ràng từng viên!</p>
+
+      <!-- Khung Preview Camera / Ảnh tải lên -->
+      <div id="imagePreviewSection" class="relative bg-slate-100 rounded-2xl p-4 border-2 border-dashed border-emerald-300 mb-4 hidden flex flex-col items-center justify-center gap-3">
+        <img id="imagePreview" class="max-h-64 object-contain rounded-xl shadow border" src="" alt="Toa thuốc">
+        <div class="flex gap-2">
+          <button onclick="clearSelectedImage()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold">❌ Bỏ ảnh</button>
+          <button id="btnAnalyzeImage" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-sm font-black shadow-md">🔍 Nhờ Bác Sĩ AI Đọc Đơn này</button>
         </div>
       </div>
-      <div class="pedometer-body">
-        <div class="step-count-display">
-          <span id="stepCountValue">0</span>
-          <span class="step-unit">bước</span>
-        </div>
-        <div class="step-progress-bar">
-          <div id="stepProgressFill" class="step-progress-fill" style="width: 0%;"></div>
-        </div>
-        <p class="step-target-text">Mục tiêu: 3,000 bước / ngày (Đã đạt <span id="stepPercent">0</span>%)</p>
-      </div>
-    </section>
 
-    <!-- Hero Big Action Buttons (Target 20px-24px font, Senior Friendly) -->
-    <section class="action-section">
-      <!-- Button 1: MẮT THẤY (Capture / Upload Prescription Image) -->
-      <button id="btnMatThay" class="btn-hero btn-green">
-        <span class="hero-icon">📷</span>
-        <div class="hero-text-group">
-          <span class="hero-title">MẮT THẤY</span>
-          <span class="hero-desc">📷 CHỤP / TẢI ẢNH TOA THUỐC</span>
-        </div>
-      </button>
-      <input type="file" id="imageInput" accept="image/*" capture="environment" style="display: none;">
-
-      <!-- Button 2: TAI NGHE (Voice Speech Recognition & Doctor AI) -->
-      <button id="btnTaiNghe" class="btn-hero btn-blue">
-        <span class="hero-icon">🎙️</span>
-        <div class="hero-text-group">
-          <span class="hero-title">TAI NGHE</span>
-          <span class="hero-desc">👨‍⚕️ BÁC SĨ AI TƯ VẤN SỨC KHỎE</span>
-        </div>
-      </button>
-    </section>
-
-    <!-- VITAL SIGNS CHECK CARD (Blood Pressure & Heart Rate) -->
-    <section class="vitals-section">
-      <div class="vitals-card">
-        <div class="vitals-header">
-          <h2>🩺 CHẨN ĐOÁN HUYẾT ÁP & NHỊP TIM</h2>
-          <button id="btnConnectBluetooth" class="btn-bluetooth">📶 Kết Nối Máy Đo (Bluetooth)</button>
-        </div>
-
-        <p class="vitals-desc">Nhập chỉ số máy đo thực tế hoặc nhờ Bác sĩ AI đọc ảnh máy đo để đối chiếu Hồ sơ sức khỏe:</p>
-
-        <div class="vitals-inputs-grid">
-          <div class="vital-input-card">
-            <label for="inputSystolic">🔴 Huyết Áp Tâm Thu (Tối đa):</label>
-            <div class="vital-input-wrapper">
-              <input type="number" id="inputSystolic" placeholder="120" min="60" max="250">
-              <span class="vital-unit">mmHg</span>
-            </div>
-          </div>
-
-          <div class="vital-input-card">
-            <label for="inputDiastolic">🔵 Huyết Áp Tâm Trương (Tối thiểu):</label>
-            <div class="vital-input-wrapper">
-              <input type="number" id="inputDiastolic" placeholder="80" min="40" max="150">
-              <span class="vital-unit">mmHg</span>
-            </div>
-          </div>
-
-          <div class="vital-input-card">
-            <label for="inputHeartRate">❤️ Nhịp Tim Thực Tế:</label>
-            <div class="vital-input-wrapper">
-              <input type="number" id="inputHeartRate" placeholder="72" min="40" max="200">
-              <span class="vital-unit">nhịp/phút</span>
-            </div>
-          </div>
-        </div>
-
-        <button id="btnCheckVitals" class="btn-action-purple">🩺 ĐỐI CHIẾU VỚI HỒ SƠ SỨC KHỎE</button>
-      </div>
-    </section>
-
-    <!-- REMOTE HEALTH HISTORY & AI DOCTOR DAILY JOURNAL -->
-    <section class="history-section">
-      <div class="history-card">
-        <div id="ai-doctor-journal" class="journal-container">
-          <h3>📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày (Con cháu xem từ xa)</h3>
-          <p>⏳ Đang tải nhật ký tương tác và theo dõi sức khỏe trong ngày...</p>
-        </div>
-
-        <div id="health-history" class="health-history-container" style="margin-top: 20px;">
-          <p>⏳ Đang tải lịch sử đo nhịp tim và huyết áp...</p>
+      <!-- Live Webcam Camera Stream Container -->
+      <div id="cameraContainer" class="relative bg-slate-900 rounded-2xl overflow-hidden h-64 mb-4 hidden flex items-center justify-center">
+        <video id="webcam" autoplay playsinline class="w-full h-full object-cover"></video>
+        <canvas id="canvas" class="hidden"></canvas>
+        <div class="absolute bottom-3 flex gap-2">
+          <button id="captureBtn" class="bg-emerald-600 text-white px-6 py-2 rounded-full font-black shadow-lg">📸 Chụp Ảnh</button>
+          <button onclick="closeCamera()" class="bg-red-600 text-white px-4 py-2 rounded-full font-bold shadow-lg">Tắt Camera</button>
         </div>
       </div>
-    </section>
 
-    <!-- Voice Listening Active Pulse Indicator -->
-    <div id="listeningIndicator" class="listening-box hidden">
-      <div class="pulse-ring"></div>
-      <div class="listening-content">
-        <span class="mic-wave">🎙️</span>
-        <p class="listening-text">Bác sĩ AI đang lắng nghe ông bà nói...</p>
-        <button id="btnStopListening" class="btn-small-danger">⏹️ Dừng nghe</button>
-      </div>
-    </div>
-
-    <!-- Processing / Loading State -->
-    <div id="loadingIndicator" class="loading-box hidden">
-      <div class="spinner"></div>
-      <p class="loading-text">Bác sĩ AI đang đọc toa thuốc và phân tích hướng giải quyết, ông bà chờ chút nhé...</p>
-    </div>
-
-    <!-- Image Preview Area -->
-    <section id="imagePreviewSection" class="preview-section hidden">
-      <div class="preview-header">
-        <span>📸 Ảnh Toa Thuốc / Máy Đo Đã Chọn:</span>
-        <button id="btnClearImage" class="btn-small-secondary">❌ Bỏ ảnh</button>
-      </div>
-      <img id="imagePreview" alt="Xem trước ảnh đơn thuốc" class="preview-img">
-      <button id="btnAnalyzeImage" class="btn-action-green">🔍 ĐỌC VÀ PHÂN TÍCH TOA THUỐC NÀY</button>
-    </section>
-
-    <!-- Results Display Card (Medical Light Senior Design) -->
-    <section id="resultSection" class="result-section hidden">
-      <div class="result-card">
-        <div class="result-header">
-          <h2>👨‍⚕️ BÁC SĨ GIA ĐÌNH AI TƯ VẤN</h2>
-          <!-- GIANT SPEAK OUT LOUD BUTTON FOR SENIORS -->
-          <button id="btnSpeakAgain" class="btn-giant-speak" title="Bấm để đọc to bằng tiếng Việt">
-            <span class="speaker-icon">🔊</span> 🔊 ĐỌC TO CHO ÔNG BÀ NGHE
+      <!-- Khung câu hỏi gợi ý cho Bác sĩ AI -->
+      <div class="mb-4">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">💡 Gợi ý câu hỏi nhanh cho ông bà:</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button onclick="askPreset('Bà bị mệt và chóng mặt quá bác sĩ ơi')" class="bg-emerald-50 text-emerald-800 hover:bg-emerald-100 p-2.5 rounded-xl text-sm font-bold text-left border border-emerald-200">
+            🌀 "Bà bị mệt và chóng mặt quá cháu ơi..."
+          </button>
+          <button onclick="askPreset('Ông bị ho sốt 38.5 độ C thì uống thuốc thế nào?')" class="bg-emerald-50 text-emerald-800 hover:bg-emerald-100 p-2.5 rounded-xl text-sm font-bold text-left border border-emerald-200">
+            🌡️ "Ông bị ho sốt 38 độ 5..."
+          </button>
+          <button onclick="askPreset('Toa thuốc này uống trước ăn hay sau ăn và công dụng là gì?')" class="bg-emerald-50 text-emerald-800 hover:bg-emerald-100 p-2.5 rounded-xl text-sm font-bold text-left border border-emerald-200">
+            💊 "Toa thuốc này uống thế nào, chữa bệnh gì?"
+          </button>
+          <button onclick="askPreset('Huyết áp của ông 145 trên 95 có cao quá không bác sĩ?')" class="bg-emerald-50 text-emerald-800 hover:bg-emerald-100 p-2.5 rounded-xl text-sm font-bold text-left border border-emerald-200">
+            🩺 "Huyết áp ông 145/95 có cao không?"
           </button>
         </div>
+      </div>
 
-        <!-- AI Advisor Speech & Response Container -->
-        <div id="ai-response" class="speech-message-box">
-          <p id="speechMessageText" class="speech-text">...</p>
+      <!-- Cụm Nút Tương Tác Micro & Camera -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <button id="micBtn" onclick="toggleSpeechRecognition()" class="btn-elder bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-3 shadow-lg">
+          <i class="fa-solid fa-microphone text-2xl"></i>
+          <span id="micText">Bấm Để Nói (Tai Nghe)</span>
+        </button>
+        <div class="flex gap-2">
+          <button onclick="openCamera()" class="flex-1 btn-elder bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center gap-2 shadow-lg">
+            <i class="fa-solid fa-camera text-xl"></i>
+            <span>Mở Cam chụp</span>
+          </button>
+          <button onclick="document.getElementById('imageInput').click()" class="btn-elder bg-sky-600 hover:bg-sky-700 text-white flex items-center justify-center shadow-lg px-5">
+            <i class="fa-solid fa-file-image text-xl"></i>
+          </button>
         </div>
+      </div>
+      <input type="file" id="imageInput" accept="image/*" capture="environment" class="hidden">
 
-        <!-- Actionable Solution Container -->
-        <div id="actionSolutionBox" class="solution-box hidden">
-          <h3 class="solution-title">💡 HƯỚNG GIẢI QUYẾT & LỜI KHUYÊN Y TẾ:</h3>
-          <p id="actionSolutionText" class="solution-text">...</p>
+      <!-- Trạng thái xử lý -->
+      <div id="loadingIndicator" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 hidden flex items-center justify-center gap-3">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
+        <p class="text-emerald-800 font-bold text-elder">Bác sĩ AI đang đọc toa thuốc và phân tích, ông bà đợi chút nhé...</p>
+      </div>
+
+      <!-- Kết quả AI trả lời -->
+      <div id="aiResponseBox" class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-5 hidden space-y-4">
+        <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
+          <span class="font-extrabold text-emerald-900 text-lg flex items-center gap-2">
+            <i class="fa-solid fa-user-doctor"></i> Bác Sĩ Gia Đình AI Tư Vấn:
+          </span>
+          <button id="btnSpeakAgain" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1 shadow">
+            <i class="fa-solid fa-volume-high"></i> ĐỌC TO CHO ÔNG BÀ NGHE
+          </button>
+        </div>
+        <p id="aiResponseText" class="text-gray-800 text-xl leading-relaxed font-bold"></p>
+
+        <!-- Solution Box -->
+        <div id="actionSolutionBox" class="bg-white border-l-4 border-emerald-500 p-4 rounded-xl shadow-sm hidden">
+          <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-1">💡 Hướng Giải Quyết & Lời Khuyên Y Tế:</p>
+          <p id="actionSolutionText" class="text-emerald-900 font-bold text-lg"></p>
         </div>
 
         <!-- Details Grid -->
-        <div id="detailsGrid" class="details-grid">
-          <div class="detail-card" id="cardMedicine">
-            <span class="detail-label">💊 Tên Thuốc / Chỉ Số:</span>
-            <span id="valMedicine" class="detail-value">--</span>
+        <div id="detailsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-medium">
+          <div class="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm">
+            <span class="text-gray-400 block text-xs">💊 Loại thuốc:</span>
+            <span id="valMedicine" class="font-bold text-slate-800">--</span>
           </div>
-
-          <div class="detail-card" id="cardDosage">
-            <span class="detail-label">🕒 Liều Dùng & Giờ Uống / Trạng Thái:</span>
-            <span id="valDosage" class="detail-value">--</span>
+          <div class="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm">
+            <span class="text-gray-400 block text-xs">🕒 Liều lượng:</span>
+            <span id="valDosage" class="font-bold text-slate-800">--</span>
           </div>
-
-          <div class="detail-card" id="cardExpiry">
-            <span class="detail-label">📅 Hạn Sử Dụng (EXP) / Đơn Vị:</span>
-            <span id="valExpiry" class="detail-value">--</span>
+          <div class="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm">
+            <span class="text-gray-400 block text-xs">📅 Hạn sử dụng:</span>
+            <span id="valExpiry" class="font-bold text-slate-800">--</span>
           </div>
         </div>
 
-        <!-- Status Badges -->
-        <div class="badges-group">
-          <span id="badgeExpired" class="badge badge-danger hidden">⚠️ THUỐC ĐÃ HẾT HẠN</span>
-          <span id="badgeBlurry" class="badge badge-warning hidden">📷 ẢNH MỜ - ĐÃ BÁO CON CHÁU</span>
-          <span id="badgeAlert" class="badge badge-alert hidden">🚨 CẢNH BÁO SỨC KHỎE KHẨN CẤP</span>
-        </div>
-
-        <!-- ACTIVE ZALO EMERGENCY ALERT ACTION BOX -->
-        <div id="alertActionBox" class="alert-action-box hidden">
-          <p class="alert-action-title">📱 KẾT NỐI VỚI CON CHÁU CHỦ ĐỘNG QUA ZALO:</p>
-          <div class="alert-buttons">
-            <button id="btnSendZaloAlert" class="btn-zalo-emergency">
-              <span class="zalo-icon">💬</span> 💬 GỬI BÁO ĐỘNG/KẾT QUẢ QUA ZALO
-            </button>
-            <a id="btnCallChildren" href="tel:115" class="btn-emergency">📞 Gọi Khẩn Cấp 115</a>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- MEDICINE REMINDER SCHEDULER SECTION -->
-    <section class="reminder-section">
-      <div class="reminder-card">
-        <div class="reminder-header">
-          <h2>⏰ NHẮC LỊCH UỐNG THUỐC HẰNG NGÀY</h2>
-          <button id="btnAddReminder" class="btn-secondary">+ Thêm Giờ Hẹn</button>
-        </div>
-
-        <p class="reminder-sub">Tự động phát chuông + đọc loa nhắc nhở khi đến giờ ông bà cần uống thuốc:</p>
-
-        <div id="reminderList" class="reminder-list">
-          <p class="empty-reminder">Chưa có lịch hẹn. Bấm "+ Thêm Giờ Hẹn" để đặt lịch nhé ông bà!</p>
-        </div>
-
-        <!-- GIANT CONFIRMATION BUTTON: ✅ TÔI ĐÃ UỐNG THUỐC RỒI -->
-        <div class="confirm-taken-box">
-          <button id="btnConfirmMedicineTaken" class="btn-confirm-taken">
-            <span class="check-icon">✅</span> ✅ TÔI ĐÃ UỐNG THUỐC RỒI
-          </button>
-          <p class="taken-hint">Bấm vào đây sau khi uống thuốc để báo tin cho con cháu yên tâm nhé!</p>
+        <div class="flex flex-wrap gap-2 pt-2">
+          <span id="badgeExpired" class="bg-red-100 text-red-800 text-xs font-black px-3 py-1 rounded-full border border-red-200 hidden">⚠️ THUỐC HẾT HẠN</span>
+          <span id="badgeBlurry" class="bg-amber-100 text-amber-800 text-xs font-black px-3 py-1 rounded-full border border-amber-200 hidden">📷 ẢNH MỜ</span>
+          <span id="badgeAlert" class="bg-rose-100 text-rose-800 text-xs font-black px-3 py-1 rounded-full border border-rose-200 hidden">🚨 BÁO ĐỘNG SỨC KHỎE</span>
         </div>
       </div>
     </section>
 
-    <!-- Quick Prompts Chips -->
-    <section class="quick-prompts">
-      <h3 class="prompts-title">💡 Gợi Ý Hỏi Bác Sĩ AI:</h3>
-      <div class="prompts-chips">
-        <button class="chip-btn">"Bà bị mệt và chóng mặt quá cháu ơi"</button>
-        <button class="chip-btn">"Ông bị ho và sốt 38 độ C"</button>
-        <button class="chip-btn">"Hôm nay ông cần uống những thuốc gì?"</button>
-        <button class="chip-btn">"Huyết áp 145/95 của bà có cao quá không?"</button>
+    <!-- ================= TẦNG 3: NHẮC LỊCH SINH HOẠT HẰNG NGÀY ================= -->
+    <section class="card-soft p-6 border-l-8 border-sky-500">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-black text-sky-800 flex items-center gap-2">
+          <i class="fa-solid fa-clock"></i> Nhắc Nhở Hằng Ngày & Hẹn Giờ
+        </h2>
+        <button onclick="addNewSchedule()" class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold px-4 py-2 rounded-xl">
+          + Thêm Lịch
+        </button>
+      </div>
+      <p class="text-gray-600 text-elder mb-4">Service Worker chạy ngầm tự động thông báo và phát nhạc đổ chuông kể cả khi ông bà thoát ứng dụng hoặc tắt màn hình.</p>
+
+      <!-- Danh sách nhắc nhở -->
+      <div id="scheduleList" class="space-y-3">
+        <!-- Đổ tự động bằng JS -->
+      </div>
+
+      <!-- GIANT TAKEN MEDICINE CONFIRMATION -->
+      <div class="confirm-taken-box mt-6 bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center space-y-3 shadow-inner">
+        <button id="btnConfirmMedicineTaken" onclick="confirmMedicineTaken()" class="w-full btn-elder bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-3 shadow-md py-4">
+          <i class="fa-solid fa-circle-check text-3xl"></i>
+          <span>✅ TÔI ĐÃ UỐNG THUỐC RỒI</span>
+        </button>
+        <p class="text-gray-500 text-sm font-bold">Sau khi uống thuốc xong, ông bà bấm nút bự này để cháu báo cho con cháu khỏi lo nhé!</p>
+      </div>
+    </section>
+
+    <!-- ================= TẦNG 4: SỨC KHỎE & HỒ SƠ TÌNH HÌNH TRONG NGÀY ================= -->
+    <section class="card-soft p-6 border-l-8 border-rose-500 space-y-6">
+      <h2 class="text-2xl font-black text-rose-800 flex items-center gap-2">
+        <i class="fa-solid fa-heart-pulse"></i> Sinh Hiệu & Nhật Ký Sức Khỏe
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Bước chân -->
+        <div class="bg-rose-50 border border-rose-100 p-5 rounded-xl text-center shadow-sm">
+          <i class="fa-solid fa-person-walking text-4xl text-rose-500 mb-2"></i>
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Đếm Bước Chân</p>
+          <p id="stepCount" class="text-3xl font-black text-rose-700 mt-1">0</p>
+          <span class="text-xs text-gray-400 font-semibold">Mục tiêu: 3,000 bước</span>
+        </div>
+
+        <!-- Nhịp tim -->
+        <div class="bg-red-50 border border-red-100 p-5 rounded-xl text-center shadow-sm">
+          <i class="fa-solid fa-heartbeat text-4xl text-red-500 mb-2 animate-pulse"></i>
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Nhịp Tim Thực Tế</p>
+          <p id="heartRate" class="text-3xl font-black text-red-700 mt-1">72 BPM</p>
+          <span id="heartRateStatus" class="text-xs text-emerald-600 font-bold block mt-1">Bình thường</span>
+        </div>
+
+        <!-- Huyết áp -->
+        <div class="bg-amber-50 border border-amber-100 p-5 rounded-xl text-center shadow-sm">
+          <i class="fa-solid fa-stethoscope text-4xl text-amber-500 mb-2"></i>
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Huyết Áp Thực Tế</p>
+          <p id="bloodPressure" class="text-3xl font-black text-amber-700 mt-1">120/80</p>
+          <span id="bloodPressureStatus" class="text-xs text-amber-600 font-bold block mt-1">Ổn định</span>
+        </div>
+      </div>
+
+      <!-- Vitals Manual Inputs -->
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+        <h3 class="font-extrabold text-gray-800 text-lg border-b pb-2"><i class="fa-solid fa-square-poll-horizontal"></i> Nhập Chỉ Số Đo Từ Máy:</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-gray-600" for="inputSystolic">Huyết áp Tâm Thu (Tối đa):</label>
+            <div class="flex items-center gap-1 bg-white border rounded-xl px-3 py-2 shadow-inner">
+              <input type="number" id="inputSystolic" class="w-full font-black text-slate-800 text-lg outline-none" placeholder="120">
+              <span class="text-xs text-gray-400">mmHg</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-gray-600" for="inputDiastolic">Huyết áp Tâm Trương (Tối thiểu):</label>
+            <div class="flex items-center gap-1 bg-white border rounded-xl px-3 py-2 shadow-inner">
+              <input type="number" id="inputDiastolic" class="w-full font-black text-slate-800 text-lg outline-none" placeholder="80">
+              <span class="text-xs text-gray-400">mmHg</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-gray-600" for="inputHeartRate">Nhịp Tim Đo Được:</label>
+            <div class="flex items-center gap-1 bg-white border rounded-xl px-3 py-2 shadow-inner">
+              <input type="number" id="inputHeartRate" class="w-full font-black text-slate-800 text-lg outline-none" placeholder="72">
+              <span class="text-xs text-gray-400">bpm</span>
+            </div>
+          </div>
+        </div>
+        <button id="btnCheckVitals" onclick="checkVitalsAgainstProfile()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-3 rounded-xl shadow-md text-lg">
+          🩺 SO SÁNH ĐỐI CHIẾU VỚI HỒ SƠ SỨC KHỎE
+        </button>
+      </div>
+
+      <!-- AI Doctor Daily Journal -->
+      <div id="ai-doctor-journal" class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl max-h-48 overflow-y-auto">
+        <h3 class="font-extrabold text-emerald-950 text-base mb-2"><i class="fa-solid fa-book-medical"></i> 📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày:</h3>
+        <p class="text-xs text-emerald-800 italic">Nhật ký tự động ghi mốc giờ và sự kiện sức khỏe...</p>
+      </div>
+
+      <!-- Health History Logs -->
+      <div id="health-history" class="bg-slate-100 p-4 rounded-xl max-h-48 overflow-y-auto text-xs space-y-1.5 border">
+        <!-- Đổ bằng JS -->
       </div>
     </section>
 
   </main>
 
-  <!-- USER FORM PROFILE MODAL (REPLACES OAUTH LOGIN) -->
-  <div id="quickStartModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2>👤 Thông Tin Cá Nhân Ông/Bà</h2>
-        <button id="btnCloseQuickStart" class="btn-close">&times;</button>
+  <!-- ================= MODAL 1: BỆNH NỀN ================= -->
+  <div id="medicalModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+      <h3 class="text-lg font-black text-emerald-800 flex items-center gap-2">
+        <i class="fa-solid fa-file-medical text-emerald-600"></i> Hồ Sơ Bệnh Nền Của Ông Bà
+      </h3>
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+            <input type="checkbox" name="condition" value="Cao huyết áp" class="w-4 h-4"> Cao Huyết Áp
+          </label>
+          <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+            <input type="checkbox" name="condition" value="Tiểu đường" class="w-4 h-4"> Tiểu Đường
+          </label>
+          <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+            <input type="checkbox" name="condition" value="Tim mạch" class="w-4 h-4"> Tim Mạch
+          </label>
+          <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+            <input type="checkbox" name="condition" value="Xương khớp" class="w-4 h-4"> Xương Khớp
+          </label>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="text-xs font-bold text-gray-500 block">HA chuẩn tối đa</label>
+            <input type="number" id="baseSystolic" class="w-full border rounded-lg p-2 text-sm" value="120">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-500 block">HA chuẩn tối thiểu</label>
+            <input type="number" id="baseDiastolic" class="w-full border rounded-lg p-2 text-sm" value="80">
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-500 block">Tim chuẩn (bpm)</label>
+            <input type="number" id="baseHeartRate" class="w-full border rounded-lg p-2 text-sm" value="72">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-500 block">Thuốc uống hàng ngày</label>
+          <textarea id="dailyMedicinesText" rows="3" class="w-full border rounded-lg p-2 text-sm focus:ring-1 focus:ring-emerald-500" placeholder="Amlodipine 5mg buổi sáng..."></textarea>
+        </div>
       </div>
-      <div class="modal-body">
-        <p class="help-text">Nhập Tên và Số điện thoại Zalo người thân để lưu trữ an toàn:</p>
-        <form id="quickStartForm">
-          <div class="form-group">
-            <label for="qsUserName">Tên đại diện của Ông/Bà:</label>
-            <input type="text" id="qsUserName" placeholder="Ví dụ: Ông Nông" required>
-          </div>
-          <div class="form-group">
-            <label for="qsZaloPhone">📱 Số điện thoại Zalo người thân (Con/Cháu):</label>
-            <input type="tel" id="qsZaloPhone" placeholder="Ví dụ: 0901234567" required>
-          </div>
-          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">
-            💾 LƯU THÔNG TIN & SỬ DỤNG NGAY
-          </button>
-        </form>
+      <div class="flex justify-end gap-2 border-t pt-3">
+        <button onclick="toggleModal('medicalModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
+        <button onclick="saveMedicalHistory()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-black shadow-md">Lưu Hồ Sơ</button>
       </div>
     </div>
   </div>
 
-  <!-- SYSTEM SETTINGS MODAL -->
-  <div id="systemSettingsModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2>⚙️ Cài Đặt Hệ Thống & Bot Webhook</h2>
-        <button id="btnCloseSystemSettings" class="btn-close">&times;</button>
+  <!-- ================= MODAL 2: ĐĂNG NHẬP / NHẬP TÊN (LƯU LOCALSTORAGE AN TOÀN) ================= -->
+  <div id="quickStartModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+      <h3 class="text-lg font-black text-emerald-800 flex items-center gap-2">
+        <i class="fa-solid fa-user-check text-emerald-600"></i> Đăng Nhập / Thông Tin Ông Bà
+      </h3>
+      <form id="quickStartForm" onsubmit="saveQuickStartProfile(event)" class="space-y-4">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="qsUserName">Tên của ông bà:</label>
+          <input type="text" id="qsUserName" required class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ví dụ: Ông Nông">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="qsZaloPhone">Số điện thoại Zalo con cháu:</label>
+          <input type="tel" id="qsZaloPhone" required class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ví dụ: 0901234567">
+        </div>
+        <div class="flex justify-end gap-2 border-t pt-3">
+          <button type="button" onclick="toggleModal('quickStartModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-black shadow-md">Lưu hồ sơ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: CÀI ĐẶT HỆ THỐNG & BOT WEBHOOK ================= -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+      <h3 class="text-lg font-black text-teal-800 flex items-center gap-2">
+        <i class="fa-solid fa-gears text-teal-600"></i> Cấu Hình Bác Sĩ AI & Webhook
+      </h3>
+      <div class="space-y-4">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="settingGeminiApiKey">Gemini API Key:</label>
+          <input type="password" id="settingGeminiApiKey" class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="AIzaSy...">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="settingZaloWebhook">Zalo/Telegram Webhook URL:</label>
+          <input type="text" id="settingZaloWebhook" class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="https://api.telegram.org/bot... hoặc webhook">
+          <span class="text-[11px] text-gray-400 font-semibold block mt-0.5">Sử dụng để đẩy báo động nhịp tim/huyết áp bất thường tới Telegram hoặc Zalo của gia đình.</span>
+        </div>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="settingGeminiApiKey">🔑 Gemini API Key (Cài đặt tùy chọn):</label>
-          <input type="password" id="settingGeminiApiKey" placeholder="AIzaSy...">
-        </div>
-        <div class="form-group">
-          <label for="settingZaloWebhook">🤖 Webhook URL Bot Zalo/Telegram Con Cháu (Để báo tin tự động):</label>
-          <input type="text" id="settingZaloWebhook" placeholder="https://api.telegram.org/bot... hoặc Zalo Webhook URL">
-        </div>
-        <button id="btnSaveSystemSettings" class="btn-primary" style="width: 100%;">
-          💾 Lưu Cài Đặt Hệ Thống
+      <div class="flex justify-end gap-2 border-t pt-3">
+        <button onclick="toggleModal('settingsModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
+        <button onclick="saveSystemSettings()" class="px-5 py-2 bg-teal-600 text-white rounded-xl text-sm font-black shadow-md">Lưu Cài Đặt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL TOAST ALERT (NON-FREEZING CLOSE BUTTON) ================= -->
+  <div id="alertModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center border-t-8 border-rose-500">
+      <div id="modalAlertIcon" class="text-5xl text-rose-500 animate-bounce">🚨</div>
+      <h2 id="modalAlertTitle" class="text-xl font-black text-rose-800">CẢNH BÁO SỨC KHỎE KHẨN CẤP</h2>
+      <p id="modalAlertBody" class="text-gray-700 text-lg font-bold leading-relaxed"></p>
+      <div class="pt-3 border-t">
+        <button id="btnCloseAlertModal" onclick="closeAlertModalDirectly()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl shadow-md text-lg">
+          ĐÃ HIỂU (ĐÓNG)
         </button>
       </div>
     </div>
   </div>
-
-  <!-- HEALTH PROFILE MODAL -->
-  <div id="healthProfileModal" class="modal-overlay hidden">
-    <div class="modal-card modal-large">
-      <div class="modal-header">
-        <h2>📋 HỒ SƠ SỨC KHỎE CÁ NHÂN CỦA ÔNG/BÀ</h2>
-        <button id="btnCloseHealthProfile" class="btn-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="healthProfileForm">
-          
-          <div class="form-section">
-            <h3 class="form-section-title">1. Tên Bệnh Nhân & Số Điện Thoại Zalo Người Thân:</h3>
-            <div class="inputs-row">
-              <div class="form-group">
-                <label for="profileUserName">Tên đại diện Ông/Bà:</label>
-                <input type="text" id="profileUserName" placeholder="Ông/Bà" required>
-              </div>
-              <div class="form-group">
-                <label for="familyPhone">📱 Số điện thoại Zalo người thân (Con/Cháu):</label>
-                <input type="tel" id="familyPhone" placeholder="0901234567" required>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h3 class="form-section-title">2. Bệnh Nền Cần Chú Ý:</h3>
-            <div class="checkbox-grid">
-              <label class="checkbox-label"><input type="checkbox" name="condition" value="Cao huyết áp"> Cao Huyết Áp</label>
-              <label class="checkbox-label"><input type="checkbox" name="condition" value="Tiểu đường"> Tiểu Đường</label>
-              <label class="checkbox-label"><input type="checkbox" name="condition" value="Tim mạch"> Tim Mạch</label>
-              <label class="checkbox-label"><input type="checkbox" name="condition" value="Xương khớp"> Đau Xương Khớp</label>
-              <label class="checkbox-label"><input type="checkbox" name="condition" value="Hen suyễn"> Hen Suyễn</label>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h3 class="form-section-title">3. Chỉ Số Huyết Áp & Nhịp Tim Bình Thường (Lúc Khỏe Mạnh):</h3>
-            <div class="inputs-row">
-              <div class="form-group">
-                <label for="baseSystolic">Huyết áp Tâm Thu Chuẩn (mmHg):</label>
-                <input type="number" id="baseSystolic" value="120" required>
-              </div>
-              <div class="form-group">
-                <label for="baseDiastolic">Huyết áp Tâm Trương Chuẩn (mmHg):</label>
-                <input type="number" id="baseDiastolic" value="80" required>
-              </div>
-              <div class="form-group">
-                <label for="baseHeartRate">Nhịp Tim Bình Thường (nhịp/phút):</label>
-                <input type="number" id="baseHeartRate" value="72" required>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <h3 class="form-section-title">4. Danh Sách Thuốc Uống Hằng Ngày & Giờ Uống:</h3>
-            <textarea id="dailyMedicinesText" rows="3" placeholder="Ví dụ: Amlodipine 5mg (1 viên buổi sáng lúc 08:00), Metformin 500mg (1 viên sau ăn tối)..."></textarea>
-          </div>
-
-          <button type="submit" class="btn-primary btn-save-profile">💾 LƯU HỒ SƠ SỨC KHỎE</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADD REMINDER MODAL -->
-  <div id="addReminderModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2>⏰ Thêm Lịch Hẹn Uống Thuốc</h2>
-        <button id="btnCloseReminderModal" class="btn-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="reminderTime">Giờ uống thuốc:</label>
-          <input type="time" id="reminderTime" required>
-        </div>
-        <div class="form-group">
-          <label for="reminderMedName">Tên thuốc & liều lượng:</label>
-          <input type="text" id="reminderMedName" placeholder="Ví dụ: Thuốc Huyết Áp (1 viên)" required>
-        </div>
-        <button id="btnSaveReminder" class="btn-primary">💾 Đặt Lịch Nhắc</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST ALERT MODAL (WITH GUARANTEED NON-FREEZING CLOSE BUTTON) -->
-  <div id="alertModal" class="modal-overlay hidden">
-    <div class="modal-card modal-alert-card">
-      <div class="modal-alert-icon" id="modalAlertIcon">🚨</div>
-      <h2 id="modalAlertTitle" class="modal-alert-title">Thông Báo Khẩn Cấp</h2>
-      <p id="modalAlertBody" class="modal-alert-body">...</p>
-      <button id="btnCloseAlertModal" class="btn-giant-confirm">ĐÃ HIỂU (ĐÓNG)</button>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="app-footer">
-    <p>Ứng Dụng Y Tế & Kết Nối Tình Thân "MẮT THẤY TAI NGHE V7 MASTER AI"</p>
-    <p class="copyright">© 2026 Powered by Google Gemini AI & Medical Light UI</p>
-  </footer>
 
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('PWA SW registered:', reg.scope))
-          .catch(err => console.error('PWA SW registration failed:', err));
+          .then(reg => {
+            console.log('PWA Service Worker registered in scope:', reg.scope);
+            // Request push manager sync if needed
+          })
+          .catch(err => console.error('PWA Service Worker registration failed:', err));
       });
     }
   </script>

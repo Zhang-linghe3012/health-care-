@@ -1,38 +1,39 @@
-# 👨‍⚕️🩺 MẮT THẤY TAI NGHE (V7 MASTER AI - BÁC SĨ GIA ĐÌNH THÔNG MINH)
+# 👨‍⚕️🩺 MẮT THẤY TAI NGHE (V8 MASTER SYSTEM - HỆ THỐNG TRỢ LÝ Y TẾ TOÀN DIỆN)
 
-Ứng dụng **Progressive Web App (PWA V7 MASTER AI)** hỗ trợ người cao tuổi đọc toa thuốc OCR kèm hướng giải quyết, tư vấn triệu chứng y tế động theo ngữ cảnh (mệt/chóng mặt, sốt/ho), nhật ký bác sĩ AI theo dõi trong ngày, báo cáo tình hình qua Zalo và tự động nhắc nhở sinh hoạt hằng ngày.
+Ứng dụng **Progressive Web App (PWA V8 MASTER SYSTEM)** hỗ trợ người cao tuổi với giao diện Tailwind CSS y tế dịu mắt, đọc toa thuốc OCR và phân loại thuốc thông minh, báo cáo sức khỏe chi tiết qua Zalo cho con cháu, và hệ thống thông báo đẩy chạy ngầm nhắc nhở uống thuốc/uống nước ấm kể cả khi tắt ứng dụng.
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-health--care---blue?style=flat-square&logo=github)](https://github.com/Zhang-linghe3012/health-care-.git)
 [![Gemini AI](https://img.shields.io/badge/AI-Google_Gemini_3.6_%2F_2.5_Flash-green?style=flat-square&logo=google)](https://ai.google.dev/)
-[![PWA Ready](https://img.shields.io/badge/PWA-V7_MASTER_AI_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
+[![PWA Ready](https://img.shields.io/badge/PWA-V8_MASTER_SYSTEM-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
 
 ---
 
-## 🚀 Chi Tiết Bộ Nâng Cấp Nổi Bật V7 MASTER AI
+## 🚀 Chi Tiết Bộ Nâng Cấp V8 MASTER SYSTEM
 
-1. **AI Tư Vấn Linh HoạtTheo Ngữ Cảnh (Không Lặp Câu Thoại Mặc Định)**:
-   - Xóa bỏ hoàn toàn câu mẫu rập khuôn.
-   - Khi báo *"Mệt / Chóng mặt / Đau đầu"*: AI lập tức khuyên nằm nghỉ ngơi tại chỗ tránh té ngã, nhắc đo ngay Huyết áp & Nhịp tim, hướng dẫn uống 1 ly nước ấm/nước đường và hỏi cảm giác hiện tại.
-   - Khi báo *"Sốt / Ho / Đau họng"*: AI hướng dẫn chườm ấm, uống nhiều nước ấm và nhắc nhở thời gian dùng thuốc hạ sốt cách 4-6 tiếng.
-   - Tự động phát âm thanh đọc to toàn bộ câu tư vấn chi tiết này.
+1. **Giao Diện Tailwind CSS Y Tế & Chữ Siêu To**:
+   - Chuyển đổi toàn bộ nền sang màu **Trắng Dịu (#F4F7F6)** và **Xanh Mint Y Tế (#E6F4EA)** giúp dịu mắt ông bà.
+   - Thẻ nội dung bo góc mềm mại, chữ màu tối tương phản cao (`#2D3748`), kích thước chữ to rõ ràng (**20px - 24px**).
+   - Biểu tượng logo mới chuẩn **👨‍⚕️🩺** (Bác Sĩ Gia Đình).
 
-2. **OCR Đọc & Đưa Hướng Giải Quyết Cho Đơn Thuốc (OCR & Analyzer)**:
-   - Phân tích chính xác Tên thuốc, Công dụng, Liều lượng, Thời gian uống (Sáng/Trưa/Tối).
-   - Đưa ra **HƯỚNG GIẢI QUYẾT** hành động rõ ràng: *"Ông/bà cần uống thuốc này sau khi ăn no. Nhớ uống kèm 1 ly nước ấm to."*
-   - TỰ ĐỘNG ĐỌC TO toàn bộ hướng dẫn sử dụng đơn thuốc.
+2. **Báo Cáo Sức Khỏe Con Cháu qua Zalo (Reports)**:
+   - Nút bự nổi bật **"📲 GỬI BÁO CÁO CHO CON CHÁU QUA ZALO"** tự động tổng hợp:
+     + Chỉ số Nhịp tim/Huyết áp mới nhất kèm đánh giá an toàn.
+     + Trạng thái uống thuốc hôm nay (Đã uống / Chưa uống).
+     + Lời khuyên mới nhất từ Bác Sĩ AI.
+   - Hỗ trợ gửi tin nhắn tự động qua Zalo hoặc Web Share API.
 
-3. **Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày & Nút Gửi Báo Báo Zalo**:
-   - Bảng **"📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày"** (`#ai-doctor-journal`) tự động ghi nhận từng mốc thời gian tương tác, triệu chứng hoặc chỉ số đo trong ngày để con cháu mở ra xem từ xa.
-   - Nút BỰ **"💬 GỬI BÁO ĐỘNG / KẾT QUẢ CHO CON CHÁU QUA ZALO"** tự động tạo tin nhắn báo cáo tổng hợp chỉ số, lời khuyên AI và trạng thái sức khỏe.
+3. **Thông Báo Đẩy Nhắc Nhở Chạy Ngầm (Background Push Notifications)**:
+   - Xin quyền thông báo ngay khi mở ứng dụng (`Notification.requestPermission()`).
+   - Kết nối với Service Worker (`sw.js`) để lập lịch chạy ngầm. Kể cả khi tắt ứng dụng hoặc tắt màn hình, Service Worker vẫn gửi thông báo thông báo nhắc nhở uống thuốc/uống nước ấm đúng giờ.
 
-4. **Nhắc Nhở Sinh Hoạt Tự Động (06:30 Sáng, 12:00 Trưa, 21:00 Tối)**:
-   - 06:30 Sáng: Banner + Loa: Chúc ngày mới + nhắc mặc áo ấm & uống nước ấm.
-   - 12:00 Trưa: Banner + Loa: Nhắc ăn trưa đúng giờ & uống thuốc sau ăn no.
-   - 21:00 Tối: Banner + Loa: Chúc ngủ ngon.
+4. **AI Đọc Toa Thuốc & Phân Loại Thông Minh (Vision OCR)**:
+   - Chụp trực tiếp từ Webcam hoặc tải ảnh đơn thuốc.
+   - Phân loại rõ ràng loại thuốc: *Thuốc huyết áp, Thuốc tiểu đường, Thuốc bổ, Thuốc hạ sốt...*
+   - Chỉ ra công dụng, liều dùng, uống trước/sau ăn, hướng giải quyết cụ thể và **TỰ ĐỘNG ĐỌC TO** chi tiết.
 
-5. **Sửa Dứt Điểm Lỗi Đơ Popup & Form Nhập Đơn Giản**:
-   - Gắn sự kiện click ẩn/xóa modal trực tiếp cho nút "ĐÃ HIỂU (ĐÓNG)" và backdrop overlay.
-   - Thay thế nút OAuth bằng Form Tên + SĐT lưu trực tiếp `localStorage` chống lỗi 401.
+5. **AI Tư Vấn Triệu Chứng Linh Hoạt (Dynamic Response)**:
+   - Loại bỏ hoàn toàn các câu trả lời rập khuôn.
+   - Tự động phân tích triệu chứng (*mệt, chóng mặt, ho, sốt*) đưa ra lời khuyên khoa học, dặn nằm nghỉ tại chỗ, đo huyết áp, uống trà ấm và đọc to rõ ràng.
 
 ---
 
