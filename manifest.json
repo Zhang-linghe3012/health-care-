@@ -1,11 +1,11 @@
 {
-  "name": "MẮT THẤY TAI NGHE V9 – Trợ Lý AI Gia Đình Cho Người Cao Tuổi",
-  "short_name": "MẮT THẤY TAI NGHE",
-  "description": "Trợ lý AI Gemini xem ảnh + nghe giọng nói cùng lúc, giám sát realtime cho con cháu, báo cáo sức khỏe qua Gmail/Zalo, nhắc thuốc chạy ngầm",
+  "name": "Famcare – Chăm Sóc & Kết Nối Tình Thân",
+  "short_name": "Famcare",
+  "description": "Famcare - Công nghệ từ tâm, chăm sóc & kết nối tình thân. Trợ lý AI Gemini xem ảnh + nghe giọng nói, giám sát realtime, báo cáo sức khỏe qua Gmail/Zalo, nhắc thuốc chạy ngầm",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#F0FBF9",
-  "theme_color": "#0F766E",
+  "background_color": "#F8F9FA",
+  "theme_color": "#002147",
   "orientation": "any",
   "icons": [
     {
@@ -23,14 +23,14 @@
   ],
   "shortcuts": [
     {
-      "name": "BỘ TRỢ LÝ AI (Chụp ảnh + Hỏi)",
+      "name": "Trợ Lý AI Famcare (Chụp ảnh + Hỏi)",
       "short_name": "TRỢ LÝ AI",
       "description": "Chụp ảnh toa thuốc hoặc hỏi bác sĩ AI bằng giọng nói",
       "url": "./index.html?action=trợlýAI",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "BẢNG GIÁM SÁT CON CHÁU",
+      "name": "Bảng Kết Nối Gia Đình",
       "short_name": "GIÁM SÁT",
       "description": "Xem tình hình hoạt động realtime của ông bà",
       "url": "./index.html?action=giamsat",

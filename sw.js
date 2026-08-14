@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mat-thay-tai-nghe-v9-gemini-integrated';
+const CACHE_NAME = 'famcare-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -16,7 +16,7 @@ let reminderInterval = null;
 
 // INSTALL event
 self.addEventListener('install', event => {
-  console.log('[ServiceWorker V9 GEMINI INTEGRATED] Install event');
+  console.log('[ServiceWorker FAMCARE V1] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS_TO_CACHE))
@@ -26,7 +26,7 @@ self.addEventListener('install', event => {
 
 // ACTIVATE event
 self.addEventListener('activate', event => {
-  console.log('[ServiceWorker V9 GEMINI INTEGRATED] Activate event');
+  console.log('[ServiceWorker FAMCARE V1] Activate event');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -81,7 +81,7 @@ self.addEventListener('message', event => {
       const reminderTime = event.data.time || "08:00";
       const userName = event.data.userName || "Ông/Bà";
       
-      console.log(`[ServiceWorker V9 GEMINI INTEGRATED] Registered background reminder at ${reminderTime} for ${userName}`);
+      console.log(`[ServiceWorker FAMCARE V1] Registered background reminder at ${reminderTime} for ${userName}`);
       
       if (reminderInterval) {
         clearInterval(reminderInterval);

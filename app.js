@@ -99,16 +99,16 @@ function renderRealtimeFeed() {
 
   let feed = JSON.parse(localStorage.getItem('REALTIME_FEED') || "[]");
   if (feed.length === 0) {
-    container.innerHTML = `<p class="text-xs text-violet-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay. Ông bà bấm các nút bên trên là con cháu thấy ngay lập tức!</p>`;
+    container.innerHTML = `<p class="text-xs text-teal-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay. Ông bà bấm các nút bên trên là con cháu thấy ngay lập tức!</p>`;
     return;
   }
 
   container.innerHTML = feed.map(item => `
-    <div class="flex items-start gap-2 bg-white p-3 rounded-lg border border-violet-100 shadow-sm">
+    <div class="flex items-start gap-2 bg-white p-3 rounded-lg border border-teal-100 shadow-sm">
       <span class="text-xl">${item.icon}</span>
       <div class="flex-1">
         <p class="text-slate-800 font-bold text-sm">${item.text}</p>
-        <p class="text-[11px] text-violet-500 font-bold">⏰ ${item.time}</p>
+        <p class="text-[11px] text-teal-500 font-bold">⏰ ${item.time}</p>
       </div>
     </div>
   `).join('');
@@ -468,16 +468,16 @@ function renderAiDoctorJournal() {
   let journal = JSON.parse(localStorage.getItem('AI_DOCTOR_JOURNAL') || "[]");
   if (journal.length === 0) {
     container.innerHTML = `
-      <h3 class="font-extrabold text-emerald-950 text-base mb-2"><i class="fa-solid fa-book-medical"></i> 📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày:</h3>
-      <p class="text-xs text-emerald-800 italic">Chưa có nhật ký tương tác sức khỏe hôm nay.</p>
+      <h3 class="font-extrabold text-gray-900 text-base mb-2"><i class="fa-solid fa-book-medical"></i> 📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày:</h3>
+      <p class="text-xs text-teal-800 italic">Chưa có nhật ký tương tác sức khỏe hôm nay.</p>
     `;
     return;
   }
 
-  let html = `<h3 class="font-extrabold text-emerald-950 text-base mb-2"><i class="fa-solid fa-book-medical"></i> 📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày:</h3>
-  <ul class="text-xs space-y-1.5 list-none p-0 text-emerald-900 font-bold">`;
+  let html = `<h3 class="font-extrabold text-gray-900 text-base mb-2"><i class="fa-solid fa-book-medical"></i> 📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày:</h3>
+  <ul class="text-xs space-y-1.5 list-none p-0 text-teal-900 font-bold">`;
   journal.forEach(item => {
-    html += `<li class="bg-emerald-100/50 p-2 rounded-lg border-l-4 border-emerald-500">
+    html += `<li class="p-2 rounded-lg border-l-4" style="background:rgba(0,95,115,0.08);border-color:#005F73;">
       ⏰ [${item.time}] ${item.text}
     </li>`;
   });
@@ -809,9 +809,11 @@ function renderUserProfile(user) {
   const bar = document.getElementById('user_profile');
   const avatar = document.getElementById('user_avatar');
   const uName = document.getElementById('user_name');
+  const loginBtn = document.getElementById('btnLoginTop');
   if (avatar) avatar.src = user.picture || "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(user.name);
   if (uName) uName.textContent = user.name || healthProfile.userName || "Ông/Bà";
   if (bar) bar.classList.remove('hidden');
+  if (loginBtn) loginBtn.classList.add('hidden');
 }
 
 function saveQuickStartProfile(e) {
@@ -845,6 +847,8 @@ function logoutProfile() {
   localStorage.removeItem('QUICK_USER');
   const bar = document.getElementById('user_profile');
   if (bar) bar.classList.add('hidden');
+  const loginBtn = document.getElementById('btnLoginTop');
+  if (loginBtn) loginBtn.classList.remove('hidden');
   toggleModal('quickStartModal');
 }
 
@@ -958,16 +962,16 @@ function renderReminderList() {
   }
 
   container.innerHTML = medicineReminders.map((rem, idx) => `
-    <div class="flex items-center justify-between p-3 rounded-xl bg-sky-50 border border-sky-100">
+    <div class="flex items-center justify-between p-3 rounded-xl" style="background:#EFF6F8;border:2px solid #b2d7dd;">
       <div class="flex items-center gap-3">
-        <input type="checkbox" id="reminder_chk_${idx}" onchange="toggleReminderStatus(${idx})" class="w-5 h-5 accent-emerald-600 rounded">
+        <input type="checkbox" id="reminder_chk_${idx}" onchange="toggleReminderStatus(${idx})" class="w-5 h-5 rounded" style="accent-color:#005F73;">
         <div>
-          <span class="font-bold text-sky-900 text-sm">⏰ ${rem.time}</span>
+          <span class="font-bold text-sm" style="color:#002147;">⏰ ${rem.time}</span>
           <p class="text-sm text-gray-800 font-medium">${rem.name}</p>
         </div>
       </div>
       <div class="flex gap-2">
-        <button onclick="speakVietnamese('Ông bà nhớ uống thuốc ${rem.name} nhé')" class="text-sky-600 hover:text-sky-800 text-xs font-bold">
+        <button onclick="speakVietnamese('Ông bà nhớ uống thuốc ${rem.name} nhé')" class="text-xs font-bold" style="color:#005F73;">
           <i class="fa-solid fa-volume-high"></i> Đọc
         </button>
         <button onclick="deleteReminder(${idx})" class="text-red-500 hover:text-red-700 text-xs font-bold ml-2">❌ Xóa</button>
@@ -1130,7 +1134,7 @@ function stopVoiceInput() {
   const micBtn = document.getElementById('micBtn');
   if (micBtn) {
     micBtn.classList.remove('pulse-mic', 'bg-red-600');
-    document.getElementById('micText').textContent = "🎙️ Bấm Nói Câu Hỏi";
+    document.getElementById('micText').textContent = "🎙️ NÓI VỚI BÁC SĨ";
   }
   const ring = document.getElementById('listenRing');
   if (ring) ring.classList.add('hidden');
@@ -1176,7 +1180,7 @@ function showToastAlert(title, message) {
     toast.id = 'appToastAlert';
     toast.style.cssText = `
       position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      background: #0f766e; color: #ffffff; padding: 14px 22px;
+      background: #002147; color: #ffffff; padding: 14px 22px;
       border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
       z-index: 999999; max-width: 92%; text-align: center;
       font-weight: 800; font-size: 15px; pointer-events: none;

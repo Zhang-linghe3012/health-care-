@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mắt Thấy Tai Nghe - Chăm Sóc & Kết Nối Tình Thân V9 GEMINI INTEGRATED</title>
+  <title>Famcare - Chăm Sóc & Kết Nối Tình Thân</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,17 +11,80 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#0F766E">
-  <meta name="description" content="MẮT THẤY TAI NGHE V9 GEMINI INTEGRATED - Trợ lý AI duy nhất kết hợp hình ảnh + giọng nói, giám sát realtime và báo cáo qua Gmail/Zalo cho con cháu">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#002147">
+  <meta name="description" content="Famcare - Công nghệ từ tâm, chăm sóc & kết nối tình thân. Trợ lý AI, giám sát sức khỏe realtime và báo cáo Gmail/Zalo cho gia đình">
 
   <style>
+    :root {
+      --navy: #002147;
+      --teal: #005F73;
+      --bg-soft: #F8F9FA;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
     body {
-      background-color: #F0FBF9;
+      background-color: #F8F9FA;
       color: #2D3748;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    /* Logo chữ Famcare */
+    .brand-logo {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      color: #002147;
+    }
+    .brand-slogan {
+      color: #005F73;
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+    }
+    /* Navigation bar */
+    .nav-menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.25rem 0.75rem;
+    }
+    .nav-link {
+      position: relative;
+      color: #002147;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 0.6rem;
+      text-decoration: none;
+      transition: color 0.25s ease;
+      white-space: nowrap;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0.2rem;
+      width: 0;
+      height: 2.5px;
+      background: #005F73;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+    .nav-link:hover {
+      color: #005F73;
+      background: rgba(0, 95, 115, 0.06);
+    }
+    .nav-link:hover::after {
+      width: 65%;
+    }
+    .nav-link.active {
+      color: #005F73;
+    }
+    .nav-link.active::after {
+      width: 65%;
     }
     .btn-elder {
       font-size: 1.35rem;
@@ -36,26 +99,34 @@
     .card-soft {
       background: #FFFFFF;
       border-radius: 1.5rem;
-      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.06);
-      border: 2px solid #CCFBF1;
+      box-shadow: 0 6px 20px rgba(0, 33, 71, 0.06);
+      border: 2px solid #E8EDF2;
     }
     .text-elder {
       font-size: 1.25rem;
       line-height: 1.6;
+    }
+    /* AI chat text: to rõ cho người cao tuổi (18-22px) */
+    .ai-chat-text {
+      font-size: 1.375rem;
+      line-height: 1.65;
+    }
+    @media (max-width: 640px) {
+      .ai-chat-text { font-size: 1.125rem; }
     }
     /* Pulsing mic wave */
     .pulse-mic {
       animation: pulse 1.2s infinite ease-in-out;
     }
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.7); }
-      70% { box-shadow: 0 0 0 15px rgba(15, 118, 110, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(0, 95, 115, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(0, 95, 115, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 95, 115, 0); }
     }
     /* Ring progress for listening */
     .listen-ring {
       position: absolute; inset: 0;
-      border: 6px solid #0D9488;
+      border: 6px solid #005F73;
       border-top-color: transparent;
       border-radius: 50%;
       opacity: 0.6;
@@ -66,98 +137,109 @@
 </head>
 <body class="pb-16">
 
-  <!-- ================= TẦNG 1: HEADER & CÁC TÍNH NĂNG ĐẦU TRANG ================= -->
-  <header class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto p-4 sm:p-5">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="flex items-center gap-3">
-          <span class="text-4xl">👨‍⚕️🩺</span>
-          <div>
-            <h1 class="text-3xl font-extrabold tracking-wide flex items-center gap-2">
-              MẮT THẤY TAI NGHE V9
-            </h1>
-            <p class="text-emerald-100 text-sm sm:text-base italic font-medium">
-              "Bác sĩ gia đình AI xem & nghe cùng lúc, giám sát realtime & báo cáo Gmail cho con cháu"
-            </p>
+  <!-- ================= TẦNG 1: HEADER THƯƠNG HIỆU FAMCARE (CĂN GIỮA) ================= -->
+  <header class="bg-white shadow-md sticky top-0 z-40 border-b border-teal-100">
+    <div class="max-w-5xl mx-auto px-4 pt-4">
+      <!-- Dòng 1: Logo Famcare chính giữa + Nút hồ sơ góc phải -->
+      <div class="relative">
+        <div class="text-center">
+          <div class="flex items-center justify-center gap-3">
+            <span class="text-4xl sm:text-5xl">👨‍👩‍👧‍👦</span>
+            <h1 class="brand-logo">FAMCARE</h1>
           </div>
+          <p class="brand-slogan mt-1">"Công nghệ từ tâm – Chăm sóc & Kết nối tình thân"</p>
         </div>
 
-        <!-- Cụm chức năng trên cùng -->
-        <div class="flex flex-wrap items-center justify-center gap-2">
-          <!-- User Profile Bar -->
-          <div id="user_profile" class="hidden flex items-center gap-2 bg-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold">
+        <!-- Góc phải: Đăng nhập / Hồ sơ cá nhân -->
+        <div class="absolute top-0 right-0 flex items-center gap-2">
+          <button id="btnLoginTop" onclick="toggleModal('quickStartModal')" class="text-xs font-bold px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 hover:bg-teal-100 border flex items-center gap-1.5" style="border-color:#b2d7dd;">
+            <i class="fa-solid fa-user"></i> Đăng nhập
+          </button>
+          <div id="user_profile" class="hidden items-center gap-2 bg-navy text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm border border-teal-300 flex" style="background:#002147;">
             <img id="user_avatar" class="w-6 h-6 rounded-full border border-white" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar">
             <span id="user_name" class="text-white">Ông/Bà</span>
-            <button onclick="logoutProfile()" class="text-red-200 ml-1 hover:text-white" title="Đổi thông tin"><i class="fa-solid fa-sign-out-alt"></i></button>
+            <button onclick="logoutProfile()" class="text-red-200 ml-1 hover:text-white" title="Đăng xuất / Đổi thông tin"><i class="fa-solid fa-sign-out-alt"></i></button>
           </div>
-
-          <!-- Các nút bổ trợ -->
-          <button onclick="toggleModal('quickStartModal')" class="bg-emerald-700 hover:bg-emerald-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
-            <i class="fa-solid fa-user"></i> 👤 Nhập Tên
-          </button>
-          <button onclick="toggleModal('medicalModal')" class="bg-emerald-700 hover:bg-emerald-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
-            <i class="fa-solid fa-notes-medical"></i> 📋 Hồ Sơ Bệnh Nền
-          </button>
-          <button onclick="toggleModal('settingsModal')" class="bg-teal-700 hover:bg-teal-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
-            <i class="fa-solid fa-cog"></i> ⚙️ Cài Đặt AI
-          </button>
-          <button id="installAppBtn" onclick="installPWA()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
-            <i class="fa-solid fa-download"></i> Cài App
-          </button>
         </div>
+      </div>
+
+      <!-- Dòng 2: Thanh menu điều hướng chức năng -->
+      <nav class="py-2 mt-2 border-t border-gray-100 overflow-x-auto scrollbar-hide">
+        <div class="nav-menu">
+          <a href="#top" class="nav-link active"><i class="fa-solid fa-house mr-1"></i>Trang chủ</a>
+          <a href="#gioi-thieu" class="nav-link"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
+          <a href="#cam-nang" class="nav-link"><i class="fa-solid fa-book-open mr-1"></i>Cẩm nang sức khỏe</a>
+          <a href="#ai-assistant-section" class="nav-link"><i class="fa-solid fa-robot mr-1"></i>Trợ lý AI Famcare</a>
+          <a href="#lich-sinh-hoat" class="nav-link"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
+          <a href="#monitoring-section" class="nav-link"><i class="fa-solid fa-users mr-1"></i>Bảng kết nối gia đình</a>
+          <a href="#lien-he" class="nav-link"><i class="fa-solid fa-envelope mr-1"></i>Liên hệ</a>
+        </div>
+      </nav>
+
+      <!-- Cụm chức năng bổ trợ -->
+      <div class="flex flex-wrap items-center justify-center gap-2 py-3" id="utilityButtons">
+        <button onclick="toggleModal('medicalModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+          <i class="fa-solid fa-notes-medical"></i> 📋 Hồ Sơ Bệnh Nền
+        </button>
+        <button onclick="toggleModal('settingsModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+          <i class="fa-solid fa-cog"></i> ⚙️ Cài Đặt AI
+        </button>
+        <button id="installAppBtn" onclick="installPWA()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-download"></i> Cài App
+        </button>
       </div>
     </div>
   </header>
 
   <!-- PWA Installation Sticky Banner -->
-  <div id="pwaInstallBanner" class="bg-emerald-700 text-white text-center p-3 text-sm font-bold hidden">
+  <div id="pwaInstallBanner" class="bg-navy text-white text-center p-3 text-sm font-bold hidden" style="background:#002147;">
     <span>📱 Bấm vào đây để <strong class="underline cursor-pointer" onclick="installPWA()">THÊM VÀO MÀN HÌNH CHÍNH</strong> điện thoại giúp ông bà mở nhanh!</span>
   </div>
 
   <!-- CONTAINER CHÍNH -->
-  <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
+  <main id="top" class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
     <!-- GIANT PERSISTENT ZALO REPORT BUTTON + GMAIL BUTTON -->
     <section class="w-full space-y-3">
-      <button id="btnGlobalZaloAlert" class="w-full btn-elder bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-3 shadow-lg py-4">
+      <button id="btnGlobalZaloAlert" class="w-full btn-elder bg-navy hover:opacity-90 text-white flex items-center justify-center gap-3 shadow-lg py-4 rounded-2xl" style="background:#002147;">
         <i class="fa-solid fa-share-nodes text-3xl"></i>
         <span>📲 GỬI BÁO CÁO CHO CON CHÁU QUA ZALO</span>
       </button>
-      <button id="btnSendGmailReport" class="w-full btn-elder bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white flex items-center justify-center gap-3 shadow-lg py-4">
+      <button id="btnSendGmailReport" class="w-full btn-elder text-white flex items-center justify-center gap-3 shadow-lg py-4 rounded-2xl" style="background:linear-gradient(135deg,#005F73,#002147);">
         <i class="fa-solid fa-envelope-open-text text-3xl"></i>
         <span>✉️ GỬI BÁO CÁO SỨC KHỎE QUA GMAIL</span>
       </button>
     </section>
 
-    <!-- ================= TẦNG 2: BỘ TRỢ LÝ AI DUY NHẤT (GEMINI: MẮT + TAI) ================= -->
-    <section id="ai-assistant-section" class="card-soft p-6 border-l-8 border-teal-500">
+    <!-- ================= TẦNG 2: TRỢ LÝ AI FAMCARE (MẮT THẤY & TAI NGHE) ================= -->
+    <section id="ai-assistant-section" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-2xl font-black text-teal-800 flex items-center gap-2">
-          <i class="fa-solid fa-microchip"></i> Bộ Trợ Lý AI: Bác Sĩ Gia Đình (MẮT + TAI)
+        <h2 class="text-2xl font-black text-teal-800 flex items-center gap-2" style="color:#002147;">
+          <i class="fa-solid fa-robot"></i> Trợ Lý AI Famcare (Mắt Thấy & Tai Nghe)
         </h2>
         <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-full">Gemini AI trực tiếp 24/7</span>
       </div>
       <p class="text-gray-600 text-elder mb-4">
-        Ông bà hãy <strong>chụp ảnh</strong> toa thuốc / vết thương rồi <strong>bấm Micro</strong> và hỏi bác sĩ AI.
-        Bác sĩ sẽ <strong>xem hình ảnh + nghe câu hỏi</strong> cùng lúc, trả lời và <strong class="text-teal-700">đọc to</strong> cho ông bà nghe!
+        Ông bà hãy <strong>chụp/tải ảnh</strong> toa thuốc hay vết thương, rồi <strong>nói với bác sĩ</strong> câu hỏi.
+        Bác sĩ AI sẽ <strong class="text-teal-700">xem ảnh + nghe câu hỏi</strong> cùng lúc và <strong>đọc to</strong> câu trả lời cho ông bà nghe!
       </p>
 
       <!-- Câu hỏi hiện tại (từ giọng nói hoặc gõ tay) -->
       <label class="text-xs font-bold text-gray-500 uppercase tracking-wider" for="aiQuestionInput">🎤 Câu hỏi của ông bà:</label>
-      <div class="flex items-center gap-2 bg-white border-2 border-teal-200 rounded-2xl px-4 py-3 shadow-inner mt-1">
+      <div class="flex items-center gap-2 bg-white border-2 rounded-2xl px-4 py-3 shadow-inner mt-1" style="border-color:#005F73;">
         <i class="fa-solid fa-comment-dots text-teal-500 text-xl"></i>
         <input type="text" id="aiQuestionInput" class="flex-1 font-bold text-slate-800 text-lg outline-none bg-transparent placeholder:font-medium"
-          placeholder="Gõ câu hỏi hoặc bấm Micro để nói... (VD: Cháu ơi, mặt bà thế này có sao không?)">
+          placeholder="Gõ câu hỏi hoặc bấm NÓI VỚI BÁC SĨ... (VD: Cháu ơi, mặt bà thế này có sao không?)">
         <button onclick="clearQuestion()" class="text-gray-400 hover:text-red-500 text-xl px-1" title="Xóa câu hỏi">
           <i class="fa-solid fa-circle-xmark"></i>
         </button>
       </div>
 
       <!-- Khung Preview Camera / Ảnh tải lên -->
-      <div id="imagePreviewSection" class="relative bg-slate-100 rounded-2xl p-4 border-2 border-dashed border-teal-300 mt-4 hidden flex flex-col items-center justify-center gap-3">
+      <div id="imagePreviewSection" class="relative bg-slate-100 rounded-2xl p-4 border-2 border-dashed mt-4 hidden flex flex-col items-center justify-center gap-3" style="border-color:#005F73;">
         <img id="imagePreview" class="max-h-64 object-contain rounded-xl shadow border" src="" alt="Hình ảnh cần hỏi">
         <p id="imageAttachedHint" class="text-teal-700 bg-teal-50 px-3 py-1 rounded-full text-sm font-bold">
-          <i class="fa-solid fa-paperclip"></i> Đã gắn ảnh - bấm Micro hoặc 💬 Hỏi để gửi kèm
+          <i class="fa-solid fa-paperclip"></i> Đã gắn ảnh - bấm 🎙️ NÓI VỚI BÁC SĨ để gửi kèm ảnh này
         </p>
         <button onclick="clearSelectedImage()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold">❌ Bỏ ảnh này</button>
       </div>
@@ -172,26 +254,29 @@
         </div>
       </div>
 
-      <!-- Cụm Nút Tương Tác: Chụp ảnh / Chọn ảnh / Micro -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-        <button onclick="openCamera()" class="btn-elder bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center gap-3 shadow-lg">
-          <i class="fa-solid fa-camera text-2xl"></i>
-          <span>📷 Chụp Ảnh</span>
+      <!-- 2 NÚT BỰ TRUNG TÂM: CHỤP ẢNH & NÓI VỚI BÁC SĨ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+        <button onclick="openCamera()" class="btn-elder bg-white text-white flex flex-col items-center justify-center gap-2 shadow-lg rounded-2xl py-5 border-2" style="background:#002147;border-color:#002147;">
+          <i class="fa-solid fa-camera text-4xl"></i>
+          <span class="text-lg font-black">📸 CHỤP / TẢI ẢNH</span>
+          <span class="text-xs font-medium opacity-90">Toa thuốc, vết thương, chữ viết...</span>
         </button>
-        <button onclick="document.getElementById('imageInput').click()" class="btn-elder bg-sky-600 hover:bg-sky-700 text-white flex items-center justify-center gap-3 shadow-lg">
-          <i class="fa-solid fa-folder-open text-2xl"></i>
-          <span>🖼️ Chọn Ảnh</span>
-        </button>
-        <button id="micBtn" onclick="toggleSpeechRecognition()" class="relative btn-elder bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-3 shadow-lg overflow-visible">
-          <i class="fa-solid fa-microphone text-2xl"></i>
-          <span id="micText">🎙️ Bấm Nói Câu Hỏi</span>
+        <button id="micBtn" onclick="toggleSpeechRecognition()" class="relative btn-elder text-white flex flex-col items-center justify-center gap-2 shadow-lg rounded-2xl py-5 overflow-visible" style="background:#005F73;">
+          <i class="fa-solid fa-microphone text-4xl"></i>
+          <span id="micText" class="text-lg font-black">🎙️ NÓI VỚI BÁC SĨ</span>
+          <span class="text-xs font-medium opacity-90">Bấm để nói câu hỏi kèm ảnh</span>
           <div id="listenRing" class="listen-ring hidden"></div>
+        </button>
+      </div>
+      <div class="text-center mt-3">
+        <button onclick="document.getElementById('imageInput').click()" class="text-sm font-bold text-teal-700 hover:text-teal-900">
+          <i class="fa-solid fa-folder-open mr-1"></i>Hoặc chọn ảnh từ thư viện
         </button>
       </div>
       <input type="file" id="imageInput" accept="image/*" capture="environment" class="hidden">
 
       <!-- Nút gửi câu hỏi dạng chữ (không có ảnh giọng nói) -->
-      <button id="btnAskTyped" onclick="askTypedQuestion()" class="w-full mt-3 btn-elder bg-cyan-600 hover:bg-cyan-700 text-white flex items-center justify-center gap-3 shadow-lg py-3 text-lg">
+      <button id="btnAskTyped" onclick="askTypedQuestion()" class="w-full mt-3 btn-elder bg-white text-white flex items-center justify-center gap-3 shadow-lg py-3 text-lg rounded-2xl border-2" style="border-color:#005F73;background:linear-gradient(135deg,#005F73,#002147);">
         <i class="fa-solid fa-paper-plane text-xl"></i>
         <span>💬 GỬI CÂU HỎI (Kèm Ảnh Nếu Có)</span>
       </button>
@@ -200,56 +285,56 @@
       <div class="mt-4">
         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">💡 Gợi ý câu hỏi nhanh cho ông bà:</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button onclick="askPreset('Bà bị mệt và chóng mặt quá bác sĩ ơi')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border border-teal-200">
+          <button onclick="askPreset('Bà bị mệt và chóng mặt quá bác sĩ ơi')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border" style="border-color:#b2d7dd;">
             🌀 "Bà bị mệt và chóng mặt quá cháu ơi..."
           </button>
-          <button onclick="askPreset('Ông bị ho sốt 38.5 độ C thì uống thuốc thế nào?')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border border-teal-200">
+          <button onclick="askPreset('Ông bị ho sốt 38.5 độ C thì uống thuốc thế nào?')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border" style="border-color:#b2d7dd;">
             🌡️ "Ông bị ho sốt 38 độ 5..."
           </button>
-          <button onclick="askPreset('Toa thuốc này uống trước ăn hay sau ăn và công dụng là gì?')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border border-teal-200">
+          <button onclick="askPreset('Toa thuốc này uống trước ăn hay sau ăn và công dụng là gì?')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border" style="border-color:#b2d7dd;">
             💊 "Toa thuốc này uống thế nào, chữa bệnh gì?"
           </button>
-          <button onclick="askPreset('Huyết áp của ông 145 trên 95 có cao quá không bác sĩ?')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border border-teal-200">
+          <button onclick="askPreset('Huyết áp của ông 145 trên 95 có cao quá không bác sĩ?')" class="bg-teal-50 text-teal-800 hover:bg-teal-100 p-2.5 rounded-xl text-sm font-bold text-left border" style="border-color:#b2d7dd;">
             🩺 "Huyết áp ông 145/95 có cao không?"
           </button>
         </div>
       </div>
 
       <!-- Trạng thái xử lý -->
-      <div id="loadingIndicator" class="bg-teal-50 border border-teal-200 rounded-xl p-4 mt-4 hidden flex items-center justify-center gap-3">
-        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600"></div>
+      <div id="loadingIndicator" class="bg-teal-50 border rounded-xl p-4 mt-4 hidden flex items-center justify-center gap-3" style="border-color:#005F73;">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2" style="border-color:#005F73;"></div>
         <p class="text-teal-800 font-bold text-elder">Bác sĩ AI đang xem hình ảnh, nghe câu hỏi và tư vấn, ông bà đợi chút nhé...</p>
       </div>
 
       <!-- Kết quả AI trả lời -->
-      <div id="aiResponseBox" class="bg-teal-50 border-2 border-teal-300 rounded-xl p-5 mt-4 hidden space-y-4">
-        <div class="flex items-center justify-between border-b border-teal-200 pb-2">
-          <span class="font-extrabold text-teal-900 text-lg flex items-center gap-2">
+      <div id="aiResponseBox" class="bg-teal-50 border-2 rounded-xl p-5 mt-4 hidden space-y-4" style="border-color:#005F73;">
+        <div class="flex items-center justify-between border-b pb-2" style="border-color:#b2d7dd;">
+          <span class="font-extrabold text-teal-900 text-lg flex items-center gap-2" style="color:#002147;">
             <i class="fa-solid fa-user-doctor"></i> Bác Sĩ Gia Đình AI Tư Vấn:
           </span>
-          <button id="btnSpeakAgain" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1 shadow">
+          <button id="btnSpeakAgain" class="text-white px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1 shadow" style="background:#005F73;">
             <i class="fa-solid fa-volume-high"></i> ĐỌC TO CHO ÔNG BÀ NGHE
           </button>
         </div>
-        <p id="aiResponseText" class="text-gray-800 text-xl leading-relaxed font-bold"></p>
+        <p id="aiResponseText" class="text-gray-800 ai-chat-text leading-relaxed font-bold"></p>
 
         <!-- Solution Box -->
-        <div id="actionSolutionBox" class="bg-white border-l-4 border-teal-500 p-4 rounded-xl shadow-sm hidden">
+        <div id="actionSolutionBox" class="bg-white border-l-4 p-4 rounded-xl shadow-sm hidden" style="border-color:#005F73;">
           <p class="text-xs font-bold text-teal-800 uppercase tracking-wider mb-1">💡 Hướng Giải Quyết & Lời Khuyên Y Tế:</p>
           <p id="actionSolutionText" class="text-teal-900 font-bold text-lg"></p>
         </div>
 
         <!-- Details Grid -->
         <div id="detailsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-medium">
-          <div class="bg-white p-3 rounded-lg border border-teal-100 shadow-sm">
+          <div class="bg-white p-3 rounded-lg border shadow-sm" style="border-color:#e2e8f0;">
             <span class="text-gray-400 block text-xs">💊 Loại thuốc:</span>
             <span id="valMedicine" class="font-bold text-slate-800">--</span>
           </div>
-          <div class="bg-white p-3 rounded-lg border border-teal-100 shadow-sm">
+          <div class="bg-white p-3 rounded-lg border shadow-sm" style="border-color:#e2e8f0;">
             <span class="text-gray-400 block text-xs">🕒 Liều lượng:</span>
             <span id="valDosage" class="font-bold text-slate-800">--</span>
           </div>
-          <div class="bg-white p-3 rounded-lg border border-teal-100 shadow-sm">
+          <div class="bg-white p-3 rounded-lg border shadow-sm" style="border-color:#e2e8f0;">
             <span class="text-gray-400 block text-xs">📅 Hạn sử dụng:</span>
             <span id="valExpiry" class="font-bold text-slate-800">--</span>
           </div>
@@ -263,13 +348,13 @@
       </div>
     </section>
 
-    <!-- ================= TẦNG 3: NHẮC LỊCH SINH HOẠT HẰNG NGÀY ================= -->
-    <section class="card-soft p-6 border-l-8 border-sky-500">
+    <!-- ================= TẦNG 3: LỊCH SINH HOẠT HẰNG NGÀY ================= -->
+    <section id="lich-sinh-hoat" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-black text-sky-800 flex items-center gap-2">
-          <i class="fa-solid fa-clock"></i> Nhắc Nhở Hằng Ngày & Hẹn Giờ
+        <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
+          <i class="fa-solid fa-clock"></i> Lịch Sinh Hoạt & Nhắc Nhở Hằng Ngày
         </h2>
-        <button onclick="addNewSchedule()" class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold px-4 py-2 rounded-xl">
+        <button onclick="addNewSchedule()" class="bg-white text-white text-sm font-bold px-4 py-2 rounded-xl shadow" style="background:#005F73;">
           + Thêm Lịch
         </button>
       </div>
@@ -281,8 +366,8 @@
       </div>
 
       <!-- GIANT TAKEN MEDICINE CONFIRMATION -->
-      <div class="confirm-taken-box mt-6 bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center space-y-3 shadow-inner">
-        <button id="btnConfirmMedicineTaken" onclick="confirmMedicineTaken()" class="w-full btn-elder bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-3 shadow-md py-4">
+      <div class="confirm-taken-box mt-6 p-5 rounded-2xl text-center space-y-3 shadow-inner" style="background:#EFF6F8;border:2px solid #b2d7dd;">
+        <button id="btnConfirmMedicineTaken" onclick="confirmMedicineTaken()" class="w-full btn-elder text-white flex items-center justify-center gap-3 shadow-md py-4 rounded-2xl" style="background:#005F73;">
           <i class="fa-solid fa-circle-check text-3xl"></i>
           <span>✅ TÔI ĐÃ UỐNG THUỐC RỒI</span>
         </button>
@@ -291,39 +376,39 @@
     </section>
 
     <!-- ================= TẦNG 4: SỨC KHỎE & HỒ SƠ TÌNH HÌNH TRONG NGÀY ================= -->
-    <section class="card-soft p-6 border-l-8 border-rose-500 space-y-6">
-      <h2 class="text-2xl font-black text-rose-800 flex items-center gap-2">
+    <section class="card-soft p-6 border-t-4 space-y-6" style="border-top-color:#005F73;">
+      <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
         <i class="fa-solid fa-heart-pulse"></i> Sinh Hiệu & Nhật Ký Sức Khỏe
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Bước chân -->
-        <div class="bg-rose-50 border border-rose-100 p-5 rounded-xl text-center shadow-sm">
-          <i class="fa-solid fa-person-walking text-4xl text-rose-500 mb-2"></i>
+        <div class="bg-white p-5 rounded-xl text-center shadow-sm border" style="border-color:#e2e8f0;">
+          <i class="fa-solid fa-person-walking text-4xl mb-2" style="color:#005F73;"></i>
           <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Đếm Bước Chân</p>
-          <p id="stepCount" class="text-3xl font-black text-rose-700 mt-1">0</p>
+          <p id="stepCount" class="text-3xl font-black mt-1" style="color:#002147;">0</p>
           <span class="text-xs text-gray-400 font-semibold">Mục tiêu: 3,000 bước</span>
         </div>
 
         <!-- Nhịp tim -->
-        <div class="bg-red-50 border border-red-100 p-5 rounded-xl text-center shadow-sm">
-          <i class="fa-solid fa-heartbeat text-4xl text-red-500 mb-2 animate-pulse"></i>
+        <div class="bg-white p-5 rounded-xl text-center shadow-sm border" style="border-color:#e2e8f0;">
+          <i class="fa-solid fa-heartbeat text-4xl mb-2 animate-pulse" style="color:#005F73;"></i>
           <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Nhịp Tim Thực Tế</p>
-          <p id="heartRate" class="text-3xl font-black text-red-700 mt-1">72 BPM</p>
+          <p id="heartRate" class="text-3xl font-black mt-1" style="color:#002147;">72 BPM</p>
           <span id="heartRateStatus" class="text-xs text-emerald-600 font-bold block mt-1">Bình thường</span>
         </div>
 
         <!-- Huyết áp -->
-        <div class="bg-amber-50 border border-amber-100 p-5 rounded-xl text-center shadow-sm">
-          <i class="fa-solid fa-stethoscope text-4xl text-amber-500 mb-2"></i>
+        <div class="bg-white p-5 rounded-xl text-center shadow-sm border" style="border-color:#e2e8f0;">
+          <i class="fa-solid fa-stethoscope text-4xl mb-2" style="color:#005F73;"></i>
           <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Huyết Áp Thực Tế</p>
-          <p id="bloodPressure" class="text-3xl font-black text-amber-700 mt-1">120/80</p>
+          <p id="bloodPressure" class="text-3xl font-black mt-1" style="color:#002147;">120/80</p>
           <span id="bloodPressureStatus" class="text-xs text-amber-600 font-bold block mt-1">Ổn định</span>
         </div>
       </div>
 
       <!-- Vitals Manual Inputs -->
-      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-        <h3 class="font-extrabold text-gray-800 text-lg border-b pb-2"><i class="fa-solid fa-square-poll-horizontal"></i> Nhập Chỉ Số Đo Từ Máy:</h3>
+      <div class="p-5 rounded-2xl space-y-4" style="background:#F1F5F9;border:1px solid #e2e8f0;">
+        <h3 class="font-extrabold text-gray-800 text-lg border-b pb-2" style="border-color:#cbd5e1;"><i class="fa-solid fa-square-poll-horizontal"></i> Nhập Chỉ Số Đo Từ Máy:</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="flex flex-col gap-1">
             <label class="text-xs font-bold text-gray-600" for="inputSystolic">Huyết áp Tâm Thu (Tối đa):</label>
@@ -347,15 +432,15 @@
             </div>
           </div>
         </div>
-        <button id="btnCheckVitals" onclick="checkVitalsAgainstProfile()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-3 rounded-xl shadow-md text-lg">
+        <button id="btnCheckVitals" onclick="checkVitalsAgainstProfile()" class="w-full text-white font-black py-3 rounded-xl shadow-md text-lg" style="background:#002147;">
           🩺 SO SÁNH ĐỐI CHIẾU VỚI HỒ SƠ SỨC KHỎE
         </button>
       </div>
 
       <!-- AI Doctor Daily Journal -->
-      <div id="ai-doctor-journal" class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl max-h-48 overflow-y-auto">
-        <h3 class="font-extrabold text-emerald-950 text-base mb-2"><i class="fa-solid fa-book-medical"></i> 📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày:</h3>
-        <p class="text-xs text-emerald-800 italic">Nhật ký tự động ghi mốc giờ và sự kiện sức khỏe...</p>
+      <div id="ai-doctor-journal" class="p-4 rounded-xl max-h-48 overflow-y-auto" style="background:#EFF6F8;border:2px solid #b2d7dd;">
+        <h3 class="font-extrabold text-base mb-2" style="color:#002147;"><i class="fa-solid fa-book-medical"></i> 📖 Nhật Ký Bác Sĩ AI Theo Dõi Trong Ngày:</h3>
+        <p class="text-xs text-teal-800 italic">Nhật ký tự động ghi mốc giờ và sự kiện sức khỏe...</p>
       </div>
 
       <!-- Health History Logs -->
@@ -364,48 +449,132 @@
       </div>
     </section>
 
-    <!-- ================= TẦNG 5: BẢNG GIÁM SÁT CON CHÁU (REALTIME) ================= -->
-    <section id="monitoring-section" class="card-soft p-6 border-l-8 border-violet-500">
+    <!-- ================= TẦNG 5: BẢNG KẾT NỐI GIA ĐÌNH - GIÁM SÁT REALTIME ================= -->
+    <section id="monitoring-section" class="card-soft p-6 border-t-4" style="border-top-color:#002147;">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-2xl font-black text-violet-800 flex items-center gap-2">
-          <i class="fa-solid fa-tv"></i> Bảng Giám Sát Con Cháu (Realtime)
+        <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
+          <i class="fa-solid fa-users"></i> Bảng Kết Nối Gia Đình (Giám Sát Realtime)
         </h2>
-        <span class="flex items-center gap-1.5 bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">
+        <span class="flex items-center gap-1.5 bg-teal-100 text-teal-700 text-xs font-bold px-2.5 py-1 rounded-full">
           <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span id="syncStatusText">Đồng bộ realtime</span>
         </span>
       </div>
       <p class="text-gray-600 text-elder mb-4">
         Mọi hoạt động của ông bà: <strong>bấm "Đã uống thuốc", đo chỉ số, hỏi bác sĩ AI</strong> đều được
-        cập nhật <strong class="text-violet-700">ngay lập tức</strong> tại đây để con cháu nắm tình hình.
+        cập nhật <strong class="text-teal-700">ngay lập tức</strong> tại đây để con cháu nắm tình hình.
       </p>
 
       <!-- Realtime activity feed -->
-      <div id="realtimeFeed" class="bg-violet-50 border border-violet-200 rounded-xl p-4 max-h-64 overflow-y-auto text-sm space-y-2">
-        <p class="text-xs text-violet-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay. Ông bà bấm các nút bên trên là con cháu thấy ngay lập tức!</p>
+      <div id="realtimeFeed" class="bg-teal-50 rounded-xl p-4 max-h-64 overflow-y-auto text-sm space-y-2" style="border:2px solid #b2d7dd;">
+        <p class="text-xs text-teal-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay. Ông bà bấm các nút bên trên là con cháu thấy ngay lập tức!</p>
       </div>
 
       <!-- Sync summary cards -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-center">
-        <div class="bg-white border border-violet-100 rounded-xl p-4 shadow-sm">
+        <div class="bg-white rounded-xl p-4 shadow-sm border" style="border-color:#e2e8f0;">
           <p class="text-2xl">💊</p>
-          <p id="monSummaryMedicine" class="font-black text-violet-800 text-lg mt-1">Chưa uống</p>
+          <p id="monSummaryMedicine" class="font-black text-lg mt-1" style="color:#002147;">Chưa uống</p>
           <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Thuốc hôm nay</p>
         </div>
-        <div class="bg-white border border-violet-100 rounded-xl p-4 shadow-sm">
+        <div class="bg-white rounded-xl p-4 shadow-sm border" style="border-color:#e2e8f0;">
           <p class="text-2xl">🩺</p>
-          <p id="monSummaryVitals" class="font-black text-violet-800 text-lg mt-1">--/--</p>
+          <p id="monSummaryVitals" class="font-black text-lg mt-1" style="color:#002147;">--/--</p>
           <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Huyết áp mới nhất</p>
         </div>
-        <div class="bg-white border border-violet-100 rounded-xl p-4 shadow-sm">
+        <div class="bg-white rounded-xl p-4 shadow-sm border" style="border-color:#e2e8f0;">
           <p class="text-2xl">❤️</p>
-          <p id="monSummaryHeart" class="font-black text-violet-800 text-lg mt-1">--</p>
+          <p id="monSummaryHeart" class="font-black text-lg mt-1" style="color:#002147;">--</p>
           <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Nhịp tim mới nhất</p>
         </div>
-        <div class="bg-white border border-violet-100 rounded-xl p-4 shadow-sm">
+        <div class="bg-white rounded-xl p-4 shadow-sm border" style="border-color:#e2e8f0;">
           <p class="text-2xl">🤖</p>
-          <p id="monSummaryAI" class="font-black text-violet-800 text-lg mt-1">0</p>
+          <p id="monSummaryAI" class="font-black text-lg mt-1" style="color:#002147;">0</p>
           <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Lần hỏi bác sĩ AI</p>
+        </div>
+      </div>
+
+      <!-- Nút gửi báo cáo Gmail -->
+      <div class="mt-5 flex flex-col sm:flex-row gap-3">
+        <button onclick="sendGmailHealthReport()" class="flex-1 btn-elder text-white flex items-center justify-center gap-3 shadow-lg py-4 rounded-2xl" style="background:linear-gradient(135deg,#005F73,#002147);">
+          <i class="fa-solid fa-envelope-open-text text-2xl"></i>
+          <span>✉️ GỬI BÁO CÁO QUA GMAIL</span>
+        </button>
+        <button onclick="sendDetailedZaloReport()" class="flex-1 btn-elder text-white flex items-center justify-center gap-3 shadow-lg py-4 rounded-2xl" style="background:#002147;">
+          <i class="fa-solid fa-share-nodes text-2xl"></i>
+          <span>📲 GỬI QUA ZALO</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= TẦNG 6: GIỚI THIỆU ================= -->
+    <section id="gioi-thieu" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+      <h2 class="text-2xl font-black flex items-center gap-2 mb-4" style="color:#002147;">
+        <i class="fa-solid fa-circle-info"></i> Giới Thiệu Về Famcare
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <p class="text-3xl text-center mb-2">💝</p>
+          <h3 class="font-black text-center mb-1" style="color:#002147;">Sứ Mệnh</h3>
+          <p class="text-sm text-gray-600 text-center">Lấy công nghệ làm cầu nối yêu thương, giúp ông bà luôn được chăm sóc và con cháu luôn an tâm dù ở bất cứ đâu.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <p class="text-3xl text-center mb-2">👨‍👩‍👧‍👦</p>
+          <h3 class="font-black text-center mb-1" style="color:#002147;">Đội Ngũ</h3>
+          <p class="text-sm text-gray-600 text-center">Chuyên gia y tế, kỹ sư AI và các con cháu hiếu thảo chung tay phát triển, thấu hiểu người cao tuổi Việt Nam.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <p class="text-3xl text-center mb-2">🌟</p>
+          <h3 class="font-black text-center mb-1" style="color:#002147;">Giá Trị</h3>
+          <p class="text-sm text-gray-600 text-center">An toàn - Gần gũi - Kịp thời. Mọi tính năng đều thiết kế to chữ, rõ tiếng, đơn giản cho ông bà dễ dùng.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TẦNG 7: CẨM NANG SỨC KHỎE ================= -->
+    <section id="cam-nang" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+      <h2 class="text-2xl font-black flex items-center gap-2 mb-4" style="color:#002147;">
+        <i class="fa-solid fa-book-open"></i> Cẩm Nang Sức Khỏe
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <p class="text-3xl text-center mb-2">🧓</p>
+          <h3 class="font-black text-center mb-1" style="color:#002147;">Chăm Sóc Người Già</h3>
+          <p class="text-sm text-gray-600 text-center">Tư thế đúng khi dậy, chống té ngã, chăm sóc vệ sinh và đồng hành tinh thần mỗi ngày cho ông bà.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <p class="text-3xl text-center mb-2">🥗</p>
+          <h3 class="font-black text-center mb-1" style="color:#002147;">Dinh Dưỡng</h3>
+          <p class="text-sm text-gray-600 text-center">Thực đơn cân bằng, đủ chất xơ - đạm - vitamin, hạn chế muối và đường cho người cao tuổi.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <p class="text-3xl text-center mb-2">🍃</p>
+          <h3 class="font-black text-center mb-1" style="color:#002147;">Mẹo Sống Khỏe</h3>
+          <p class="text-sm text-gray-600 text-center">Tập thể dục nhẹ nhàng, ngủ đủ giấc, uống nước ấm và khám sức khỏe định kỳ.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TẦNG 8: LIÊN HỆ ================= -->
+    <section id="lien-he" class="card-soft p-6 border-t-4" style="border-top-color:#002147;">
+      <h2 class="text-2xl font-black flex items-center gap-2 mb-4" style="color:#002147;">
+        <i class="fa-solid fa-envelope"></i> Liên Hệ Với Famcare
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <i class="fa-solid fa-envelope text-3xl mb-2" style="color:#005F73;"></i>
+          <p class="font-black text-sm" style="color:#002147;">Email</p>
+          <p class="text-sm text-gray-600">famcare@family.vn</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <i class="fa-solid fa-phone text-3xl mb-2" style="color:#005F73;"></i>
+          <p class="font-black text-sm" style="color:#002147;">Hotline</p>
+          <p class="text-sm text-gray-600">1900 8686 (miễn phí)</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-sm border" style="border-color:#e2e8f0;">
+          <i class="fa-solid fa-location-dot text-3xl mb-2" style="color:#005F73;"></i>
+          <p class="font-black text-sm" style="color:#002147;">Trụ Sở</p>
+          <p class="text-sm text-gray-600">TP. Hồ Chí Minh, Việt Nam</p>
         </div>
       </div>
     </section>
@@ -415,8 +584,8 @@
   <!-- ================= MODAL 1: BỆNH NỀN ================= -->
   <div id="medicalModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-      <h3 class="text-lg font-black text-emerald-800 flex items-center gap-2">
-        <i class="fa-solid fa-file-medical text-emerald-600"></i> Hồ Sơ Bệnh Nền Của Ông Bà
+      <h3 class="text-lg font-black flex items-center gap-2" style="color:#002147;">
+        <i class="fa-solid fa-file-medical" style="color:#005F73;"></i> Hồ Sơ Bệnh Nền Của Ông Bà
       </h3>
       <div class="space-y-3">
         <div class="grid grid-cols-2 gap-2">
@@ -451,12 +620,12 @@
 
         <div>
           <label class="text-xs font-bold text-gray-500 block">Thuốc uống hàng ngày</label>
-          <textarea id="dailyMedicinesText" rows="3" class="w-full border rounded-lg p-2 text-sm focus:ring-1 focus:ring-emerald-500" placeholder="Amlodipine 5mg buổi sáng..."></textarea>
+          <textarea id="dailyMedicinesText" rows="3" class="w-full border rounded-lg p-2 text-sm focus:ring-1 outline-none" style="border-color:#cbd5e1;" placeholder="Amlodipine 5mg buổi sáng..."></textarea>
         </div>
       </div>
       <div class="flex justify-end gap-2 border-t pt-3">
         <button onclick="toggleModal('medicalModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
-        <button onclick="saveMedicalHistory()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-black shadow-md">Lưu Hồ Sơ</button>
+        <button onclick="saveMedicalHistory()" class="px-5 py-2 text-white rounded-xl text-sm font-black shadow-md" style="background:#005F73;">Lưu Hồ Sơ</button>
       </div>
     </div>
   </div>
@@ -464,25 +633,25 @@
   <!-- ================= MODAL 2: ĐĂNG NHẬP / NHẬP TÊN (LƯU LOCALSTORAGE AN TOÀN) ================= -->
   <div id="quickStartModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-      <h3 class="text-lg font-black text-emerald-800 flex items-center gap-2">
-        <i class="fa-solid fa-user-check text-emerald-600"></i> Đăng Nhập / Thông Tin Ông Bà
+      <h3 class="text-lg font-black flex items-center gap-2" style="color:#002147;">
+        <i class="fa-solid fa-user-check" style="color:#005F73;"></i> Đăng Nhập / Thông Tin Ông Bà
       </h3>
       <form id="quickStartForm" onsubmit="saveQuickStartProfile(event)" class="space-y-4">
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="qsUserName">Tên của ông bà:</label>
-          <input type="text" id="qsUserName" required class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ví dụ: Ông Nông">
+          <input type="text" id="qsUserName" required class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: Ông Nông">
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="qsZaloPhone">Số điện thoại Zalo con cháu:</label>
-          <input type="tel" id="qsZaloPhone" required class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ví dụ: 0901234567">
+          <input type="tel" id="qsZaloPhone" required class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: 0901234567">
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="qsGmailTo">✉️ Gmail con cháu (nhận báo cáo):</label>
-          <input type="email" id="qsGmailTo" class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Ví dụ: conchau@gmail.com">
+          <input type="email" id="qsGmailTo" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: conchau@gmail.com">
         </div>
         <div class="flex justify-end gap-2 border-t pt-3">
           <button type="button" onclick="toggleModal('quickStartModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
-          <button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-black shadow-md">Lưu hồ sơ</button>
+          <button type="submit" class="px-5 py-2 text-white rounded-xl text-sm font-black shadow-md" style="background:#005F73;">Lưu hồ sơ</button>
         </div>
       </form>
     </div>
@@ -491,28 +660,28 @@
   <!-- ================= MODAL 3: CÀI ĐẶT HỆ THỐNG & BOT WEBHOOK ================= -->
   <div id="settingsModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-      <h3 class="text-lg font-black text-teal-800 flex items-center gap-2">
-        <i class="fa-solid fa-gears text-teal-600"></i> Cấu Hình Bác Sĩ AI & Webhook
+      <h3 class="text-lg font-black flex items-center gap-2" style="color:#002147;">
+        <i class="fa-solid fa-gears" style="color:#005F73;"></i> Cấu Hình Bác Sĩ AI & Báo Cáo
       </h3>
       <div class="space-y-4">
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="settingGeminiApiKey">Gemini API Key:</label>
-          <input type="password" id="settingGeminiApiKey" class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="AIzaSy...">
+          <input type="password" id="settingGeminiApiKey" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="AIzaSy...">
           <span class="text-[11px] text-gray-400 font-semibold">Lấy miễn phí tại https://aistudio.google.com/apikey</span>
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="settingGmailTo">Gmail của con cháu (nhận báo cáo):</label>
-          <input type="email" id="settingGmailTo" class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="conchau@gmail.com">
+          <input type="email" id="settingGmailTo" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="conchau@gmail.com">
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="settingZaloWebhook">Zalo/Telegram Webhook URL:</label>
-          <input type="text" id="settingZaloWebhook" class="border rounded-xl p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none" placeholder="https://api.telegram.org/bot... hoặc webhook">
+          <input type="text" id="settingZaloWebhook" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="https://api.telegram.org/bot... hoặc webhook">
           <span class="text-[11px] text-gray-400 font-semibold block mt-0.5">Sử dụng để đẩy báo động nhịp tim/huyết áp bất thường tới Telegram hoặc Zalo của gia đình.</span>
         </div>
       </div>
       <div class="flex justify-end gap-2 border-t pt-3">
         <button onclick="toggleModal('settingsModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
-        <button onclick="saveSystemSettings()" class="px-5 py-2 bg-teal-600 text-white rounded-xl text-sm font-black shadow-md">Lưu Cài Đặt</button>
+        <button onclick="saveSystemSettings()" class="px-5 py-2 text-white rounded-xl text-sm font-black shadow-md" style="background:#005F73;">Lưu Cài Đặt</button>
       </div>
     </div>
   </div>
@@ -524,7 +693,7 @@
       <h2 id="modalAlertTitle" class="text-xl font-black text-rose-800">CẢNH BÁO SỨC KHỎE KHẨN CẤP</h2>
       <p id="modalAlertBody" class="text-gray-700 text-lg font-bold leading-relaxed"></p>
       <div class="pt-3 border-t">
-        <button id="btnCloseAlertModal" onclick="closeAlertModalDirectly()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl shadow-md text-lg">
+        <button id="btnCloseAlertModal" onclick="closeAlertModalDirectly()" class="w-full text-white font-black py-3 rounded-xl shadow-md text-lg" style="background:#005F73;">
           ĐÃ HIỂU (ĐÓNG)
         </button>
       </div>
