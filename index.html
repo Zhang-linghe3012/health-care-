@@ -133,6 +133,34 @@
       animation: spin 2s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    /* TAB switching (Trang chủ / Giới thiệu / Cẩm nang / Bảng kết nối) */
+    .famcare-page {
+      display: none;
+    }
+    .famcare-page-visible {
+      display: block;
+      animation: famcarePageFadeIn 0.45s ease;
+    }
+    @keyframes famcarePageFadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .famcare-page-visible { animation: none; }
+    }
+    .article-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .article-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 33, 71, 0.12);
+    }
+    .article-card img {
+      transition: transform 0.4s ease;
+    }
+    .article-card:hover img {
+      transform: scale(1.04);
+    }
   </style>
 </head>
 <body class="pb-16">
@@ -166,13 +194,13 @@
       <!-- Dòng 2: Thanh menu điều hướng chức năng -->
       <nav class="py-2 mt-2 border-t border-gray-100 overflow-x-auto scrollbar-hide">
         <div class="nav-menu">
-          <a href="#top" class="nav-link active"><i class="fa-solid fa-house mr-1"></i>Trang chủ</a>
-          <a href="#gioi-thieu" class="nav-link"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
-          <a href="#cam-nang" class="nav-link"><i class="fa-solid fa-book-open mr-1"></i>Cẩm nang sức khỏe</a>
-          <a href="#ai-assistant-section" class="nav-link"><i class="fa-solid fa-robot mr-1"></i>Trợ lý AI Famcare</a>
-          <a href="#lich-sinh-hoat" class="nav-link"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
-          <a href="#monitoring-section" class="nav-link"><i class="fa-solid fa-users mr-1"></i>Bảng kết nối gia đình</a>
-          <a href="#lien-he" class="nav-link"><i class="fa-solid fa-envelope mr-1"></i>Liên hệ</a>
+          <a href="#top" onclick="goFamcareSection('top')" class="nav-link active" data-nav="home"><i class="fa-solid fa-house mr-1"></i>Trang chủ</a>
+          <a href="javascript:void(0)" onclick="showFamcareTab('tab-gioi-thieu')" class="nav-link" data-nav="tab-gioi-thieu"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
+          <a href="javascript:void(0)" onclick="showFamcareTab('tab-cam-nang')" class="nav-link" data-nav="tab-cam-nang"><i class="fa-solid fa-book-open mr-1"></i>Cẩm nang sức khỏe</a>
+          <a href="#ai-assistant-section" onclick="goFamcareSection('ai-assistant-section')" class="nav-link" data-nav="home"><i class="fa-solid fa-robot mr-1"></i>Trợ lý AI Famcare</a>
+          <a href="#lich-sinh-hoat" onclick="goFamcareSection('lich-sinh-hoat')" class="nav-link" data-nav="home"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
+          <a href="javascript:void(0)" onclick="showFamcareTab('tab-ket-noi')" class="nav-link" data-nav="tab-ket-noi"><i class="fa-solid fa-users mr-1"></i>Bảng kết nối gia đình</a>
+          <a href="#lien-he" onclick="goFamcareSection('lien-he')" class="nav-link" data-nav="home"><i class="fa-solid fa-envelope mr-1"></i>Liên hệ</a>
         </div>
       </nav>
 
@@ -200,7 +228,7 @@
   <main id="top" class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
     <!-- ================= TẦNG 2: TRỢ LÝ AI FAMCARE (MẮT THẤY & TAI NGHE) ================= -->
-    <section id="ai-assistant-section" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+    <section id="ai-assistant-section" data-page="home" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-2xl font-black text-teal-800 flex items-center gap-2" style="color:#002147;">
           <i class="fa-solid fa-robot"></i> Trợ Lý AI Famcare (Mắt Thấy & Tai Nghe)
@@ -337,7 +365,7 @@
     </section>
 
     <!-- ================= TẦNG 3: LỊCH SINH HOẠT HẰNG NGÀY ================= -->
-    <section id="lich-sinh-hoat" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+    <section id="lich-sinh-hoat" data-page="home" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
           <i class="fa-solid fa-clock"></i> Lịch Sinh Hoạt & Nhắc Nhở Hằng Ngày
@@ -364,7 +392,7 @@
     </section>
 
     <!-- ================= TẦNG 4: SỨC KHỎE & HỒ SƠ TÌNH HÌNH TRONG NGÀY ================= -->
-    <section class="card-soft p-6 border-t-4 space-y-6" style="border-top-color:#005F73;">
+    <section data-page="home" class="card-soft p-6 border-t-4 space-y-6" style="border-top-color:#005F73;">
       <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
         <i class="fa-solid fa-heart-pulse"></i> Sinh Hiệu & Nhật Ký Sức Khỏe
       </h2>
@@ -437,8 +465,8 @@
       </div>
     </section>
 
-    <!-- ================= TẦNG 5: BẢNG KẾT NỐI GIA ĐÌNH - GIÁM SÁT REALTIME ================= -->
-    <section id="monitoring-section" class="card-soft p-6 border-t-4" style="border-top-color:#002147;">
+    <!-- ================= TAB 3: BẢNG KẾT NỐI GIA ĐÌNH - GIÁM SÁT REALTIME ================= -->
+    <section id="monitoring-section" data-page="tab-ket-noi" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#002147;">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
           <i class="fa-solid fa-users"></i> Bảng Kết Nối Gia Đình (Giám Sát Realtime)
@@ -491,8 +519,8 @@
       </div>
     </section>
 
-    <!-- ================= TẦNG 6: GIỚI THIỆU ================= -->
-    <section id="gioi-thieu" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+    <!-- ================= TAB 1: GIỚI THIỆU ================= -->
+    <section id="gioi-thieu" data-page="tab-gioi-thieu" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#005F73;">
       <h2 class="text-2xl font-black flex items-center gap-2 mb-4" style="color:#002147;">
         <i class="fa-solid fa-circle-info"></i> Giới Thiệu Về Famcare
       </h2>
@@ -539,16 +567,18 @@
       </div>
     </section>
 
-    <!-- ================= TẦNG 7: CẨM NANG SỨC KHỎE (4 BÀI ĐỌC CÓ ẢNH) ================= -->
-    <section id="cam-nang" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+    <!-- ================= TAB 2: CẨM NANG SỨC KHỎE (3 BÀI ĐỌC ĐỘC LẬP) ================= -->
+    <section id="cam-nang" data-page="tab-cam-nang" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#005F73;">
       <h2 class="text-2xl font-black flex items-center gap-2 mb-1" style="color:#002147;">
         <i class="fa-solid fa-book-open"></i> Cẩm Nang Sức Khỏe
       </h2>
-      <p class="text-gray-600 text-base mb-4">4 bài đọc thiết thực giúp ông bà và con cháu cùng nắm kiến thức chăm sóc sức khỏe.</p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <p class="text-gray-600 text-base mb-4">3 bài đọc thiết thực giúp ông bà và con cháu cùng nắm kiến thức chăm sóc sức khỏe. Bấm vào bài để mở bài đọc.</p>
+
+      <!-- DANH SÁCH 3 BÀI (bấm để mở bài đọc) -->
+      <div id="cam-nang-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
         <!-- BÀI 1 -->
-        <article class="article-card bg-white rounded-2xl overflow-hidden shadow-sm border flex flex-col" style="border-color:#e2e8f0;">
+        <article class="article-card bg-white rounded-2xl overflow-hidden shadow-sm border flex flex-col cursor-pointer" style="border-color:#e2e8f0;" onclick="openCamNangArticle(1)">
           <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=70"
                alt="Cẩm nang bệnh đột quỵ"
                class="w-full h-44 object-cover"
@@ -556,78 +586,127 @@
           <div class="p-5 flex flex-col flex-1">
             <span class="text-xs font-black uppercase tracking-wider mb-2 self-start rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 1</span>
             <h3 class="font-black text-lg mb-2" style="color:#002147;">Cẩm Nang Từ A-Z Về Bệnh Đột Quỵ</h3>
-            <p class="text-gray-700 text-sm leading-relaxed">
-              <strong>Đột quỵ (tai biến mạch máu não)</strong> là tình trạng mạch máu não vỡ hoặc tắc nghẽn đột ngột,
-              khiến tế bào não chết nhanh chóng. <strong>Thời gian vàng 60 phút</strong> đầu là yếu tố quyết định sự sống còn.
-              Có <strong>2 thể đột quỵ</strong>: thiếu máu não cục bộ (mạch máu bị tắc) và xuất huyết não (mạch máu vỡ).
-              Nguy cơ tăng theo <strong>tuổi tác, huyết áp cao, tiểu đường, thuốc lá</strong>.
-              Nhận biết sớm qua <strong>6 dấu hiệu FAST</strong>: méo mặt, yếu tay chân, nói ngọng, đau đầu dữ dội,
-              rối loạn thị giác, chóng mặt mất thăng bằng. Phòng ngừa bằng kiểm soát huyết áp, ăn nhạt và vận động đều đặn.
-            </p>
+            <p class="text-gray-700 text-sm leading-relaxed">Định nghĩa, phân loại, nguyên nhân, dấu hiệu nhận biết sớm và cách phòng tránh đột quỵ cho người cao tuổi.</p>
+            <span class="mt-3 text-sm font-black self-start rounded-full px-4 py-1.5 text-white" style="background:#005F73;">📖 Đọc bài này</span>
           </div>
         </article>
 
         <!-- BÀI 2 -->
-        <article class="article-card bg-white rounded-2xl overflow-hidden shadow-sm border flex flex-col" style="border-color:#e2e8f0;">
-          <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=800&q=70"
-               alt="Phòng tránh đột quỵ cho người cao tuổi"
+        <article class="article-card bg-white rounded-2xl overflow-hidden shadow-sm border flex flex-col cursor-pointer" style="border-color:#e2e8f0;" onclick="openCamNangArticle(2)">
+          <img src="https://images.unsplash.com/photo-1600171055306-4b5e98a31351?auto=format&fit=crop&w=800&q=70"
+               alt="Chăm sóc tâm lý và sức khỏe người cao tuổi"
                class="w-full h-44 object-cover"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22300%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23002147%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dy=%22.3em%22>🩺</text></svg>';">
+               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22300%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23002147%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dy=%22.3em%22>👵</text></svg>';">
           <div class="p-5 flex flex-col flex-1">
             <span class="text-xs font-black uppercase tracking-wider mb-2 self-start rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 2</span>
-            <h3 class="font-black text-lg mb-2" style="color:#002147;">Phòng Tránh & Xử Trí Đột Quỵ Dành Cho Người Cao Tuổi</h3>
-            <p class="text-gray-700 text-sm leading-relaxed">
-              - <strong>Chế độ dinh dưỡng giảm chất béo</strong>: hạn chế mỡ động vật, đồ chiên rán, tăng rau xanh và cá.<br>
-              - <strong>Tập thể dục nhẹ nhàng 30 phút/ngày</strong>: đi bộ, dưỡng sinh, thái cực quyền.<br>
-              - <strong>Giữ ấm cơ thể khi giao mùa</strong>: trời lạnh làm co mạch, dễ tăng huyết áp.<br>
-              - <strong>Khám sức khỏe định kỳ</strong> và kiểm soát tốt huyết áp, đường huyết, mỡ máu.<br>
-              - <strong>Nhận biết cơn thiếu máu não thoáng qua (TIA)</strong>: mờ mắt, tê yếu thoáng qua vài phút —
-              đây là "cơn báo động" phải đi khám ngay, tránh để xảy ra đột quỵ thật sự.
-            </p>
+            <h3 class="font-black text-lg mb-2" style="color:#002147;">Chăm Sóc Sức Khỏe & Tâm Lý Người Cao Tuổi</h3>
+            <p class="text-gray-700 text-sm leading-relaxed">Ba chìa khóa vàng giúp ông bà luôn vui khỏe, lạc quan và an tâm tuổi già.</p>
+            <span class="mt-3 text-sm font-black self-start rounded-full px-4 py-1.5 text-white" style="background:#005F73;">📖 Đọc bài này</span>
           </div>
         </article>
 
         <!-- BÀI 3 -->
-        <article class="article-card bg-white rounded-2xl overflow-hidden shadow-sm border flex flex-col" style="border-color:#e2e8f0;">
-          <img src="https://images.unsplash.com/photo-1600171055306-4b5e98a31351?auto=format&fit=crop&w=800&q=70"
-               alt="Chăm sóc tâm lý người cao tuổi"
-               class="w-full h-44 object-cover"
-               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22300%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23005F73%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dy=%22.3em%22>👵</text></svg>';">
-          <div class="p-5 flex flex-col flex-1">
-            <span class="text-xs font-black uppercase tracking-wider mb-2 self-start rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 3</span>
-            <h3 class="font-black text-lg mb-2" style="color:#002147;">Cẩm Nang Chăm Sóc Tâm Lý & Sức Khỏe Người Cao Tuổi</h3>
-            <p class="text-gray-700 text-sm leading-relaxed">
-              Tuổi già dễ rơi vào <strong>tâm lý cô đơn, bi quan</strong> khi con cháu bận rộn. Hiểu và đồng hành là liều thuốc tốt nhất.
-              <strong>3 Chìa khóa vàng:</strong> (1) Động viên ông bà tham gia <strong>câu lạc bộ, hoạt động xã hội</strong> để có bạn đồng hành;
-              (2) <strong>Thường xuyên trò chuyện, lắng nghe</strong> — chỉ cần vài phút gọi điện mỗi ngày cũng xua tan cô đơn;
-              (3) <strong>Khám sức khỏe định kỳ</strong> để phát hiện sớm bệnh mạn tính như tăng huyết áp, tiểu đường, tim mạch.
-            </p>
-          </div>
-        </article>
-
-        <!-- BÀI 4 -->
-        <article class="article-card bg-white rounded-2xl overflow-hidden shadow-sm border flex flex-col" style="border-color:#e2e8f0;">
+        <article class="article-card bg-white rounded-2xl overflow-hidden shadow-sm border flex flex-col cursor-pointer" style="border-color:#e2e8f0;" onclick="openCamNangArticle(3)">
           <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=70"
                alt="Dinh dưỡng giảm chất béo giàu thực vật"
                class="w-full h-44 object-cover"
                onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22300%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23002147%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dy=%22.3em%22>🥗</text></svg>';">
           <div class="p-5 flex flex-col flex-1">
-            <span class="text-xs font-black uppercase tracking-wider mb-2 self-start rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 4</span>
+            <span class="text-xs font-black uppercase tracking-wider mb-2 self-start rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 3</span>
             <h3 class="font-black text-lg mb-2" style="color:#002147;">Chế Độ Dinh Dưỡng Giảm Chất Béo, Giàu Thực Vật</h3>
-            <p class="text-gray-700 text-sm leading-relaxed">
-              - <strong>Đảm bảo 4 nhóm chất</strong>: đạm, béo, bột đường, vitamin và khoáng chất trong mỗi bữa ăn.<br>
-              - <strong>Tăng cường</strong> rau củ quả, ngũ cốc nguyên hạt, cá tôm — giàu omega-3 và chất xơ.<br>
-              - <strong>Hạn chế</strong> nội tạng động vật, đồ ngọt, đồ mặn/chua để bảo vệ tim mạch và thận.<br>
-              - <strong>Bổ sung sữa công thức giàu MUFA, PUFA</strong> (tốt cho tim) và <strong>Canxi & Vitamin D</strong> (tốt cho xương khớp, ngừa loãng xương).
-            </p>
+            <p class="text-gray-700 text-sm leading-relaxed">Ăn gì, tránh gì để bảo vệ tim mạch, xương khớp và ngừa loãng xương hiệu quả.</p>
+            <span class="mt-3 text-sm font-black self-start rounded-full px-4 py-1.5 text-white" style="background:#005F73;">📖 Đọc bài này</span>
           </div>
         </article>
 
       </div>
+
+      <!-- KHUNG ĐỌC BÀI (mở khi bấm vào bài) -->
+      <div id="cam-nang-article" class="hidden">
+        <button onclick="closeCamNangArticle()" class="mb-4 bg-white text-navy text-sm font-black px-4 py-2 rounded-xl shadow border flex items-center gap-2" style="color:#002147;border-color:#e2e8f0;">
+          <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách bài đọc
+        </button>
+
+        <!-- BÀI ĐỌC 1 -->
+        <div id="cam-nang-article-1" class="hidden bg-white rounded-2xl shadow-sm border p-6" style="border-color:#e2e8f0;">
+          <span class="text-xs font-black uppercase tracking-wider mb-2 inline-block rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 1</span>
+          <h3 class="font-black text-xl mb-3" style="color:#002147;">Cẩm Nang Từ A-Z Về Bệnh Đột Quỵ</h3>
+          <p class="text-gray-700 leading-relaxed mb-3">
+            <strong>Đột quỵ (tai biến mạch máu não)</strong> là tình trạng mạch máu não vỡ hoặc tắc nghẽn đột ngột,
+            khiến tế bào não chết nhanh chóng. <strong>Thời gian vàng 60 phút</strong> đầu là yếu tố quyết định sự sống còn.
+          </p>
+          <h4 class="font-black mb-2 mt-4" style="color:#005F73;">🔬 Có 2 thể đột quỵ:</h4>
+          <ul class="text-gray-700 space-y-1 mb-3">
+            <li>- <strong>Thiếu máu não cục bộ</strong>: mạch máu não bị tắc nghẽn (chiếm đa số ca bệnh).</li>
+            <li>- <strong>Xuất huyết não</strong>: mạch máu não bị vỡ, máu tràn vào mô não.</li>
+          </ul>
+          <h4 class="font-black mb-2 mt-4" style="color:#005F73;">⚠️ Nguyên nhân & yếu tố nguy cơ:</h4>
+          <p class="text-gray-700 leading-relaxed mb-3">Nguy cơ tăng theo <strong>tuổi tác, huyết áp cao, tiểu đường, thuốc lá</strong> và mỡ máu cao.</p>
+          <h4 class="font-black mb-2 mt-4" style="color:#005F73;">🩺 6 dấu hiệu nhận biết sớm (FAST):</h4>
+          <ul class="text-gray-700 space-y-1 mb-3">
+            <li><strong>F</strong> - Face: méo mặt, cười lệch một bên.</li>
+            <li><strong>A</strong> - Arms: yếu tay chân một bên, giơ không nổi.</li>
+            <li><strong>S</strong> - Speech: nói ngọng, nói không rõ lời.</li>
+            <li><strong>T</strong> - Time: đau đầu dữ dội, rối loạn thị giác, chóng mặt mất thăng bằng - gọi cấp cứu ngay.</li>
+          </ul>
+          <h4 class="font-black mb-2 mt-4" style="color:#005F73;">✅ Cách phòng tránh cho người cao tuổi:</h4>
+          <ul class="text-gray-700 space-y-1">
+            <li>- <strong>Chế độ dinh dưỡng giảm chất béo</strong>: hạn chế mỡ động vật, đồ chiên rán, tăng rau xanh và cá.</li>
+            <li>- <strong>Tập thể dục nhẹ nhàng 30 phút/ngày</strong>: đi bộ, dưỡng sinh, thái cực quyền.</li>
+            <li>- <strong>Giữ ấm cơ thể khi giao mùa</strong>: trời lạnh làm co mạch, dễ tăng huyết áp.</li>
+            <li>- <strong>Khám sức khỏe định kỳ</strong> và kiểm soát tốt huyết áp, đường huyết, mỡ máu.</li>
+            <li>- <strong>Nhận biết cơn thiếu máu não thoáng qua (TIA)</strong>: mờ mắt, tê yếu thoáng qua vài phút - "cơn báo động" phải đi khám ngay.</li>
+          </ul>
+        </div>
+
+        <!-- BÀI ĐỌC 2 -->
+        <div id="cam-nang-article-2" class="hidden bg-white rounded-2xl shadow-sm border p-6" style="border-color:#e2e8f0;">
+          <span class="text-xs font-black uppercase tracking-wider mb-2 inline-block rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 2</span>
+          <h3 class="font-black text-xl mb-3" style="color:#002147;">Cẩm Nang Chăm Sóc Sức Khỏe & Tâm Lý Người Cao Tuổi</h3>
+          <p class="text-gray-700 leading-relaxed mb-3">
+            Chăm sóc cha mẹ ông bà không chỉ là lo thuốc men, mà còn là <strong>chăm sóc cả tinh thần</strong>.
+            Tuổi già dễ rơi vào <strong>tâm lý cô đơn, bi quan</strong> khi con cháu bận rộn. Hiểu và đồng hành là liều thuốc tốt nhất.
+          </p>
+          <h4 class="font-black mb-2 mt-4" style="color:#005F73;">🗝️ 3 Chìa khóa vàng chăm sóc người cao tuổi:</h4>
+          <div class="space-y-3">
+            <div class="bg-white p-4 rounded-xl border" style="background:#EFF6F8;border-color:#b2d7dd;">
+              <p class="font-black mb-1" style="color:#002147;">1️⃣ Kết nối xã hội</p>
+              <p class="text-gray-700 text-base">Động viên ông bà tham gia <strong>câu lạc bộ, hoạt động xã hội</strong> để có bạn đồng hành, tránh cô độc.</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border" style="background:#EFF6F8;border-color:#b2d7dd;">
+              <p class="font-black mb-1" style="color:#002147;">2️⃣ Trò chuyện mỗi ngày</p>
+              <p class="text-gray-700 text-base"><strong>Thường xuyên trò chuyện, lắng nghe</strong> - chỉ cần vài phút gọi điện mỗi ngày cũng xua tan cô đơn.</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl border" style="background:#EFF6F8;border-color:#b2d7dd;">
+              <p class="font-black mb-1" style="color:#002147;">3️⃣ Khám sức khỏe định kỳ</p>
+              <p class="text-gray-700 text-base"><strong>Khám định kỳ</strong> để phát hiện sớm bệnh mạn tính như tăng huyết áp, tiểu đường, tim mạch.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- BÀI ĐỌC 3 -->
+        <div id="cam-nang-article-3" class="hidden bg-white rounded-2xl shadow-sm border p-6" style="border-color:#e2e8f0;">
+          <span class="text-xs font-black uppercase tracking-wider mb-2 inline-block rounded-full px-3 py-1" style="background:#EFF6F8;color:#005F73;">🖼️ Bài 3</span>
+          <h3 class="font-black text-xl mb-3" style="color:#002147;">Chế Độ Dinh Dưỡng Giảm Chất Béo, Giàu Thực Vật</h3>
+          <p class="text-gray-700 leading-relaxed mb-3">
+            Dinh dưỡng đúng cách giúp người cao tuổi <strong>sống khỏe, dẻo dai</strong> và giảm nguy cơ tim mạch, loãng xương.
+          </p>
+          <h4 class="font-black mb-2 mt-4" style="color:#005F73;">🥗 Nguyên tắc vàng mỗi bữa ăn:</h4>
+          <ul class="text-gray-700 space-y-1 mb-3">
+            <li>- <strong>Đảm bảo 4 nhóm chất</strong>: đạm, béo, bột đường, vitamin và khoáng chất trong mỗi bữa ăn.</li>
+            <li>- <strong>Tăng cường</strong> rau củ quả, ngũ cốc nguyên hạt, cá tôm - giàu omega-3 và chất xơ.</li>
+            <li>- <strong>Hạn chế</strong> nội tạng động vật, đồ ngọt, đồ mặn/chua để bảo vệ tim mạch và thận.</li>
+            <li>- <strong>Bổ sung sữa công thức giàu MUFA, PUFA</strong> (tốt cho tim) và <strong>Canxi & Vitamin D</strong> (tốt cho xương khớp, ngừa loãng xương).</li>
+          </ul>
+          <p class="text-gray-700 leading-relaxed">
+            Hãy kết hợp chế độ ăn với <strong>vận động nhẹ nhàng hằng ngày</strong> và uống đủ nước để cơ thể luôn khỏe mạnh.
+          </p>
+        </div>
+      </div>
     </section>
 
     <!-- ================= TẦNG 8: LIÊN HỆ ================= -->
-    <section id="lien-he" class="card-soft p-6 border-t-4" style="border-top-color:#002147;">
+    <section id="lien-he" data-page="home" class="card-soft p-6 border-t-4" style="border-top-color:#002147;">
       <h2 class="text-2xl font-black flex items-center gap-2 mb-4" style="color:#002147;">
         <i class="fa-solid fa-envelope"></i> Liên Hệ Với Famcare
       </h2>
@@ -771,6 +850,7 @@
     </div>
   </div>
 
+  <script src="script.js"></script>
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

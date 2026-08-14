@@ -226,3 +226,28 @@ input, select, textarea {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.8); }
 }
+
+/* ---------- TAB switching (Trang chủ / Giới thiệu / Cẩm nang / Bảng kết nối) ---------- */
+.famcare-page {
+  display: none;
+}
+.famcare-page-visible {
+  display: block;
+  animation: famcarePageFadeIn 0.45s ease;
+}
+@keyframes famcarePageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .famcare-page-visible {
+    animation: none;
+  }
+}
