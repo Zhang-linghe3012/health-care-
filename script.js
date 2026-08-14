@@ -65,3 +65,44 @@ function closeCamNangArticle() {
   document.getElementById('cam-nang-article').classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+/* =========================================================
+   PWA: ĐĂNG KÝ SERVICE WORKER + CÀI ĐẶT APP
+   ========================================================= */
+
+/* Ẩn banner cài đặt khi app đã chạy dạng standalone (đã cài) */
+function hideInstallPromptIfStandalone() {
+  if (window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true) {
+    var banner = document.getElementById('pwaInstallBanner');
+    var btn = document.getElementById('installAppBtn');
+    if (banner) banner.classList.add('hidden');
+    if (btn) btn.classList.add('hidden');
+  }
+}
+
+/* Đăng ký Service Worker để app chạy offline & nhanh */
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js')
+        .then(function (reg) {
+          console.log('Famcare PWA Service Worker registered:', reg.scope);
+        })
+        .catch(function (err) {
+          console.error('Famcare PWA Service Worker registration failed:', err);
+        });
+    });
+  }
+}
+
+/* Khởi tạo PWA khi trang đã sẵn sàng */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function () {
+    registerServiceWorker();
+    hideInstallPromptIfStandalone();
+  });
+} else {
+  registerServiceWorker();
+  hideInstallPromptIfStandalone();
+}

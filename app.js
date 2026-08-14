@@ -1012,6 +1012,7 @@ function initPwaInstall() {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
+    window.deferredInstallPrompt = e;
     const installBtn = document.getElementById('installAppBtn');
     if (installBtn) installBtn.classList.remove('hidden');
     const banner = document.getElementById('pwaInstallBanner');
@@ -1030,7 +1031,14 @@ function installPWA() {
       if (banner) banner.classList.add('hidden');
     });
   } else {
-    alert("Để cài đặt App: Trên iPhone bấm nút 'Chia sẻ' -> 'Thêm vào màn hình chính'. Trên Android bấm dấu 3 chấm -> 'Cài đặt ứng dụng'.");
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    if (isIOS) {
+      showToastAlert("📲 CÀI ĐẶT APP TRÊN iPhone/iPad",
+        "Bấm nút Chia sẻ (☝️ hình vuông có mũi tên lên) dưới trình duyệt Safari → chọn 'Thêm vào Màn hình chính' → bấm 'Thêm' để Famcare hiện như App thật trên điện thoại!");
+    } else {
+      showToastAlert("📲 CÀI ĐẶT APP TRÊN ĐIỆN THOẠI",
+        "Trên Android (Chrome): bấm dấu ⋮ → chọn 'Cài đặt ứng dụng' hoặc 'Thêm vào Màn hình chính'. Trên iPhone: bấm nút Chia sẻ → 'Thêm vào Màn hình chính'.");
+    }
   }
 }
 

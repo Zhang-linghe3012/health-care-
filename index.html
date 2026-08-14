@@ -13,6 +13,15 @@
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#002147">
   <meta name="description" content="Famcare - Công nghệ từ tâm, chăm sóc & kết nối tình thân. Trợ lý AI, giám sát sức khỏe realtime và báo cáo Gmail/Zalo cho gia đình">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Famcare">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta property="og:title" content="Famcare - Chăm Sóc Sức Khỏe">
+  <meta property="og:description" content="Chăm sóc & kết nối tình thân - Ứng dụng sức khỏe gia đình">
+  <meta property="og:type" content="website">
 
   <style>
     :root {
@@ -220,8 +229,11 @@
   </header>
 
   <!-- PWA Installation Sticky Banner -->
-  <div id="pwaInstallBanner" class="bg-navy text-white text-center p-3 text-sm font-bold hidden" style="background:#002147;">
-    <span>📱 Bấm vào đây để <strong class="underline cursor-pointer" onclick="installPWA()">THÊM VÀO MÀN HÌNH CHÍNH</strong> điện thoại giúp ông bà mở nhanh!</span>
+  <div id="pwaInstallBanner" class="bg-navy text-white text-center p-3 text-sm font-bold" style="background:#002147;border-bottom:2px solid #005F73;">
+    <button onclick="installPWA()" class="w-full flex items-center justify-center gap-2 cursor-pointer">
+      <span class="text-xl">📲</span>
+      <span><strong class="underline">CÀI ĐẶT ỨNG DỤNG FAMCARE</strong> về điện thoại - ông bà mở nhanh, dùng như App thật!</span>
+    </button>
   </div>
 
   <!-- CONTAINER CHÍNH -->
@@ -852,17 +864,5 @@
 
   <script src="script.js"></script>
   <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => {
-            console.log('PWA Service Worker registered in scope:', reg.scope);
-            // Request push manager sync if needed
-          })
-          .catch(err => console.error('PWA Service Worker registration failed:', err));
-      });
-    }
-  </script>
 </body>
 </html>
