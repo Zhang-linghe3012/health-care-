@@ -1,20 +1,23 @@
 /**
- * MẮT THẤY TAI NGHE V8 - PHIÊN BẢN MASTER SYSTEM
+ * MẮT THẤY TAI NGHE V9 - GEMINI INTEGRATED (MASTER SYSTEM)
  * Features:
- * 1. AI Tư Vấn Linh Hoạt (Xóa câu trả lời lặp lại, tư vấn mệt/chóng mặt/đau đầu/ho/sốt/đau họng và đọc to).
- * 2. Phân Tích OCR Toa Thuốc (Phân loại: huyết áp, tiểu đường, bổ..., liều dùng, uống trước/sau ăn, hướng giải quyết).
- * 3. Báo Cáo Sức Khỏe Con Cháu (📲 GỬI BÁO CÁO QUA ZALO tổng hợp sinh hiệu, trạng thái uống thuốc, lời khuyên AI).
- * 4. Thông Báo Ngầm Chạy Ngầm (Push Notification thông báo nhắc nhở khi thoát app).
+ * 1. BỘ TRỢ LÝ AI DUY NHẤT: Gộp MẮT THẤY & TAI NGHE - Camera/Mic kết hợp Ảnh (Base64) + Câu hỏi giọng nói gửi thẳng Gemini (gemini-1.5-flash).
+ * 2. TỰ ĐỘNG ĐỌC TO câu trả lời bằng giọng Tiếng Việt chuẩn (speechSynthesis mượt trên Laptop & Điện thoại).
+ * 3. ĐỒNG BỘ REALTIME: Mọi hoạt động (uống thuốc, đo chỉ số, hỏi AI) cập nhật NGAY trên Bảng Giám Sát Con Cháu.
+ * 4. BÁO CÁO QUA GMAIL: Nút ✉️ tạo sẵn Email tổng hợp sức khỏe gửi thẳng Gmail con cháu.
+ * 5. Báo cáo Zalo, nhắc thuốc chạy ngầm, cảnh báo khẩn cấp.
  */
 
-const SYSTEM_INSTRUCTION = `Bạn là bác sĩ gia đình ảo thông minh và thân thiện thuộc ứng dụng MẮT THẤY TAI NGHE dành cho người cao tuổi. Hãy tư vấn ngắn gọn, ấm áp, sử dụng từ ngữ dễ hiểu, xưng 'cháu' gọi 'ông' hoặc 'bà', nhắc nhở ăn uống nghỉ ngơi.
+const SYSTEM_INSTRUCTION = `Bạn là Bác sĩ gia đình chân thành, ấm áp. Hãy phân tích kỹ hình ảnh/toa thuốc/chữ viết và câu nói tâm sự của ông bà. Trả lời linh hoạt, thông minh, đồng cảm, đúng trọng tâm câu hỏi, KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH.
 
-BẮT BUỘC TƯ VẤN LINH HOẠT VÀ CHI TIẾT THEO NGỮ CẢNH (TUYỆT ĐỐI KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH LẶP ĐI LẶP LẠI):
-- NẾU NGƯỜI DÙNG BÁO 'MỆT / CHÓNG MẶT / ĐAU ĐẦU': AI lập tức khuyên nằm nghỉ ngơi tại chỗ ngay tránh đi lại phòng té ngã, nhắc nhờ con cháu đo ngay Huyết áp & Nhịp tim, hướng dẫn uống 1 ly nước ấm hoặc trà đường ấm và hỏi lại cảm giác hiện tại.
-- NẾU NGƯỜI DÙNG BÁO 'SỐT / HO / ĐAU HỌNG': AI hướng dẫn chườm ấm trán nách, uống nhiều nước ấm và nhắc nhở thời gian uống thuốc hạ sốt cách 4-6 tiếng.
-- NẾU LÀ ẢNH ĐƠN THUỐC / TÊN THUỐC: Phân tích chính xác Tên thuốc, Công dụng, Liều lượng, Phân loại thuốc (Thuốc huyết áp, Thuốc tiểu đường, Thuốc bổ, Thuốc hạ sốt, v.v.), Uống trước hay sau ăn, và ĐƯA RA HƯỚNG GIẢI QUYẾT rõ ràng: 'Ông/bà cần uống thuốc này sau khi ăn no. Nhớ uống kèm 1 ly nước ấm to.'
+BẮT BUỘC:
+- Xưng 'cháu' gọi 'ông' hoặc 'bà', ngôn từ dễ hiểu, ấm áp cho người cao tuổi.
+- NẾU CÓ ẢNH: phân tích kỹ nội dung hình ảnh (toa thuốc, hộp thuốc, vết thương, chữ viết...) kết hợp với câu hỏi đi kèm.
+- NẾU NGƯỜI DÙNG BÁO 'MỆT / CHÓNG MẶT / ĐAU ĐẦU': khuyên nằm nghỉ ngơi tại chỗ tránh té ngã, nhắc đo Huyết áp & Nhịp tim, uống 1 ly nước ấm hoặc trà đường ấm và hỏi lại cảm giác hiện tại.
+- NẾU NGƯỜI DÙNG BÁO 'SỐT / HO / ĐAU HỌNG': hướng dẫn chườm ấm trán nách, uống nhiều nước ấm, nhắc khoảng cách 4-6 tiếng giữa các lần thuốc hạ sốt.
+- NẾU LÀ ẢNH ĐƠN THUỐC: phân tích Tên thuốc, Công dụng, Liều lượng, loại thuốc (huyết áp, tiểu đường, bổ, hạ sốt...), uống trước hay sau ăn, kiểm tra hạn sử dụng, ảnh mờ hay rõ.
 
-ĐẦU RA BẮT BUỘC DẠNG JSON CHUẨN:
+ĐẦU RA BẮT BUỘC DẠNG JSON CHUẨN (không xuống dòng thừa):
 {
   "action_type": "READ_PRESCRIPTION" | "HEALTH_CHAT" | "EMERGENCY",
   "medicine_name": "Tên thuốc (nếu có)",
@@ -23,8 +26,8 @@ BẮT BUỘC TƯ VẤN LINH HOẠT VÀ CHI TIẾT THEO NGỮ CẢNH (TUYỆT Đ�
   "intake_time": "Trước khi ăn" | "Sau khi ăn no" | "Trong bữa ăn" | "Chưa rõ",
   "is_expired": true/false,
   "is_blurry": true/false,
-  "speech_message": "Câu tư vấn chi tiết ấm áp ngắn gọn để ứng dụng đọc ra loa cho ông bà nghe",
-  "action_solution": "Ông/bà cần uống thuốc này sau khi ăn no. Nhớ uống kèm 1 ly nước ấm to. (nếu là thuốc)",
+  "speech_message": "Câu tư vấn chi tiết ấm áp, ngắn gọn để ứng dụng đọc to cho ông bà nghe",
+  "action_solution": "Hướng giải quyết rõ ràng (nếu là thuốc)",
   "alert_children": true/false
 }`;
 
@@ -32,6 +35,7 @@ BẮT BUỘC TƯ VẤN LINH HOẠT VÀ CHI TIẾT THEO NGỮ CẢNH (TUYỆT Đ�
 let healthProfile = {
   userName: "Ông/Bà",
   familyPhone: "0901234567",
+  familyEmail: "",
   conditions: [],
   baseSystolic: 120,
   baseDiastolic: 80,
@@ -50,6 +54,7 @@ let currentBase64Image = null;
 let currentAudioElement = null;
 let isMedicineTakenToday = false;
 let medicineTakenTime = "";
+let voiceQuestionText = "";
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -60,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initSpeechRecognition();
   renderHealthHistory();
   renderAiDoctorJournal();
+  renderRealtimeFeed();
+  renderMonitoringSummary();
+  loadGmailPrefill();
   
   // Request Notification Permission immediately when app opens
   requestNotificationPermission();
@@ -70,6 +78,86 @@ document.addEventListener('DOMContentLoaded', () => {
   
   setupEventListeners();
 });
+
+// ======================= REALTIME SYNC (BẢNG GIÁM SÁT CON CHÁU) =======================
+function addRealtimeEvent(icon, text) {
+  const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  const entry = { time: timeStr, icon: icon, text: text };
+
+  let feed = JSON.parse(localStorage.getItem('REALTIME_FEED') || "[]");
+  feed.unshift(entry);
+  if (feed.length > 30) feed.pop();
+  localStorage.setItem('REALTIME_FEED', JSON.stringify(feed));
+
+  renderRealtimeFeed();
+  broadcastRealtimeUpdate();
+}
+
+function renderRealtimeFeed() {
+  const container = document.getElementById('realtimeFeed');
+  if (!container) return;
+
+  let feed = JSON.parse(localStorage.getItem('REALTIME_FEED') || "[]");
+  if (feed.length === 0) {
+    container.innerHTML = `<p class="text-xs text-violet-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay. Ông bà bấm các nút bên trên là con cháu thấy ngay lập tức!</p>`;
+    return;
+  }
+
+  container.innerHTML = feed.map(item => `
+    <div class="flex items-start gap-2 bg-white p-3 rounded-lg border border-violet-100 shadow-sm">
+      <span class="text-xl">${item.icon}</span>
+      <div class="flex-1">
+        <p class="text-slate-800 font-bold text-sm">${item.text}</p>
+        <p class="text-[11px] text-violet-500 font-bold">⏰ ${item.time}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function broadcastRealtimeUpdate() {
+  // Broadcast to service worker so notifications can be pushed to relatives
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      action: 'realtimeUpdate',
+      feed: JSON.parse(localStorage.getItem('REALTIME_FEED') || "[]").slice(0, 3)
+    });
+  }
+  // Ping family webhook (if configured) for cross-device realtime sync
+  const webhookUrl = localStorage.getItem('ZALO_WEBHOOK_URL');
+  if (webhookUrl) {
+    const latest = JSON.parse(localStorage.getItem('REALTIME_FEED') || "[]")[0];
+    if (latest) {
+      try {
+        fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: `[REALTIME] ${latest.icon} ${latest.text} lúc ${latest.time}` })
+        }).catch(e => console.warn("Realtime webhook error:", e));
+      } catch (e) {}
+    }
+  }
+}
+
+function renderMonitoringSummary() {
+  const logs = JSON.parse(localStorage.getItem('HEALTH_LOGS') || "[]");
+  const medEl = document.getElementById('monSummaryMedicine');
+  const vitEl = document.getElementById('monSummaryVitals');
+  const heartEl = document.getElementById('monSummaryHeart');
+  const aiEl = document.getElementById('monSummaryAI');
+
+  if (medEl) {
+    medEl.textContent = isMedicineTakenToday ? `✅ ${medicineTakenTime}` : "Chưa uống";
+    medEl.className = isMedicineTakenToday
+      ? "font-black text-emerald-600 text-lg mt-1"
+      : "font-black text-slate-400 text-lg mt-1";
+  }
+  if (vitEl && logs.length > 0) vitEl.textContent = logs[0].bloodPressure;
+  if (heartEl && logs.length > 0) heartEl.textContent = `${logs[0].heartRate} bpm`;
+  if (aiEl) {
+    const aiCount = (JSON.parse(localStorage.getItem('AI_DOCTOR_JOURNAL') || "[]")).filter(e => e.text.includes('Bác sĩ AI tư vấn')).length;
+    aiEl.textContent = aiCount;
+  }
+}
 
 // REQUEST NOTIFICATION PERMISSION IMMEDIATELY
 function requestNotificationPermission() {
@@ -106,7 +194,20 @@ document.addEventListener('click', function unlockAudio() {
   document.removeEventListener('click', unlockAudio);
 }, { once: true });
 
-// SPEAK VIETNAMESE (V8 CLOUD & NATIVE HYBRID TTS)
+// SPEAK VIETNAMESE (V9 - NATIVE SPEECH SYNTHESIS + CLOUD FALLBACK, XUYÊN THIẾT BỊ)
+let viVoicesCache = [];
+
+function loadViVoices() {
+  if ('speechSynthesis' in window) {
+    viVoicesCache = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().includes('vi'));
+  }
+}
+if ('speechSynthesis' in window) {
+  loadViVoices();
+  window.speechSynthesis.onvoiceschanged = loadViVoices;
+  document.addEventListener('click', loadViVoices, { once: true });
+}
+
 function speakVietnamese(text) {
   if (!text) return;
   
@@ -130,14 +231,15 @@ function speakVietnamese(text) {
     window.speechSynthesis.cancel();
   }
 
-  // Priority 1: Native Web Speech API
+  // Priority 1: Native Web Speech API (works on Windows/Mac/Android, and iOS 13+)
   if ('speechSynthesis' in window) {
-    const voices = window.speechSynthesis.getVoices();
-    const viVoice = voices.find(v => v.lang.includes('vi') || v.lang.includes('VI'));
+    loadViVoices();
+    const voices = viVoicesCache.length > 0 ? viVoicesCache : window.speechSynthesis.getVoices();
+    const viVoice = voices.find(v => v.lang.includes('vi') || v.lang.includes('VI')) || null;
     
-    if (viVoice) {
+    try {
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.voice = viVoice;
+      if (viVoice) utterance.voice = viVoice;
       utterance.lang = 'vi-VN';
       utterance.rate = 0.82; // Slow pace for elderly users
       utterance.pitch = 1.0;
@@ -148,11 +250,23 @@ function speakVietnamese(text) {
       utterance.onerror = () => { if (btnSpeakAgain) btnSpeakAgain.classList.remove('animate-pulse'); };
 
       window.speechSynthesis.speak(utterance);
+      // Fix Chrome long-text cut-off bug: resume periodically
+      const keepAlive = setInterval(() => {
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        } else {
+          clearInterval(keepAlive);
+        }
+      }, 14000);
+      utterance.onend = () => { clearInterval(keepAlive); if (btnSpeakAgain) btnSpeakAgain.classList.remove('animate-pulse'); };
       return;
+    } catch (e) {
+      console.warn("SpeechSynthesis error, trying cloud TTS:", e);
     }
   }
 
-  // Priority 2: Google Translate TTS Fallback (0.85x)
+  // Priority 2: Google Translate TTS Fallback (0.85x) - works everywhere
   try {
     const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${encodeURIComponent(cleanText.substring(0, 180))}`;
     const audio = new Audio(audioUrl);
@@ -175,7 +289,7 @@ function speakVietnamese(text) {
   }
 }
 
-// DYNAMIC CONTEXTUAL AI & VISION OCR PRESCRIPTION ANALYSIS
+// DYNAMIC CONTEXTUAL AI & VISION OCR PRESCRIPTION ANALYSIS (V9: ẢNH + GIỌNG NÓI ĐỒNG THỜI)
 async function askAIAdvisor(promptText, imageBase64 = null) {
   const aiOutputElement = document.getElementById('aiResponseText');
   const actionSolutionBox = document.getElementById('actionSolutionBox');
@@ -192,7 +306,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     aiOutputElement.innerHTML = "Bác sĩ AI đang suy nghĩ và chẩn đoán cho ông bà...";
   }
   
-  speakVietnamese("Bác sĩ AI đang đọc toa thuốc và phân tích triệu chứng. Ông bà chờ một chút nhé!");
+  speakVietnamese("Bác sĩ AI đang phân tích hình ảnh và câu hỏi của ông bà. Ông bà chờ một chút nhé!");
 
   try {
     const lowerPrompt = (promptText || "").toLowerCase();
@@ -227,7 +341,8 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     }
 
     const apiKey = localStorage.getItem('GEMINI_API_KEY') || "";
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+    // V9: gemini-1.5-flash là model chính (nhanh + rẻ + hỗ trợ ảnh & văn bản), dự phòng các model khác
+    const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-pro-vision'];
     let success = false;
     let replyText = "";
     let solutionText = "";
@@ -308,7 +423,12 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     }
 
     // Save interaction to Daily AI Doctor Journal
-    saveAiDoctorJournal(`Bác sĩ AI tư vấn: "${promptText || 'Tư vấn toa thuốc'}" -> Lời khuyên: ${replyText}`);
+    const journalEntryText = `Bác sĩ AI tư vấn: "${promptText || 'Tư vấn toa thuốc'}" -> Lời khuyên: ${replyText}`;
+    saveAiDoctorJournal(journalEntryText);
+
+    // REALTIME: thông báo ngay cho Bảng Giám Sát Con Cháu
+    addRealtimeEvent('🤖', `${healthProfile.userName} vừa hỏi Bác sĩ AI: "${(promptText || 'Tư vấn toa thuốc').substring(0, 80)}..."`);
+    renderMonitoringSummary();
 
     resultSection.classList.remove('hidden');
     resultSection.scrollIntoView({ behavior: 'smooth' });
@@ -381,6 +501,10 @@ function saveHealthMetrics(heartRate, bloodPressure) {
   // Log into AI Doctor Journal
   saveAiDoctorJournal(`Đo sinh hiệu: Huyết áp ${healthData.bloodPressure} mmHg, Nhịp tim ${healthData.heartRate} bpm.`);
 
+  // REALTIME: cập nhật ngay trên Bảng Giám Sát Con Cháu
+  addRealtimeEvent('🩺', `${healthProfile.userName} vừa đo: Huyết áp ${healthData.bloodPressure} mmHg, Nhịp tim ${healthData.heartRate} bpm.`);
+  renderMonitoringSummary();
+
   const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE');
   const isAbnormal = (heartRate > 100 || heartRate < 50);
 
@@ -440,6 +564,10 @@ function confirmMedicineTaken() {
 
   saveAiDoctorJournal(`Xác nhận: Ông/bà đã uống thuốc đầy đủ lúc ${curTimeStr}.`);
 
+  // REALTIME: cập nhật ngay trên Bảng Giám Sát Con Cháu
+  addRealtimeEvent('💊', `${healthProfile.userName} đã xác nhận UỐNG THUỐC đầy đủ lúc ${curTimeStr}.`);
+  renderMonitoringSummary();
+
   const familyMsg = `✅ MẮT THẤY TAI NGHE: Ông/bà đã uống thuốc đầy đủ lúc ${curTimeStr}`;
   const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
 
@@ -478,6 +606,81 @@ Chúc ông bà nhiều niềm vui!`;
 
   const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
   triggerZaloAlertMessage(remotePhone, reportMsg);
+}
+
+// ✉️ GMAIL HEALTH REPORT GENERATOR (V9)
+function sendGmailHealthReport() {
+  const curDateStr = new Date().toLocaleDateString('vi-VN');
+
+  const logs = JSON.parse(localStorage.getItem('HEALTH_LOGS') || "[]");
+  let vitalsInfo = "Chưa đo sinh hiệu hôm nay.";
+  if (logs.length > 0) {
+    const latest = logs[0];
+    const isAbnormal = (latest.heartRate > 100 || latest.heartRate < 50);
+    const evaluation = isAbnormal ? "⚠️ Cảnh báo nhịp tim bất thường!" : "✅ Bình thường ổn định";
+    vitalsInfo = `Nhịp tim: ${latest.heartRate} bpm, Huyết áp: ${latest.bloodPressure} mmHg (${evaluation})`;
+  }
+
+  const medStatus = isMedicineTakenToday
+    ? `✅ Đã uống đầy đủ lúc ${medicineTakenTime}`
+    : "⏳ Chưa bấm xác nhận uống thuốc";
+
+  const schedules = medicineReminders.map(r => `- ⏰ ${r.time}: ${r.name}`).join('\n') || "Không có lịch hẹn";
+
+  const steps = stepCount || 0;
+
+  const subject = encodeURIComponent(`[MẮT THẤY TAI NGHE] Báo cáo sức khỏe ${healthProfile.userName} - ${curDateStr}`);
+  const bodyLines = [
+    `Kính gửi con cháu yêu quý,`,
+    ``,
+    `Đây là báo cáo sức khỏe hôm nay (${curDateStr}) của ${healthProfile.userName}:`,
+    ``,
+    `📊 SINH HIỆU HÔM NAY:`,
+    `- ${vitalsInfo}`,
+    `- Số bước chân: ${steps.toLocaleString()} bước`,
+    ``,
+    `💊 TRẠNG THÁI UỐNG THUỐC:`,
+    `- ${medStatus}`,
+    ``,
+    `🗓️ LỊCH SINH HOẠT HÔM NAY:`,
+    schedules,
+    ``,
+    `💬 LỜI KHUYÊN BÁC SĨ AI MỚI NHẤT:`,
+    `"${currentSpeechMessage || 'Không có yêu cầu triệu chứng khẩn cấp. Ông bà giữ gìn sức khỏe.'}"`,
+    ``,
+    `Mọi hoạt động đều được cập nhật realtime trên Bảng Giám Sát của ứng dụng MẮT THẤY TAI NGHE.`,
+    ``,
+    `Chúc ông bà và cả nhà nhiều sức khỏe! ❤️`
+  ].join('\n');
+
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(getFamilyEmail())}&su=${subject}&body=${encodeURIComponent(bodyLines)}`;
+
+  const win = window.open(gmailUrl, '_blank');
+  if (!win) {
+    showToastAlert("⚠️ KHÔNG MỞ ĐƯỢC GMAIL", "Trình duyệt đã chặn cửa sổ mới. Hãy cho phép mở cửa sổ bật lên và bấm lại!");
+    return;
+  }
+
+  // Sao chép nội dung báo cáo để con cháu có thể dán nếu cần
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(subject + "\n\n" + bodyLines).catch(() => {});
+  }
+
+  addRealtimeEvent('✉️', `${healthProfile.userName} đã gửi báo cáo sức khỏe qua Gmail.`);
+  renderMonitoringSummary();
+
+  showToastAlert("✉️ ĐANG SOẠN BÁO CÁO GMAIL", "Email tổng hợp sức khỏe đã được tạo sẵn! Con cháu chỉ cần bấm Gửi trong Gmail.");
+}
+
+function getFamilyEmail() {
+  return (healthProfile.familyEmail || localStorage.getItem('FAMILY_GMAIL') || "").trim();
+}
+
+function loadGmailPrefill() {
+  const gmailInput = document.getElementById('settingGmailTo');
+  if (gmailInput) gmailInput.value = getFamilyEmail();
+  const qsGmail = document.getElementById('qsGmailTo');
+  if (qsGmail) qsGmail.value = getFamilyEmail();
 }
 
 // AUTOMATIC DAILY REMINDERS (06:30 AM, 12:00 PM NOON, 21:00 PM)
@@ -615,11 +818,14 @@ function saveQuickStartProfile(e) {
   e.preventDefault();
   const name = document.getElementById('qsUserName').value.trim() || "Ông/Bà";
   const phone = document.getElementById('qsZaloPhone').value.trim() || "0901234567";
+  const gmailTo = document.getElementById('qsGmailTo').value.trim() || "";
 
   healthProfile.userName = name;
   healthProfile.familyPhone = phone;
+  healthProfile.familyEmail = gmailTo;
   localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
   localStorage.setItem('ZALO_RELATIVE_PHONE', phone);
+  if (gmailTo) localStorage.setItem('FAMILY_GMAIL', gmailTo);
 
   const quickUser = {
     name: name,
@@ -854,6 +1060,7 @@ function handleImageSelection(e) {
     currentBase64Image = evt.target.result.split(',')[1];
     document.getElementById('imagePreviewSection').classList.remove('hidden');
     document.getElementById('aiResponseBox').classList.add('hidden');
+    showToastAlert("📷 ĐÃ GẮN ẢNH", "Ảnh đã sẵn sàng! Ông bà bấm Micro để hỏi kèm ảnh này nhé.");
   };
   reader.readAsDataURL(file);
 }
@@ -864,20 +1071,38 @@ function clearSelectedImage() {
   document.getElementById('imagePreviewSection').classList.add('hidden');
 }
 
-// SPEECH RECOGNITION (TAI NGHE)
+// SPEECH RECOGNITION (TAI NGHE - V9: kết hợp ảnh + giọng nói gửi Gemini)
 function initSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SpeechRecognition) {
     speechRecognition = new SpeechRecognition();
     speechRecognition.lang = 'vi-VN';
+    speechRecognition.continuous = false;
+    speechRecognition.interimResults = false;
     speechRecognition.onstart = () => {
       document.getElementById('micText').textContent = "Đang nghe ông bà nói...";
       document.getElementById('micBtn').classList.add('pulse-mic', 'bg-red-600');
+      const ring = document.getElementById('listenRing');
+      if (ring) ring.classList.remove('hidden');
     };
     speechRecognition.onresult = (evt) => {
-      const text = evt.results[0][0].transcript;
+      let text = "";
+      for (let i = evt.resultIndex; i < evt.results.length; i++) {
+        text += evt.results[i][0].transcript;
+      }
       stopVoiceInput();
-      askAIAdvisor(text);
+      const finalText = (text || "").trim();
+      if (!finalText) return;
+
+      // V9: Nếu có ảnh đang gắn -> gửi CẢ ẢNH + GIỌNG NÓI cho Gemini
+      voiceQuestionText = finalText;
+      document.getElementById('aiQuestionInput').value = finalText;
+      if (currentBase64Image) {
+        showToastAlert("🔊 ĐÃ NGHE CÂU HỎI", `Đang gửi Ảnh + Câu hỏi "${finalText.substring(0, 60)}..." cho Bác sĩ AI!`);
+        askAIAdvisor(finalText, currentBase64Image);
+      } else {
+        askAIAdvisor(finalText);
+      }
     };
     speechRecognition.onerror = () => stopVoiceInput();
     speechRecognition.onend = () => stopVoiceInput();
@@ -887,7 +1112,7 @@ function initSpeechRecognition() {
 function startVoiceInput() {
   if (!speechRecognition) {
     const promptText = prompt("Mời ông bà nhập câu hỏi y tế:");
-    if (promptText) askAIAdvisor(promptText);
+    if (promptText) askAIAdvisor(promptText, currentBase64Image);
     return;
   }
   try { speechRecognition.start(); } catch(e){ speechRecognition.stop(); speechRecognition.start(); }
@@ -905,13 +1130,34 @@ function stopVoiceInput() {
   const micBtn = document.getElementById('micBtn');
   if (micBtn) {
     micBtn.classList.remove('pulse-mic', 'bg-red-600');
-    document.getElementById('micText').textContent = "Bấm Để Nói (Tai Nghe)";
+    document.getElementById('micText').textContent = "🎙️ Bấm Nói Câu Hỏi";
   }
+  const ring = document.getElementById('listenRing');
+  if (ring) ring.classList.add('hidden');
   if (speechRecognition) { try { speechRecognition.stop(); } catch(e){} }
 }
 
+// GỬI CÂU HỎI GÕ TAY (KÈM ẢNH NẾU CÓ)
+function askTypedQuestion() {
+  const input = document.getElementById('aiQuestionInput');
+  const question = (input ? input.value : "").trim();
+  if (!question) {
+    showToastAlert("✍️ CHƯA CÓ CÂU HỎI", "Ông bà hãy gõ câu hỏi vào ô bên trên hoặc bấm Micro để nói nhé!");
+    return;
+  }
+  voiceQuestionText = question;
+  askAIAdvisor(question, currentBase64Image);
+}
+
+function clearQuestion() {
+  const input = document.getElementById('aiQuestionInput');
+  if (input) input.value = "";
+  voiceQuestionText = "";
+}
+
 function askPreset(queryText) {
-  askAIAdvisor(queryText);
+  document.getElementById('aiQuestionInput').value = queryText;
+  askAIAdvisor(queryText, currentBase64Image);
 }
 
 // SETUP MODAL
@@ -922,6 +1168,28 @@ function toggleModal(id) {
   }
 }
 
+// TOAST NOTIFICATION HELPER
+function showToastAlert(title, message) {
+  let toast = document.getElementById('appToastAlert');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'appToastAlert';
+    toast.style.cssText = `
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      background: #0f766e; color: #ffffff; padding: 14px 22px;
+      border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      z-index: 999999; max-width: 92%; text-align: center;
+      font-weight: 800; font-size: 15px; pointer-events: none;
+      transition: opacity 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `<div style="font-size:16px;font-weight:900;">${title}</div><div style="font-size:13px;margin-top:4px;opacity:0.9;font-weight:600;">${message}</div>`;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 4200);
+}
+
 function closeAlertModalDirectly() {
   document.getElementById('alertModal').classList.add('hidden');
 }
@@ -930,33 +1198,35 @@ function closeAlertModalDirectly() {
 function saveSystemSettings() {
   const key = document.getElementById('settingGeminiApiKey').value.trim();
   const webhook = document.getElementById('settingZaloWebhook').value.trim();
+  const gmailTo = document.getElementById('settingGmailTo').value.trim();
   if (key) localStorage.setItem('GEMINI_API_KEY', key);
   if (webhook) localStorage.setItem('ZALO_WEBHOOK_URL', webhook);
+  if (gmailTo) {
+    localStorage.setItem('FAMILY_GMAIL', gmailTo);
+    healthProfile.familyEmail = gmailTo;
+    localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
+  }
   toggleModal('settingsModal');
-  showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cấu hình Gemini API và Webhook Bot thành công!");
+  showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cấu hình Gemini API, Gmail con cháu và Webhook Bot thành công!");
 }
 
 // EVENT LISTENERS SETUP
 function setupEventListeners() {
-  // Action Button 1: MẮT THẤY (Capture Image / OCR Prescription)
-  const btnMatThay = document.getElementById('btnMatThay');
-  if (btnMatThay) {
-    btnMatThay.addEventListener('click', () => {
-      document.getElementById('imageInput').click();
-    });
-  }
-
   const imageInput = document.getElementById('imageInput');
   if (imageInput) {
     imageInput.addEventListener('change', handleImageSelection);
   }
 
-  const btnAnalyzeImage = document.getElementById('btnAnalyzeImage');
-  if (btnAnalyzeImage) {
-    btnAnalyzeImage.addEventListener('click', () => {
-      if (currentBase64Image) {
-        askAIAdvisor("Hãy đọc toa thuốc/ảnh này và phân loại từng viên thuốc, công dụng, liều dùng, trước/sau ăn.", currentBase64Image);
-      }
+  const btnAskTyped = document.getElementById('btnAskTyped');
+  if (btnAskTyped) {
+    btnAskTyped.addEventListener('click', askTypedQuestion);
+  }
+
+  // Action Button: Press Enter in question box to send
+  const aiQuestionInput = document.getElementById('aiQuestionInput');
+  if (aiQuestionInput) {
+    aiQuestionInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') askTypedQuestion();
     });
   }
 
@@ -977,6 +1247,12 @@ function setupEventListeners() {
   const btnSendZaloAlert = document.getElementById('btnSendZaloAlert');
   if (btnSendZaloAlert) {
     btnSendZaloAlert.addEventListener('click', sendDetailedZaloReport);
+  }
+
+  // ✉️ Gmail Health Report Button Listener
+  const btnSendGmailReport = document.getElementById('btnSendGmailReport');
+  if (btnSendGmailReport) {
+    btnSendGmailReport.addEventListener('click', sendGmailHealthReport);
   }
   
   // Camera Capture snapshot
@@ -1052,4 +1328,7 @@ window.logoutProfile = logoutProfile;
 window.installPWA = installPWA;
 window.checkVitalsAgainstProfile = checkVitalsAgainstProfile;
 window.sendDetailedZaloReport = sendDetailedZaloReport;
+window.sendGmailHealthReport = sendGmailHealthReport;
+window.askTypedQuestion = askTypedQuestion;
+window.clearQuestion = clearQuestion;
 window.speakVietnamese = speakVietnamese;

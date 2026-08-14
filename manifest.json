@@ -1,11 +1,11 @@
 {
-  "name": "MẮT THẤY TAI NGHE – Trợ Lý Y Tế Cho Người Cao Tuổi",
+  "name": "MẮT THẤY TAI NGHE V9 – Trợ Lý AI Gia Đình Cho Người Cao Tuổi",
   "short_name": "MẮT THẤY TAI NGHE",
-  "description": "Trợ lý y tế đọc đơn thuốc, chẩn đoán sinh hiệu, nhắc lịch uống thuốc và cảnh báo khẩn cấp qua Zalo cho người cao tuổi bằng Gemini AI",
+  "description": "Trợ lý AI Gemini xem ảnh + nghe giọng nói cùng lúc, giám sát realtime cho con cháu, báo cáo sức khỏe qua Gmail/Zalo, nhắc thuốc chạy ngầm",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#059669",
+  "background_color": "#F0FBF9",
+  "theme_color": "#0F766E",
   "orientation": "any",
   "icons": [
     {
@@ -23,17 +23,17 @@
   ],
   "shortcuts": [
     {
-      "name": "MẮT THẤY (Đọc Đơn)",
-      "short_name": "MẮT THẤY",
-      "description": "Chụp ảnh đơn thuốc hoặc bao bì thuốc",
-      "url": "./index.html?action=matthay",
+      "name": "BỘ TRỢ LÝ AI (Chụp ảnh + Hỏi)",
+      "short_name": "TRỢ LÝ AI",
+      "description": "Chụp ảnh toa thuốc hoặc hỏi bác sĩ AI bằng giọng nói",
+      "url": "./index.html?action=trợlýAI",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "TAI NGHE (Giọng Nói)",
-      "short_name": "TAI NGHE",
-      "description": "Nói chuyện và tư vấn sức khỏe",
-      "url": "./index.html?action=tainghe",
+      "name": "BẢNG GIÁM SÁT CON CHÁU",
+      "short_name": "GIÁM SÁT",
+      "description": "Xem tình hình hoạt động realtime của ông bà",
+      "url": "./index.html?action=giamsat",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

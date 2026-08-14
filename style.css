@@ -1,5 +1,6 @@
 /* ==========================================================================
-   MẮT THẤY TAI NGHE V8 - Custom Styles Helper (Tailwind CSS Base)
+   MẮT THẤY TAI NGHE V9 GEMINI INTEGRATED - Custom Styles Helper
+   Chủ đề: Xanh ngọc / Trắng - sáng, mát mắt, chữ to rõ nét cho người cao tuổi
    ========================================================================== */
 
 /* Helper utilities to support elderly accessibility */
@@ -15,4 +16,49 @@
 
 .high-contrast-text {
   color: #0f172a !important;
+}
+
+/* ---------- V9 theme tweaks ---------- */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: contain;
+}
+
+/* Big touch-friendly buttons for elderly on both laptop & phone */
+.btn-elder {
+  min-height: 3.5rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent iOS zoom on input focus */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Scrollbar soft styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #99f6e4;
+  border-radius: 8px;
+}
+
+/* Realtime feed pulse dot */
+.sync-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: #10b981;
+  animation: syncPulse 1.5s infinite ease-in-out;
+}
+@keyframes syncPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
 }
