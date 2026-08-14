@@ -199,7 +199,22 @@ input, select, textarea {
   border-radius: 8px;
 }
 
-/* Realtime feed pulse dot */
+/* ---------- Article cards (Cẩm nang sức khỏe) ---------- */
+.article-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 33, 71, 0.12);
+}
+.article-card img {
+  transition: transform 0.4s ease;
+}
+.article-card:hover img {
+  transform: scale(1.04);
+}
+
+/* ---------- Realtime feed pulse dot ---------- */
 .sync-dot {
   width: 10px;
   height: 10px;

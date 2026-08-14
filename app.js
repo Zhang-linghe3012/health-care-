@@ -1243,17 +1243,7 @@ function setupEventListeners() {
   }
 
   // Zalo Active Daily Report Button Listener
-  const btnGlobalZaloAlert = document.getElementById('btnGlobalZaloAlert');
-  if (btnGlobalZaloAlert) {
-    btnGlobalZaloAlert.addEventListener('click', sendDetailedZaloReport);
-  }
-
-  const btnSendZaloAlert = document.getElementById('btnSendZaloAlert');
-  if (btnSendZaloAlert) {
-    btnSendZaloAlert.addEventListener('click', sendDetailedZaloReport);
-  }
-
-  // ✉️ Gmail Health Report Button Listener
+  // Gmail Health Report Button Listener (kênh báo cáo chính - đã loại bỏ Zalo)
   const btnSendGmailReport = document.getElementById('btnSendGmailReport');
   if (btnSendGmailReport) {
     btnSendGmailReport.addEventListener('click', sendGmailHealthReport);
