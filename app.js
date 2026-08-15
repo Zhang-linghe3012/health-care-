@@ -5,7 +5,7 @@
  * 2. TỰ ĐỘNG ĐỌC TO câu trả lời bằng giọng Tiếng Việt chuẩn (speechSynthesis mượt trên Laptop & Điện thoại).
  * 3. ĐỒNG BỘ REALTIME: Mọi hoạt động (uống thuốc, đo chỉ số, hỏi AI) cập nhật NGAY trên Bảng Giám Sát Con Cháu.
  * 4. BÁO CÁO QUA GMAIL: Nút ✉️ tạo sẵn Email tổng hợp sức khỏe gửi thẳng Gmail con cháu.
- * 5. Báo cáo Zalo, nhắc thuốc chạy ngầm, cảnh báo khẩn cấp.
+ * 5. Báo cáo Gmail + webhook Telegram, nhắc thuốc chạy ngầm, cảnh báo khẩn cấp.
  */
 
 const SYSTEM_INSTRUCTION = `Bạn là Bác sĩ gia đình chân thành, ấm áp. Hãy phân tích kỹ hình ảnh/toa thuốc/chữ viết và câu nói tâm sự của ông bà. Trả lời linh hoạt, thông minh, đồng cảm, đúng trọng tâm câu hỏi, KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH.
@@ -34,7 +34,6 @@ BẮT BUỘC:
 // App State
 let healthProfile = {
   userName: "Ông/Bà",
-  familyPhone: "0901234567",
   familyEmail: "",
   conditions: [],
   baseSystolic: 120,
@@ -123,7 +122,7 @@ function broadcastRealtimeUpdate() {
     });
   }
   // Ping family webhook (if configured) for cross-device realtime sync
-  const webhookUrl = localStorage.getItem('ZALO_WEBHOOK_URL');
+  const webhookUrl = localStorage.getItem('TELEGRAM_WEBHOOK_URL') || localStorage.getItem('ZALO_WEBHOOK_URL');
   if (webhookUrl) {
     const latest = JSON.parse(localStorage.getItem('REALTIME_FEED') || "[]")[0];
     if (latest) {
@@ -505,22 +504,18 @@ function saveHealthMetrics(heartRate, bloodPressure) {
   addRealtimeEvent('🩺', `${healthProfile.userName} vừa đo: Huyết áp ${healthData.bloodPressure} mmHg, Nhịp tim ${healthData.heartRate} bpm.`);
   renderMonitoringSummary();
 
-  const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE');
   const isAbnormal = (heartRate > 100 || heartRate < 50);
 
   if (isAbnormal) {
     const alertMsg = `⚠️ CẢNH BÁO SỨC KHỎE MẮT THẤY TAI NGHE: Nhịp tim của ông/bà bất thường: ${heartRate} bpm (Huyết áp ${bloodPressure}) lúc ${healthData.time}`;
     sendRemoteWebhookAlert(alertMsg);
-    if (remotePhone) {
-      triggerZaloAlertMessage(remotePhone, alertMsg);
-    }
   }
 
   renderHealthHistory();
 }
 
 function sendRemoteWebhookAlert(messageText) {
-  const webhookUrl = localStorage.getItem('ZALO_WEBHOOK_URL');
+  const webhookUrl = localStorage.getItem('TELEGRAM_WEBHOOK_URL') || localStorage.getItem('ZALO_WEBHOOK_URL');
   if (webhookUrl) {
     try {
       fetch(webhookUrl, {
@@ -569,43 +564,10 @@ function confirmMedicineTaken() {
   renderMonitoringSummary();
 
   const familyMsg = `✅ MẮT THẤY TAI NGHE: Ông/bà đã uống thuốc đầy đủ lúc ${curTimeStr}`;
-  const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
 
   sendRemoteWebhookAlert(familyMsg);
-  triggerZaloAlertMessage(remotePhone, familyMsg);
 
   showToastAlert("✅ ĐÃ XÁC NHẬN UỐNG THUỐC", `Đã lưu mốc giờ ${curTimeStr} và gửi thông báo báo cho con cháu yên tâm!`);
-}
-
-// DETAILED HEALTH REPORTS GENERATOR FOR ZALO
-function sendDetailedZaloReport() {
-  const curDateStr = new Date().toLocaleDateString('vi-VN');
-  
-  // Get latest vitals log
-  const logs = JSON.parse(localStorage.getItem('HEALTH_LOGS') || "[]");
-  let vitalsInfo = "Chưa đo sinh hiệu hôm nay.";
-  if (logs.length > 0) {
-    const latest = logs[0];
-    const isAbnormal = (latest.heartRate > 100 || latest.heartRate < 50);
-    const evaluation = isAbnormal ? "⚠️ Cảnh báo nhịp tim bất thường!" : "✅ Bình thường ổn định";
-    vitalsInfo = `Nhịp tim: ${latest.heartRate} bpm, Huyết áp: ${latest.bloodPressure} mmHg (${evaluation})`;
-  }
-
-  // Get medicine compliance
-  const medStatus = isMedicineTakenToday 
-    ? `✅ Đã uống đầy đủ lúc ${medicineTakenTime}`
-    : "⏳ Chưa bấm xác nhận uống thuốc";
-
-  // Compile final Zalo message
-  const reportMsg = `[MẮT THẤY TAI NGHE] BÁO CÁO SỨC KHỎE ÔNG BÀ TRONG NGÀY (${curDateStr}):
-- Ông/Bà: ${healthProfile.userName}
-- Sinh hiệu đo được: ${vitalsInfo}
-- Trạng thái uống thuốc: ${medStatus}
-- Lời khuyên Bác sĩ AI vừa tư vấn: "${currentSpeechMessage || 'Không có yêu cầu triệu chứng khẩn cấp. Ông bà giữ gìn sức khỏe.'}"
-Chúc ông bà nhiều niềm vui!`;
-
-  const remotePhone = healthProfile.familyPhone || localStorage.getItem('ZALO_RELATIVE_PHONE') || "0901234567";
-  triggerZaloAlertMessage(remotePhone, reportMsg);
 }
 
 // ✉️ GMAIL HEALTH REPORT GENERATOR (V9)
@@ -819,19 +781,15 @@ function renderUserProfile(user) {
 function saveQuickStartProfile(e) {
   e.preventDefault();
   const name = document.getElementById('qsUserName').value.trim() || "Ông/Bà";
-  const phone = document.getElementById('qsZaloPhone').value.trim() || "0901234567";
   const gmailTo = document.getElementById('qsGmailTo').value.trim() || "";
 
   healthProfile.userName = name;
-  healthProfile.familyPhone = phone;
   healthProfile.familyEmail = gmailTo;
   localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
-  localStorage.setItem('ZALO_RELATIVE_PHONE', phone);
   if (gmailTo) localStorage.setItem('FAMILY_GMAIL', gmailTo);
 
   const quickUser = {
     name: name,
-    phone: phone,
     picture: "https://api.dicebear.com/7.x/bottts/svg?seed=" + encodeURIComponent(name)
   };
   localStorage.setItem('QUICK_USER', JSON.stringify(quickUser));
@@ -906,7 +864,7 @@ function checkVitalsAgainstProfile() {
 
   let message = "";
   if (isDeviatedAbove15) {
-    message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Ông bà hãy nằm nghỉ tại chỗ ngay và cháu đã chuẩn bị sẵn nút gửi tin nhắn Zalo báo cho con cháu!`;
+    message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Ông bà hãy nằm nghỉ tại chỗ ngay và cháu sẽ gửi báo cáo qua Gmail cho con cháu!`;
     document.getElementById('heartRateStatus').textContent = "⚠️ Nhịp tim bất thường!";
     document.getElementById('heartRateStatus').className = "text-xs text-red-600 font-bold block mt-1";
     document.getElementById('bloodPressureStatus').textContent = "⚠️ Huyết áp bất thường!";
@@ -1209,10 +1167,10 @@ function closeAlertModalDirectly() {
 // SAVE SETTINGS
 function saveSystemSettings() {
   const key = document.getElementById('settingGeminiApiKey').value.trim();
-  const webhook = document.getElementById('settingZaloWebhook').value.trim();
+  const webhook = document.getElementById('settingTelegramWebhook').value.trim();
   const gmailTo = document.getElementById('settingGmailTo').value.trim();
   if (key) localStorage.setItem('GEMINI_API_KEY', key);
-  if (webhook) localStorage.setItem('ZALO_WEBHOOK_URL', webhook);
+  if (webhook) localStorage.setItem('TELEGRAM_WEBHOOK_URL', webhook);
   if (gmailTo) {
     localStorage.setItem('FAMILY_GMAIL', gmailTo);
     healthProfile.familyEmail = gmailTo;
@@ -1250,7 +1208,6 @@ function setupEventListeners() {
     });
   }
 
-  // Zalo Active Daily Report Button Listener
   // Gmail Health Report Button Listener (kênh báo cáo chính - đã loại bỏ Zalo)
   const btnSendGmailReport = document.getElementById('btnSendGmailReport');
   if (btnSendGmailReport) {
@@ -1280,38 +1237,6 @@ function setupEventListeners() {
   }
 }
 
-// ZALO ALERT TRIGGER HELPER
-function triggerZaloAlertMessage(phone, alertText) {
-  const cleanPhone = phone.replace(/\D/g, '');
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(alertText).catch(() => {});
-  }
-
-  if (navigator.share) {
-    navigator.share({
-      title: '[MẮT THẤY TAI NGHE] Cập Nhật Sức Khỏe',
-      text: alertText,
-      url: window.location.href
-    }).catch(() => openZaloLink(cleanPhone, alertText));
-  } else {
-    openZaloLink(cleanPhone, alertText);
-  }
-}
-
-function openZaloLink(cleanPhone, alertText) {
-  const zaloUrl = `https://zalo.me/${cleanPhone}`;
-  const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(alertText)}`;
-  
-  showToastAlert("📋 ĐÃ SAO CHÉP BÁO CÁO", "Báo cáo chi tiết đã được tự động sao chép! Đang mở Zalo con cháu, người thân chỉ cần nhấn Ctrl+V (hoặc Dán) để gửi ngay!");
-
-  setTimeout(() => {
-    const opened = window.open(zaloUrl, '_blank');
-    if (!opened) {
-      window.location.href = smsUrl;
-    }
-  }, 1000);
-}
-
 // EXPOSE FUNCTIONS ON WINDOW OBJECT FOR HTML ONCLICK BINDINGS
 window.toggleModal = toggleModal;
 window.speakText = speakVietnamese;
@@ -1329,7 +1254,6 @@ window.saveQuickStartProfile = saveQuickStartProfile;
 window.logoutProfile = logoutProfile;
 window.installPWA = installPWA;
 window.checkVitalsAgainstProfile = checkVitalsAgainstProfile;
-window.sendDetailedZaloReport = sendDetailedZaloReport;
 window.sendGmailHealthReport = sendGmailHealthReport;
 window.askTypedQuestion = askTypedQuestion;
 window.clearQuestion = clearQuestion;

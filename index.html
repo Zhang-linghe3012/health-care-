@@ -12,7 +12,7 @@
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#002147">
-  <meta name="description" content="Famcare - Công nghệ từ tâm, chăm sóc & kết nối tình thân. Trợ lý AI, giám sát sức khỏe realtime và báo cáo Gmail/Zalo cho gia đình">
+  <meta name="description" content="Famcare - Công nghệ từ tâm, chăm sóc & kết nối tình thân. Trợ lý AI, giám sát sức khỏe realtime và báo cáo qua Gmail cho gia đình">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Famcare">
@@ -804,10 +804,6 @@
           <input type="text" id="qsUserName" required class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: Ông Nông">
         </div>
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-bold text-gray-500" for="qsZaloPhone">Số điện thoại Zalo con cháu:</label>
-          <input type="tel" id="qsZaloPhone" required class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: 0901234567">
-        </div>
-        <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="qsGmailTo">✉️ Gmail con cháu (nhận báo cáo):</label>
           <input type="email" id="qsGmailTo" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: conchau@gmail.com">
         </div>
@@ -836,9 +832,9 @@
           <input type="email" id="settingGmailTo" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="conchau@gmail.com">
         </div>
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-bold text-gray-500" for="settingZaloWebhook">Zalo/Telegram Webhook URL:</label>
-          <input type="text" id="settingZaloWebhook" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="https://api.telegram.org/bot... hoặc webhook">
-          <span class="text-[11px] text-gray-400 font-semibold block mt-0.5">Sử dụng để đẩy báo động nhịp tim/huyết áp bất thường tới Telegram hoặc Zalo của gia đình.</span>
+          <label class="text-xs font-bold text-gray-500" for="settingTelegramWebhook">Telegram Bot Webhook URL:</label>
+          <input type="text" id="settingTelegramWebhook" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="https://api.telegram.org/bot...">
+          <span class="text-[11px] text-gray-400 font-semibold block mt-0.5">Sử dụng để đẩy báo động nhịp tim/huyết áp bất thường tới Telegram của gia đình.</span>
         </div>
       </div>
       <div class="flex justify-end gap-2 border-t pt-3">
