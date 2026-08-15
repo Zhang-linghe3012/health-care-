@@ -75,8 +75,8 @@ function toggleMobileMenu() {
   menu.classList.toggle('hidden');
   if (btn) {
     btn.innerHTML = isOpen
-      ? '<i class="fa-solid fa-bars text-xl"></i>'
-      : '<i class="fa-solid fa-xmark text-xl"></i>';
+      ? '<i class="fa-solid fa-bars"></i> Menu'
+      : '<i class="fa-solid fa-xmark"></i> Đóng';
   }
 }
 
@@ -85,7 +85,7 @@ function closeMobileMenu() {
   const btn = document.getElementById('hamburgerBtn');
   if (menu && !menu.classList.contains('hidden')) {
     menu.classList.add('hidden');
-    if (btn) btn.innerHTML = '<i class="fa-solid fa-bars text-xl"></i>';
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-bars"></i> Menu';
   }
 }
 

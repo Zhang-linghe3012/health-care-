@@ -176,32 +176,32 @@
 
   <!-- ================= TẦNG 1: HEADER THƯƠNG HIỆU FAMCARE (CĂN GIỮA) ================= -->
   <header class="bg-white shadow-md sticky top-0 z-40 border-b border-teal-100">
-    <div class="max-w-5xl mx-auto px-4 pt-4">
+    <div class="max-w-5xl mx-auto px-4 pt-2">
       <!-- Dòng 1: Logo Famcare chính giữa + Nút hồ sơ góc phải -->
       <div class="relative">
         <div class="text-center">
-          <div class="flex items-center justify-center gap-3">
-            <span class="text-4xl sm:text-5xl">👨‍👩‍👧‍👦</span>
+          <div class="flex items-center justify-center gap-2">
+            <span class="text-2xl sm:text-3xl">👨‍👩‍👧‍👦</span>
             <h1 class="brand-logo">FAMCARE</h1>
           </div>
-          <p class="brand-slogan mt-1">"Công nghệ từ tâm – Chăm sóc & Kết nối tình thân"</p>
+          <p class="brand-slogan mt-0.5">"Công nghệ từ tâm – Chăm sóc & Kết nối tình thân"</p>
         </div>
 
         <!-- Góc phải: Đăng nhập / Hồ sơ cá nhân -->
-        <div class="absolute top-0 right-0 flex items-center gap-2">
-          <button id="btnLoginTop" onclick="toggleModal('quickStartModal')" class="text-xs font-bold px-3 py-1.5 rounded-full bg-teal-50 text-teal-700 hover:bg-teal-100 border flex items-center gap-1.5" style="border-color:#b2d7dd;">
+        <div class="absolute top-0 right-0 flex items-center gap-1.5">
+          <button id="btnLoginTop" onclick="toggleModal('quickStartModal')" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 hover:bg-teal-100 border flex items-center gap-1.5" style="border-color:#b2d7dd;">
             <i class="fa-solid fa-user"></i> Đăng nhập
           </button>
-          <div id="user_profile" class="hidden items-center gap-2 bg-navy text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm border border-teal-300 flex" style="background:#002147;">
-            <img id="user_avatar" class="w-6 h-6 rounded-full border border-white" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar">
+          <div id="user_profile" class="hidden items-center gap-2 bg-navy text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm border border-teal-300 flex" style="background:#002147;">
+            <img id="user_avatar" class="w-5 h-5 rounded-full border border-white" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar">
             <span id="user_name" class="text-white">Ông/Bà</span>
             <button onclick="logoutProfile()" class="text-red-200 ml-1 hover:text-white" title="Đăng xuất / Đổi thông tin"><i class="fa-solid fa-sign-out-alt"></i></button>
           </div>
         </div>
       </div>
 
-      <!-- Dòng 2: Thanh menu điều hướng chức năng (responsive) -->
-      <nav class="py-2 mt-2 border-t border-gray-100">
+      <!-- Dòng 2: Thanh menu điều hướng chức năng (responsive, mỏng gọn) -->
+      <nav class="py-1.5 mt-1.5 border-t border-gray-100">
         <!-- Desktop: menu gọn gàng, một hàng -->
         <div class="nav-menu hidden md:flex" id="desktopMenu">
           <a href="#top" onclick="goFamcareSection('top')" class="nav-link active" data-nav="home"><i class="fa-solid fa-house mr-1"></i>Trang chủ / AI Famcare</a>
@@ -216,9 +216,8 @@
         <!-- Mobile: nút Menu 3 gạch (Hamburger) -->
         <div class="md:hidden flex items-center justify-between">
           <button id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Mở menu" class="hamburger-btn">
-            <i class="fa-solid fa-bars text-xl"></i>
+            <i class="fa-solid fa-bars"></i> Menu
           </button>
-          <span class="text-xs font-black tracking-widest text-gray-400 uppercase">Danh mục</span>
           <span class="w-9"></span>
         </div>
 
@@ -235,24 +234,24 @@
       </nav>
 
       <!-- Cụm chức năng bổ trợ -->
-      <div class="flex flex-wrap items-center justify-center gap-2 py-3" id="utilityButtons">
-        <button onclick="toggleModal('medicalModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+      <div class="flex flex-wrap items-center justify-center gap-1.5 py-2" id="utilityButtons">
+        <button onclick="toggleModal('medicalModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1">
           <i class="fa-solid fa-notes-medical"></i> 📋 Hồ Sơ Bệnh Nền
         </button>
-        <button onclick="toggleModal('settingsModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1">
+        <button onclick="toggleModal('settingsModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1">
           <i class="fa-solid fa-cog"></i> ⚙️ Cài Đặt AI
         </button>
-        <button id="installAppBtn" onclick="installPWA()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm">
+        <button id="installAppBtn" onclick="installPWA()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-sm">
           <i class="fa-solid fa-download"></i> Cài App
         </button>
       </div>
     </div>
   </header>
 
-  <!-- PWA Installation Sticky Banner -->
-  <div id="pwaInstallBanner" class="bg-navy text-white text-center p-3 text-sm font-bold" style="background:#002147;border-bottom:2px solid #005F73;">
+  <!-- PWA Installation Sticky Banner (mỏng gọn) -->
+  <div id="pwaInstallBanner" class="bg-navy text-white text-center py-1.5 px-3 text-xs font-bold" style="background:#002147;border-bottom:2px solid #005F73;">
     <button onclick="installPWA()" class="w-full flex items-center justify-center gap-2 cursor-pointer">
-      <span class="text-xl">📲</span>
+      <span class="text-base">📲</span>
       <span><strong class="underline">CÀI ĐẶT ỨNG DỤNG FAMCARE</strong> về điện thoại - ông bà mở nhanh, dùng như App thật!</span>
     </button>
   </div>

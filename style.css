@@ -53,12 +53,12 @@ input, select, textarea {
   font-size: 16px !important;
 }
 
-/* ---------- Logo thương hiệu Famcare ---------- */
+/* ---------- Logo thương hiệu Famcare (compact) ---------- */
 .brand-logo {
   font-family: "Segoe UI", system-ui, sans-serif;
   font-weight: 900;
-  letter-spacing: 0.06em;
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  letter-spacing: 0.05em;
+  font-size: clamp(1.5rem, 5vw, 2.4rem);
   color: var(--navy);
   text-shadow: 0 2px 0 rgba(0, 95, 115, 0.08);
 }
@@ -68,7 +68,7 @@ input, select, textarea {
   font-style: italic;
   font-weight: 500;
   letter-spacing: 0.02em;
-  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  font-size: clamp(0.75rem, 2vw, 0.95rem);
 }
 
 /* ---------- Navigation ---------- */
@@ -130,20 +130,25 @@ input, select, textarea {
 
 /* ---------- Compact responsive navbar (hamburger mobile menu) ---------- */
 .nav-menu .nav-link {
-  font-size: 0.9rem;
-  padding: 0.45rem 0.75rem;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.nav-menu {
+  gap: 0.25rem 0.5rem;
 }
 
 .hamburger-btn {
   background: #EFF6F8;
   color: var(--navy);
   border: 2px solid var(--teal);
-  border-radius: 0.75rem;
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
+  border-radius: 0.6rem;
+  padding: 0.3rem 0.85rem;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.45rem;
+  font-weight: 800;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: background 0.25s ease;
   -webkit-tap-highlight-color: transparent;
@@ -157,7 +162,7 @@ input, select, textarea {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 0.75rem 0.9rem;
+  padding: 0.65rem 0.9rem;
   border-radius: 0.6rem;
 }
 
