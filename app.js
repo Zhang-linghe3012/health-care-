@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadGmailPrefill();
   showTimeBasedGreeting();
   renderDailySummary();
+  renderDailySummary('fam');
   
   // Request Notification Permission immediately when app opens
   requestNotificationPermission();
@@ -160,19 +161,19 @@ function renderMonitoringSummary() {
 }
 
 // ======================= BÁO CÁO HẰNG NGÀY (DAILY SUMMARY DASHBOARD) =======================
-function renderDailySummary() {
-  const cards = document.getElementById('dailySummaryCards');
-  if (!cards) return;
+function renderDailySummary(prefix) {
+  prefix = prefix || 'daily';
+  const stepsEl = document.getElementById(prefix + 'Steps');
+  if (!stepsEl) return;
 
   const logs = JSON.parse(localStorage.getItem('HEALTH_LOGS') || "[]");
   const latest = logs[0];
 
-  const stepsEl = document.getElementById('dailySteps');
-  const medEl = document.getElementById('dailyMedicine');
-  const vitEl = document.getElementById('dailyVitals');
-  const heartEl = document.getElementById('dailyHeart');
-  const aiEl = document.getElementById('dailyAiEvaluation');
-  const logEl = document.getElementById('dailyActivityLog');
+  const medEl = document.getElementById(prefix + 'Medicine');
+  const vitEl = document.getElementById(prefix + 'Vitals');
+  const heartEl = document.getElementById(prefix + 'Heart');
+  const aiEl = document.getElementById(prefix + 'AiEvaluation');
+  const logEl = document.getElementById(prefix + 'ActivityLog');
 
   if (stepsEl) stepsEl.textContent = stepCount.toLocaleString() + " bước";
   if (medEl) {
@@ -231,6 +232,70 @@ function renderDailySummary() {
         </div>
       `).join('');
     }
+  }
+}
+
+// ======================= CẢNH BÁO KHẨN CẤP SOS =======================
+let sirenAudioCtx = null;
+
+function playSiren() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    sirenAudioCtx = sirenAudioCtx || new AC();
+    const ctx = sirenAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    for (let i = 0; i < 8; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(i % 2 === 0 ? 700 : 950, now + i * 0.4);
+      gain.gain.setValueAtTime(0.12, now + i * 0.4);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.4 + 0.38);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now + i * 0.4);
+      osc.stop(now + i * 0.4 + 0.4);
+    }
+  } catch (e) { /* Trình duyệt chặn âm thanh - banner & thông báo vẫn hoạt động */ }
+}
+
+function triggerSOS(reason) {
+  const phone = (healthProfile.familyPhone || localStorage.getItem('FAMILY_SOS_PHONE') || "").trim();
+  const timeStr = new Date().toLocaleString('vi-VN');
+  const sosMsg = `🚨 CẢNH BÁO KHẨN CẤP FAMCARE: ${reason} (lúc ${timeStr}). Con cháu hãy gọi ngay cho ông/bà!`;
+
+  speakVietnamese("Cảnh báo khẩn cấp! " + reason + ". Con cháu ơi, xin hãy gọi điện ngay!");
+  playSiren();
+  showBigBanner("🚨 KHẨN CẤP SOS", sosMsg);
+
+  sendRemoteWebhookAlert(sosMsg);
+  // Gửi thông báo SOS qua Service Worker (hiện ngay cả khi app ở nền)
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ action: 'sos', message: sosMsg });
+  }
+  addRealtimeEvent('🚨', `${healthProfile.userName} KÍCH HOẠT CẢNH BÁO KHẨN CẤP: ${reason}`);
+  renderDailySummary();
+  renderDailySummary('fam');
+  renderMonitoringSummary();
+
+  // Sao chép nội dung báo động để con cháu dán vào tin nhắn nếu cần
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(sosMsg).catch(() => {});
+  }
+
+  // Gửi tin nhắn / cuộc gọi báo động tới SĐT con cháu
+  if (phone) {
+    try {
+      const smsUrl = `sms:${phone}?body=${encodeURIComponent(sosMsg)}`;
+      const telWin = window.open(`tel:${phone}`, '_self');
+      if (!telWin) {
+        try { window.location.href = smsUrl; } catch (e) {}
+      }
+    } catch (e) {}
+    showToastAlert("🚨 ĐÃ KÍCH HOẠT SOS", `Báo động khẩn cấp đang được gửi tới SĐT ${phone}!`);
+  } else {
+    showToastAlert("🚨 ĐÃ KÍCH HOẠT SOS", "Chưa có SĐT con cháu - hãy nhập trong Đăng nhập hoặc Cài Đặt AI!");
   }
 }
 
@@ -582,12 +647,13 @@ function saveHealthMetrics(heartRate, bloodPressure) {
   addRealtimeEvent('🩺', `${healthProfile.userName} vừa đo: Huyết áp ${healthData.bloodPressure} mmHg, Nhịp tim ${healthData.heartRate} bpm.`);
   renderMonitoringSummary();
   renderDailySummary();
+  renderDailySummary('fam');
 
   const isAbnormal = (heartRate > 100 || heartRate < 50);
 
   if (isAbnormal) {
     const alertMsg = `⚠️ CẢNH BÁO SỨC KHỎE MẮT THẤY TAI NGHE: Nhịp tim của ông/bà bất thường: ${heartRate} bpm (Huyết áp ${bloodPressure}) lúc ${healthData.time}`;
-    sendRemoteWebhookAlert(alertMsg);
+    triggerSOS(`Nhịp tim bất thường: ${heartRate} bpm (Huyết áp ${bloodPressure})`);
   }
 
   renderHealthHistory();
@@ -642,6 +708,7 @@ function confirmMedicineTaken() {
   addRealtimeEvent('💊', `${healthProfile.userName} đã xác nhận UỐNG THUỐC đầy đủ lúc ${curTimeStr}.`);
   renderMonitoringSummary();
   renderDailySummary();
+  renderDailySummary('fam');
 
   const familyMsg = `✅ MẮT THẤY TAI NGHE: Ông/bà đã uống thuốc đầy đủ lúc ${curTimeStr}`;
 
@@ -723,6 +790,11 @@ function loadGmailPrefill() {
   if (gmailInput) gmailInput.value = getFamilyEmail();
   const qsGmail = document.getElementById('qsGmailTo');
   if (qsGmail) qsGmail.value = getFamilyEmail();
+  const sosPhone = (healthProfile.familyPhone || localStorage.getItem('FAMILY_SOS_PHONE') || "");
+  const settingPhone = document.getElementById('settingSosPhone');
+  if (settingPhone) settingPhone.value = sosPhone;
+  const qsPhone = document.getElementById('qsPhone');
+  if (qsPhone) qsPhone.value = sosPhone;
 }
 
 // ======================= LỜI CHÀO TỰ ĐỘNG TỪ TRỢ LÝ AI THEO THỜI GIAN =======================
@@ -916,11 +988,14 @@ function saveQuickStartProfile(e) {
   e.preventDefault();
   const name = document.getElementById('qsUserName').value.trim() || "Ông/Bà";
   const gmailTo = document.getElementById('qsGmailTo').value.trim() || "";
+  const phone = document.getElementById('qsPhone').value.trim() || "";
 
   healthProfile.userName = name;
   healthProfile.familyEmail = gmailTo;
+  if (phone) healthProfile.familyPhone = phone;
   localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
   if (gmailTo) localStorage.setItem('FAMILY_GMAIL', gmailTo);
+  if (phone) localStorage.setItem('FAMILY_SOS_PHONE', phone);
 
   const quickUser = {
     name: name,
@@ -1011,6 +1086,7 @@ function updatePedometerUI() {
   if (now - lastSummaryRenderTime > 3000) {
     lastSummaryRenderTime = now;
     renderDailySummary();
+    renderDailySummary('fam');
   }
 }
 
@@ -1040,6 +1116,7 @@ function checkVitalsAgainstProfile() {
   let message = "";
   if (isDeviatedAbove15) {
     message = `CẢNH BÁO SỨC KHỎE! Chỉ số Huyết áp ${sysVal}/${diaVal} mmHg hoặc Nhịp tim ${hrVal} nhịp/phút của ông/bà đang bị LỆCH TRÊN 15% so với mức bình thường (${baseSys}/${baseDia} mmHg, ${baseHr} nhịp/phút) trong Hồ sơ sức khỏe. Ông bà hãy nằm nghỉ tại chỗ ngay và cháu sẽ gửi báo cáo qua Gmail cho con cháu!`;
+    triggerSOS(`Huyết áp ${sysVal}/${diaVal} mmHg hoặc nhịp tim ${hrVal} bpm LỆCH TRÊN 15% so với hồ sơ sức khỏe`);
     document.getElementById('heartRateStatus').textContent = "⚠️ Nhịp tim bất thường!";
     document.getElementById('heartRateStatus').className = "text-xs text-red-600 font-bold block mt-1";
     document.getElementById('bloodPressureStatus').textContent = "⚠️ Huyết áp bất thường!";
@@ -1344,6 +1421,7 @@ function saveSystemSettings() {
   const key = document.getElementById('settingGeminiApiKey').value.trim();
   const webhook = document.getElementById('settingTelegramWebhook').value.trim();
   const gmailTo = document.getElementById('settingGmailTo').value.trim();
+  const sosPhone = document.getElementById('settingSosPhone').value.trim();
   if (key) localStorage.setItem('GEMINI_API_KEY', key);
   if (webhook) localStorage.setItem('TELEGRAM_WEBHOOK_URL', webhook);
   if (gmailTo) {
@@ -1351,8 +1429,13 @@ function saveSystemSettings() {
     healthProfile.familyEmail = gmailTo;
     localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
   }
+  if (sosPhone) {
+    localStorage.setItem('FAMILY_SOS_PHONE', sosPhone);
+    healthProfile.familyPhone = sosPhone;
+    localStorage.setItem('HEALTH_PROFILE', JSON.stringify(healthProfile));
+  }
   toggleModal('settingsModal');
-  showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cấu hình Gemini API, Gmail con cháu và Webhook Bot thành công!");
+  showToastAlert("ĐÃ LƯU CÀI ĐẶT", "Cấu hình Gemini API, Gmail, SĐT SOS và Webhook Bot thành công!");
 }
 
 // EVENT LISTENERS SETUP
@@ -1429,6 +1512,7 @@ window.saveQuickStartProfile = saveQuickStartProfile;
 window.logoutProfile = logoutProfile;
 window.installPWA = installPWA;
 window.checkVitalsAgainstProfile = checkVitalsAgainstProfile;
+window.triggerSOS = triggerSOS;
 window.sendGmailHealthReport = sendGmailHealthReport;
 window.askTypedQuestion = askTypedQuestion;
 window.clearQuestion = clearQuestion;

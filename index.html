@@ -176,8 +176,8 @@
 
   <!-- ================= TẦNG 1: HEADER THƯƠNG HIỆU FAMCARE (CĂN GIỮA) ================= -->
   <header class="bg-white shadow-md sticky top-0 z-40 border-b border-teal-100">
-    <div class="max-w-5xl mx-auto px-4 pt-2">
-      <!-- Dòng 1: Logo Famcare chính giữa + Nút hồ sơ góc phải -->
+    <div class="max-w-5xl mx-auto px-4 pt-2 pb-1.5">
+      <!-- Dòng 1: Logo Famcare chính giữa + Góc phải: Chế độ & Menu 3 gạch -->
       <div class="relative">
         <div class="text-center">
           <div class="flex items-center justify-center gap-2">
@@ -187,66 +187,52 @@
           <p class="brand-slogan mt-0.5">"Công nghệ từ tâm – Chăm sóc & Kết nối tình thân"</p>
         </div>
 
-        <!-- Góc phải: Đăng nhập / Hồ sơ cá nhân -->
+        <!-- Góc phải: Hồ sơ + Chuyển chế độ + Menu 3 gạch -->
         <div class="absolute top-0 right-0 flex items-center gap-1.5">
-          <button id="btnLoginTop" onclick="toggleModal('quickStartModal')" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 hover:bg-teal-100 border flex items-center gap-1.5" style="border-color:#b2d7dd;">
-            <i class="fa-solid fa-user"></i> Đăng nhập
-          </button>
           <div id="user_profile" class="hidden items-center gap-2 bg-navy text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm border border-teal-300 flex" style="background:#002147;">
             <img id="user_avatar" class="w-5 h-5 rounded-full border border-white" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar">
             <span id="user_name" class="text-white">Ông/Bà</span>
-            <button onclick="logoutProfile()" class="text-red-200 ml-1 hover:text-white" title="Đăng xuất / Đổi thông tin"><i class="fa-solid fa-sign-out-alt"></i></button>
           </div>
-        </div>
-      </div>
-
-      <!-- Dòng 2: Thanh menu điều hướng chức năng (responsive, mỏng gọn) -->
-      <nav class="py-1.5 mt-1.5 border-t border-gray-100">
-        <!-- Desktop: menu gọn gàng, một hàng -->
-        <div class="nav-menu hidden md:flex" id="desktopMenu">
-          <a href="#top" onclick="goFamcareSection('top')" class="nav-link active" data-nav="home"><i class="fa-solid fa-house mr-1"></i>Trang chủ / AI Famcare</a>
-          <a href="javascript:void(0)" onclick="showFamcareTab('tab-cam-nang')" class="nav-link" data-nav="tab-cam-nang"><i class="fa-solid fa-book-open mr-1"></i>Cẩm nang sức khỏe</a>
-          <a href="javascript:void(0)" onclick="showFamcareTab('tab-gioi-thieu')" class="nav-link" data-nav="tab-gioi-thieu"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
-          <a href="javascript:void(0)" onclick="showFamcareTab('tab-ket-noi')" class="nav-link" data-nav="tab-ket-noi"><i class="fa-solid fa-users mr-1"></i>Bảng kết nối gia đình</a>
-          <a href="javascript:void(0)" onclick="showFamcareTab('tab-bao-cao')" class="nav-link" data-nav="tab-bao-cao"><i class="fa-solid fa-chart-column mr-1"></i>Báo cáo hằng ngày</a>
-          <a href="#lich-sinh-hoat" onclick="goFamcareSection('lich-sinh-hoat')" class="nav-link" data-nav="home"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
-          <a href="#lien-he" onclick="goFamcareSection('lien-he')" class="nav-link" data-nav="home"><i class="fa-solid fa-envelope mr-1"></i>Liên hệ</a>
-        </div>
-
-        <!-- Mobile: nút Menu 3 gạch (Hamburger) -->
-        <div class="md:hidden flex items-center justify-between">
-          <button id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Mở menu" class="hamburger-btn">
-            <i class="fa-solid fa-bars"></i> Menu
+          <button id="modeSwitchBtn" onclick="switchMode()" class="mode-switch-btn" title="Chuyển sang Chế độ Con cháu">
+            <i class="fa-solid fa-people-roof"></i>
           </button>
-          <span class="w-9"></span>
+          <button id="hamburgerBtn" onclick="toggleSideDrawer()" aria-label="Mở menu" class="hamburger-btn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
         </div>
-
-        <!-- Mobile: danh sách menu xổ xuống -->
-        <div id="mobileMenu" class="hidden md:hidden mt-2 pt-2 border-t border-gray-100 flex-col">
-          <a href="#top" onclick="closeMobileMenu(); goFamcareSection('top')" class="nav-link" data-nav="home"><i class="fa-solid fa-house mr-1"></i>Trang chủ / AI Famcare</a>
-          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-cam-nang')" class="nav-link" data-nav="tab-cam-nang"><i class="fa-solid fa-book-open mr-1"></i>Cẩm nang sức khỏe</a>
-          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-gioi-thieu')" class="nav-link" data-nav="tab-gioi-thieu"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
-          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-ket-noi')" class="nav-link" data-nav="tab-ket-noi"><i class="fa-solid fa-users mr-1"></i>Bảng kết nối gia đình</a>
-          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-bao-cao')" class="nav-link" data-nav="tab-bao-cao"><i class="fa-solid fa-chart-column mr-1"></i>Báo cáo hằng ngày</a>
-          <a href="#lich-sinh-hoat" onclick="closeMobileMenu(); goFamcareSection('lich-sinh-hoat')" class="nav-link" data-nav="home"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
-          <a href="#lien-he" onclick="closeMobileMenu(); goFamcareSection('lien-he')" class="nav-link" data-nav="home"><i class="fa-solid fa-envelope mr-1"></i>Liên hệ</a>
-        </div>
-      </nav>
-
-      <!-- Cụm chức năng bổ trợ -->
-      <div class="flex flex-wrap items-center justify-center gap-1.5 py-2" id="utilityButtons">
-        <button onclick="toggleModal('medicalModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1">
-          <i class="fa-solid fa-notes-medical"></i> 📋 Hồ Sơ Bệnh Nền
-        </button>
-        <button onclick="toggleModal('settingsModal')" class="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1">
-          <i class="fa-solid fa-cog"></i> ⚙️ Cài Đặt AI
-        </button>
-        <button id="installAppBtn" onclick="installPWA()" class="bg-amber-400 hover:bg-amber-500 text-slate-900 px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-sm">
-          <i class="fa-solid fa-download"></i> Cài App
-        </button>
       </div>
     </div>
   </header>
+
+  <!-- ================= SIDE DRAWER MENU (Hamburger bên phải - slide-out) ================= -->
+  <div id="sideDrawerOverlay" class="drawer-overlay" onclick="closeSideDrawer()"></div>
+  <aside id="sideDrawer" class="side-drawer" aria-label="Menu Famcare">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <span class="font-black text-base flex items-center gap-2" style="color:#002147;">
+        <i class="fa-solid fa-heart-pulse" style="color:#005F73;"></i> FAMCARE MENU
+      </span>
+      <button onclick="closeSideDrawer()" class="text-gray-400 hover:text-red-500 text-2xl px-2 cursor-pointer" aria-label="Đóng menu">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <nav class="p-3 space-y-1 overflow-y-auto" style="max-height:72vh;">
+      <button onclick="closeSideDrawer(); toggleModal('quickStartModal')" class="drawer-item"><i class="fa-solid fa-user-check"></i> Đăng nhập</button>
+      <button onclick="closeSideDrawer(); toggleModal('medicalModal')" class="drawer-item"><i class="fa-solid fa-notes-medical"></i> Hồ sơ bệnh nền</button>
+      <button onclick="closeSideDrawer(); switchMode('elderly'); goFamcareSection('top')" class="drawer-item"><i class="fa-solid fa-house"></i> Trang chủ / AI Famcare</button>
+      <button onclick="closeSideDrawer(); switchMode('elderly'); goFamcareSection('lich-sinh-hoat')" class="drawer-item"><i class="fa-solid fa-clock"></i> Lịch sinh hoạt</button>
+      <button onclick="closeSideDrawer(); showFamcareTab('tab-cam-nang')" class="drawer-item"><i class="fa-solid fa-book-open"></i> Cẩm nang sức khỏe</button>
+      <button onclick="closeSideDrawer(); showFamcareTab('tab-gioi-thieu')" class="drawer-item"><i class="fa-solid fa-circle-info"></i> Giới thiệu</button>
+      <button onclick="closeSideDrawer(); showFamcareTab('tab-ket-noi')" class="drawer-item"><i class="fa-solid fa-users"></i> Bảng kết nối gia đình</button>
+      <button onclick="closeSideDrawer(); showFamcareTab('tab-bao-cao')" class="drawer-item"><i class="fa-solid fa-chart-column"></i> Báo cáo kết quả gửi con cháu</button>
+      <button onclick="closeSideDrawer(); installPWA()" id="installAppBtn" class="drawer-item drawer-accent"><i class="fa-solid fa-download"></i> Cài đặt PWA (Tải App)</button>
+    </nav>
+    <div class="p-3 border-t border-gray-100">
+      <button onclick="closeSideDrawer(); switchMode()" class="drawer-item drawer-mode">
+        <i class="fa-solid fa-arrows-rotate"></i> <span id="drawerModeLabel">Chuyển sang Chế độ Con cháu</span>
+      </button>
+      <p class="text-[11px] text-gray-400 font-semibold mt-2 text-center">Famcare - Công nghệ từ tâm, chăm sóc & kết nối tình thân</p>
+    </div>
+  </aside>
 
   <!-- PWA Installation Sticky Banner (mỏng gọn) -->
   <div id="pwaInstallBanner" class="bg-navy text-white text-center py-1.5 px-3 text-xs font-bold" style="background:#002147;border-bottom:2px solid #005F73;">
@@ -260,7 +246,7 @@
   <main id="top" class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
     <!-- ================= TẦNG 2: TRỢ LÝ AI FAMCARE (MẮT THẤY & TAI NGHE) ================= -->
-    <section id="ai-assistant-section" data-page="home" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+    <section id="ai-assistant-section" data-page="home" data-mode="elderly" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-2xl font-black text-teal-800 flex items-center gap-2" style="color:#002147;">
           <i class="fa-solid fa-robot"></i> Trợ Lý AI Famcare (Mắt Thấy & Tai Nghe)
@@ -405,7 +391,7 @@
     </section>
 
     <!-- ================= TẦNG 3: LỊCH SINH HOẠT HẰNG NGÀY ================= -->
-    <section id="lich-sinh-hoat" data-page="home" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
+    <section id="lich-sinh-hoat" data-page="home" data-mode="elderly" class="card-soft p-6 border-t-4" style="border-top-color:#005F73;">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
           <i class="fa-solid fa-clock"></i> Lịch Sinh Hoạt & Nhắc Nhở Hằng Ngày
@@ -432,7 +418,7 @@
     </section>
 
     <!-- ================= TẦNG 4: SỨC KHỎE & HỒ SƠ TÌNH HÌNH TRONG NGÀY ================= -->
-    <section data-page="home" class="card-soft p-6 border-t-4 space-y-6" style="border-top-color:#005F73;">
+    <section data-page="home" data-mode="elderly" class="card-soft p-6 border-t-4 space-y-6" style="border-top-color:#005F73;">
       <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
         <i class="fa-solid fa-heart-pulse"></i> Sinh Hiệu & Nhật Ký Sức Khỏe
       </h2>
@@ -505,8 +491,79 @@
       </div>
     </section>
 
+    <!-- ================= CHẾ ĐỘ CON CHÁU: FAMILY DASHBOARD (GIÁM SÁT TỪ XA) ================= -->
+    <section id="family-dashboard" data-page="family-home" data-mode="family" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#002147;">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
+          <i class="fa-solid fa-people-roof"></i> Bản Con Cháu - Giám Sát Từ Xa
+        </h2>
+        <span class="flex items-center gap-1.5 bg-teal-100 text-teal-700 text-xs font-bold px-2.5 py-1 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Cập nhật realtime
+        </span>
+      </div>
+      <p class="text-gray-600 text-elder mb-4">
+        Con cháu theo dõi nhật ký sinh hoạt của ông bà ngay trên app, không cần mở email!
+      </p>
+
+      <!-- NÚT CẢNH BÁO KHẨN CẤP SOS -->
+      <button onclick="triggerSOS('Ông/bà đã bấm nút CẤP CỨU KHẨN CẤP SOS')" class="w-full btn-elder text-white flex items-center justify-center gap-3 shadow-lg py-4 rounded-2xl sos-button">
+        <i class="fa-solid fa-bell text-3xl"></i>
+        <span>🚨 NÚT CẤP CỨU KHẨN CẤP (SOS)</span>
+      </button>
+      <p class="text-center text-xs text-gray-400 font-bold mt-2 mb-4">Bấm khi ông bà cần giúp đỡ khẩn cấp - hệ thống tự động phát chuông & gửi tin nhắn/cuộc gọi báo động tới SĐT con cháu!</p>
+
+      <!-- Thẻ tổng hợp chỉ số trong ngày -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">👣</p>
+          <p id="famSteps" class="font-black text-lg mt-1" style="color:#002147;">0</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Bước chân hôm nay</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">💊</p>
+          <p id="famMedicine" class="font-black text-lg mt-1" style="color:#002147;">Chưa uống</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Thuốc hôm nay</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">🩺</p>
+          <p id="famVitals" class="font-black text-lg mt-1" style="color:#002147;">--/-- mmHg</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Huyết áp mới nhất</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">❤️</p>
+          <p id="famHeart" class="font-black text-lg mt-1" style="color:#002147;">-- bpm</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Nhịp tim mới nhất</p>
+        </div>
+      </div>
+
+      <!-- Đánh giá tổng quan từ AI -->
+      <div class="mt-4 rounded-2xl p-5" style="background:#EFF6F8;border:2px solid #b2d7dd;">
+        <p class="text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1" style="color:#005F73;">
+          <i class="fa-solid fa-robot"></i> Đánh giá tổng quan từ Bác sĩ AI
+        </p>
+        <p id="famAiEvaluation" class="text-gray-800 font-bold text-lg leading-relaxed">Đang tổng hợp nhật ký sinh hoạt của ông bà...</p>
+      </div>
+
+      <!-- Nhật ký hoạt động realtime -->
+      <div class="mt-4">
+        <p class="text-xs font-black uppercase tracking-wider mb-2 text-gray-500"><i class="fa-solid fa-clock-rotate-left"></i> Nhật ký sinh hoạt realtime</p>
+        <div id="famActivityLog" class="bg-teal-50 rounded-xl p-4 max-h-64 overflow-y-auto text-sm space-y-2" style="border:2px solid #b2d7dd;">
+          <p class="text-xs text-teal-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay.</p>
+        </div>
+      </div>
+
+      <!-- Nút gửi báo cáo Gmail -->
+      <div class="mt-5">
+        <button onclick="sendGmailHealthReport()" class="w-full btn-elder text-white flex items-center justify-center gap-3 shadow-lg py-4 rounded-2xl" style="background:linear-gradient(135deg,#005F73,#002147);">
+          <i class="fa-solid fa-envelope-open-text text-2xl"></i>
+          <span>✉️ GỬI BÁO CÁO QUA GMAIL</span>
+        </button>
+      </div>
+    </section>
+
     <!-- ================= TAB 3: BẢNG KẾT NỐI GIA ĐÌNH - GIÁM SÁT REALTIME ================= -->
-    <section id="monitoring-section" data-page="tab-ket-noi" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#002147;">
+    <section id="monitoring-section" data-page="tab-ket-noi" data-mode="both" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#002147;">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
           <i class="fa-solid fa-users"></i> Bảng Kết Nối Gia Đình (Giám Sát Realtime)
@@ -560,7 +617,7 @@
     </section>
 
     <!-- ================= TAB: BÁO CÁO HẰNG NGÀY (DAILY SUMMARY DASHBOARD) ================= -->
-    <section id="daily-summary" data-page="tab-bao-cao" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#002147;">
+    <section id="daily-summary" data-page="tab-bao-cao" data-mode="both" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#002147;">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
           <i class="fa-solid fa-chart-column"></i> Báo Cáo Hằng Ngày (Con Cháu Theo Dõi)
@@ -616,7 +673,7 @@
     </section>
 
     <!-- ================= TAB 1: GIỚI THIỆU ================= -->
-    <section id="gioi-thieu" data-page="tab-gioi-thieu" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#005F73;">
+    <section id="gioi-thieu" data-page="tab-gioi-thieu" data-mode="both" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#005F73;">
       <h2 class="text-2xl font-black flex items-center gap-2 mb-4" style="color:#002147;">
         <i class="fa-solid fa-circle-info"></i> Giới Thiệu Về Famcare
       </h2>
@@ -664,7 +721,7 @@
     </section>
 
     <!-- ================= TAB 2: CẨM NANG SỨC KHỎE (3 BÀI ĐỌC ĐỘC LẬP) ================= -->
-    <section id="cam-nang" data-page="tab-cam-nang" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#005F73;">
+    <section id="cam-nang" data-page="tab-cam-nang" data-mode="both" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#005F73;">
       <h2 class="text-2xl font-black flex items-center gap-2 mb-1" style="color:#002147;">
         <i class="fa-solid fa-book-open"></i> Cẩm Nang Sức Khỏe
       </h2>
@@ -802,7 +859,7 @@
     </section>
 
     <!-- ================= TẦNG 8: LIÊN HỆ ================= -->
-    <section id="lien-he" data-page="home" class="card-soft p-6 border-t-4" style="border-top-color:#002147;">
+    <section id="lien-he" data-page="home" data-mode="elderly" class="card-soft p-6 border-t-4" style="border-top-color:#002147;">
       <h2 class="text-2xl font-black flex items-center gap-2 mb-4" style="color:#002147;">
         <i class="fa-solid fa-envelope"></i> Liên Hệ Với Famcare
       </h2>
@@ -891,6 +948,10 @@
           <label class="text-xs font-bold text-gray-500" for="qsGmailTo">✉️ Gmail con cháu (nhận báo cáo):</label>
           <input type="email" id="qsGmailTo" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: conchau@gmail.com">
         </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="qsPhone">🚨 Số điện thoại con cháu (nhận cảnh báo SOS):</label>
+          <input type="tel" id="qsPhone" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="Ví dụ: 0901234567">
+        </div>
         <div class="flex justify-end gap-2 border-t pt-3">
           <button type="button" onclick="toggleModal('quickStartModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
           <button type="submit" class="px-5 py-2 text-white rounded-xl text-sm font-black shadow-md" style="background:#005F73;">Lưu hồ sơ</button>
@@ -914,6 +975,11 @@
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="settingGmailTo">Gmail của con cháu (nhận báo cáo):</label>
           <input type="email" id="settingGmailTo" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="conchau@gmail.com">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="settingSosPhone">🚨 SĐT con cháu (nhận cảnh báo SOS - tin nhắn/cuộc gọi):</label>
+          <input type="tel" id="settingSosPhone" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="0901234567">
+          <span class="text-[11px] text-gray-400 font-semibold block mt-0.5">Hệ thống tự động gửi báo động khẩn cấp tới số này khi ông bà bấm nút SOS hoặc chỉ số sinh hiệu báo động.</span>
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-gray-500" for="settingTelegramWebhook">Telegram Bot Webhook URL:</label>

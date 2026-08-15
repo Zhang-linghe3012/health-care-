@@ -66,27 +66,90 @@ function closeCamNangArticle() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ---------- HAMBURGER MENU (Mobile) ---------- */
-function toggleMobileMenu() {
-  const menu = document.getElementById('mobileMenu');
-  const btn = document.getElementById('hamburgerBtn');
-  if (!menu) return;
-  const isOpen = !menu.classList.contains('hidden');
-  menu.classList.toggle('hidden');
+/* ---------- HAMBURGER MENU BÊN PHẢI (Side Drawer slide-out) ---------- */
+function toggleSideDrawer() {
+  const drawer = document.getElementById('sideDrawer');
+  const overlay = document.getElementById('sideDrawerOverlay');
+  if (!drawer) return;
+  const isOpen = drawer.classList.contains('drawer-open');
+  drawer.classList.toggle('drawer-open', !isOpen);
+  if (overlay) overlay.classList.toggle('visible', !isOpen);
+}
+
+function closeSideDrawer() {
+  const drawer = document.getElementById('sideDrawer');
+  const overlay = document.getElementById('sideDrawerOverlay');
+  if (drawer) drawer.classList.remove('drawer-open');
+  if (overlay) overlay.classList.remove('visible');
+}
+
+/* =========================================================
+   2 CHẾ ĐỘ GIAO DIỆN: Ông Bà (elderly) / Con Cháu (family)
+   ========================================================= */
+function switchMode(mode) {
+  const current = document.body.dataset.mode || 'elderly';
+  const next = mode || (current === 'family' ? 'elderly' : 'family');
+  document.body.dataset.mode = next;
+  localStorage.setItem('FAMCARE_MODE', next);
+
+  // Ẩn toàn bộ các trang trước, sau đó hiện đúng trang chủ của chế độ
+  document.querySelectorAll('[data-page]').forEach(sec => sec.classList.add('hidden'));
+  if (next === 'family') {
+    const dash = document.getElementById('family-dashboard');
+    if (dash) {
+      dash.classList.remove('hidden');
+      dash.classList.add('famcare-page-visible');
+    }
+  } else {
+    document.querySelectorAll('[data-page="home"]').forEach(sec => {
+      sec.classList.remove('hidden');
+      sec.classList.add('famcare-page-visible');
+    });
+  }
+  setActiveNav('home');
+  updateModeButtons();
+  closeSideDrawer();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateModeButtons() {
+  const mode = document.body.dataset.mode || 'elderly';
+  const btn = document.getElementById('modeSwitchBtn');
+  const label = document.getElementById('drawerModeLabel');
   if (btn) {
-    btn.innerHTML = isOpen
-      ? '<i class="fa-solid fa-bars"></i> Menu'
-      : '<i class="fa-solid fa-xmark"></i> Đóng';
+    btn.innerHTML = mode === 'family'
+      ? '<i class="fa-solid fa-person-cane"></i>'
+      : '<i class="fa-solid fa-people-roof"></i>';
+    btn.title = mode === 'family'
+      ? 'Chuyển sang Chế độ Ông bà'
+      : 'Chuyển sang Chế độ Con cháu';
+  }
+  if (label) {
+    label.textContent = mode === 'family'
+      ? 'Chuyển sang Chế độ Ông bà'
+      : 'Chuyển sang Chế độ Con cháu';
   }
 }
 
-function closeMobileMenu() {
-  const menu = document.getElementById('mobileMenu');
-  const btn = document.getElementById('hamburgerBtn');
-  if (menu && !menu.classList.contains('hidden')) {
-    menu.classList.add('hidden');
-    if (btn) btn.innerHTML = '<i class="fa-solid fa-bars"></i> Menu';
+/* Hiện trang chủ rồi cuộn mượt tới vùng chỉ định */
+function goFamcareSection(sectionId) {
+  const inFamily = (document.body.dataset.mode || 'elderly') === 'family';
+  if (inFamily) {
+    switchMode('elderly');
+  } else {
+    setPageVisible('home');
+    setActiveNav('home');
   }
+  if (sectionId === 'top') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  setTimeout(function () {
+    var el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 60);
 }
 
 /* =========================================================
@@ -119,13 +182,15 @@ function registerServiceWorker() {
   }
 }
 
-/* Khởi tạo PWA khi trang đã sẵn sàng */
+/* Khởi tạo PWA + chế độ giao diện khi trang đã sẵn sàng */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function () {
     registerServiceWorker();
     hideInstallPromptIfStandalone();
+    switchMode(localStorage.getItem('FAMCARE_MODE') || 'elderly');
   });
 } else {
   registerServiceWorker();
   hideInstallPromptIfStandalone();
+  switchMode(localStorage.getItem('FAMCARE_MODE') || 'elderly');
 }

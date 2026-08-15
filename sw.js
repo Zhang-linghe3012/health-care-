@@ -1,4 +1,4 @@
-const CACHE_NAME = 'famcare-v3';
+const CACHE_NAME = 'famcare-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -191,6 +191,15 @@ self.addEventListener('message', event => {
       }));
       console.log(`[ServiceWorker FAMCARE V3] Registered ${reminderList.length} background reminder(s):`, reminderList);
       scheduleReminderNotifications();
+    } else if (event.data.action === 'sos') {
+      const sosMsg = event.data.message || 'CẢNH BÁO KHẨN CẤP! Ông/bà cần giúp đỡ ngay.';
+      self.registration.showNotification('🚨 KHẨN CẤP SOS - FAMCARE', {
+        body: sosMsg,
+        icon: './icons/icon-192.png',
+        badge: './icons/icon-192.png',
+        vibrate: [500, 200, 500, 200, 500, 200, 500],
+        data: { url: './index.html' }
+      });
     } else if (event.data.action === 'setReminderTime') {
       // Backward compatibility: single reminder
       reminderList = [{ time: event.data.time || "08:00", name: 'uống thuốc hằng ngày', userName: event.data.userName || 'Ông/Bà' }];
