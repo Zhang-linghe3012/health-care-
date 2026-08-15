@@ -142,20 +142,24 @@ input, select, textarea {
   background: #EFF6F8;
   color: var(--navy);
   border: 2px solid var(--teal);
-  border-radius: 0.6rem;
-  padding: 0.3rem 0.85rem;
+  border-radius: 0.75rem;
+  min-width: 3rem;
+  min-height: 3rem;
+  padding: 0.45rem 0.95rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
   font-weight: 800;
-  font-size: 0.9rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  transition: background 0.25s ease;
+  transition: background 0.25s ease, transform 0.1s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .hamburger-btn:active {
   background: #d7e9ed;
+  transform: scale(0.95);
 }
 
 #mobileMenu .nav-link {
@@ -195,12 +199,16 @@ input, select, textarea {
   z-index: 51;
   box-shadow: -8px 0 30px rgba(0, 33, 71, 0.2);
   transform: translateX(100%);
-  transition: transform 0.32s ease;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.32s ease, visibility 0.32s ease;
   display: flex;
   flex-direction: column;
 }
 .side-drawer.drawer-open {
   transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .drawer-item {
