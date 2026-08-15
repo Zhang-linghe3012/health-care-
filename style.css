@@ -128,6 +128,43 @@ input, select, textarea {
   }
 }
 
+/* ---------- Compact responsive navbar (hamburger mobile menu) ---------- */
+.nav-menu .nav-link {
+  font-size: 0.9rem;
+  padding: 0.45rem 0.75rem;
+}
+
+.hamburger-btn {
+  background: #EFF6F8;
+  color: var(--navy);
+  border: 2px solid var(--teal);
+  border-radius: 0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hamburger-btn:active {
+  background: #d7e9ed;
+}
+
+#mobileMenu .nav-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.6rem;
+}
+
+#mobileMenu .nav-link:hover {
+  background: rgba(0, 95, 115, 0.06);
+}
+
 /* Hide horizontal scrollbar for nav on mobile */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

@@ -200,16 +200,37 @@
         </div>
       </div>
 
-      <!-- Dòng 2: Thanh menu điều hướng chức năng -->
-      <nav class="py-2 mt-2 border-t border-gray-100 overflow-x-auto scrollbar-hide">
-        <div class="nav-menu">
-          <a href="#top" onclick="goFamcareSection('top')" class="nav-link active" data-nav="home"><i class="fa-solid fa-house mr-1"></i>Trang chủ</a>
-          <a href="javascript:void(0)" onclick="showFamcareTab('tab-gioi-thieu')" class="nav-link" data-nav="tab-gioi-thieu"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
+      <!-- Dòng 2: Thanh menu điều hướng chức năng (responsive) -->
+      <nav class="py-2 mt-2 border-t border-gray-100">
+        <!-- Desktop: menu gọn gàng, một hàng -->
+        <div class="nav-menu hidden md:flex" id="desktopMenu">
+          <a href="#top" onclick="goFamcareSection('top')" class="nav-link active" data-nav="home"><i class="fa-solid fa-house mr-1"></i>Trang chủ / AI Famcare</a>
           <a href="javascript:void(0)" onclick="showFamcareTab('tab-cam-nang')" class="nav-link" data-nav="tab-cam-nang"><i class="fa-solid fa-book-open mr-1"></i>Cẩm nang sức khỏe</a>
-          <a href="#ai-assistant-section" onclick="goFamcareSection('ai-assistant-section')" class="nav-link" data-nav="home"><i class="fa-solid fa-robot mr-1"></i>Trợ lý AI Famcare</a>
-          <a href="#lich-sinh-hoat" onclick="goFamcareSection('lich-sinh-hoat')" class="nav-link" data-nav="home"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
+          <a href="javascript:void(0)" onclick="showFamcareTab('tab-gioi-thieu')" class="nav-link" data-nav="tab-gioi-thieu"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
           <a href="javascript:void(0)" onclick="showFamcareTab('tab-ket-noi')" class="nav-link" data-nav="tab-ket-noi"><i class="fa-solid fa-users mr-1"></i>Bảng kết nối gia đình</a>
+          <a href="javascript:void(0)" onclick="showFamcareTab('tab-bao-cao')" class="nav-link" data-nav="tab-bao-cao"><i class="fa-solid fa-chart-column mr-1"></i>Báo cáo hằng ngày</a>
+          <a href="#lich-sinh-hoat" onclick="goFamcareSection('lich-sinh-hoat')" class="nav-link" data-nav="home"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
           <a href="#lien-he" onclick="goFamcareSection('lien-he')" class="nav-link" data-nav="home"><i class="fa-solid fa-envelope mr-1"></i>Liên hệ</a>
+        </div>
+
+        <!-- Mobile: nút Menu 3 gạch (Hamburger) -->
+        <div class="md:hidden flex items-center justify-between">
+          <button id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Mở menu" class="hamburger-btn">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+          <span class="text-xs font-black tracking-widest text-gray-400 uppercase">Danh mục</span>
+          <span class="w-9"></span>
+        </div>
+
+        <!-- Mobile: danh sách menu xổ xuống -->
+        <div id="mobileMenu" class="hidden md:hidden mt-2 pt-2 border-t border-gray-100 flex-col">
+          <a href="#top" onclick="closeMobileMenu(); goFamcareSection('top')" class="nav-link" data-nav="home"><i class="fa-solid fa-house mr-1"></i>Trang chủ / AI Famcare</a>
+          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-cam-nang')" class="nav-link" data-nav="tab-cam-nang"><i class="fa-solid fa-book-open mr-1"></i>Cẩm nang sức khỏe</a>
+          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-gioi-thieu')" class="nav-link" data-nav="tab-gioi-thieu"><i class="fa-solid fa-circle-info mr-1"></i>Giới thiệu</a>
+          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-ket-noi')" class="nav-link" data-nav="tab-ket-noi"><i class="fa-solid fa-users mr-1"></i>Bảng kết nối gia đình</a>
+          <a href="javascript:void(0)" onclick="closeMobileMenu(); showFamcareTab('tab-bao-cao')" class="nav-link" data-nav="tab-bao-cao"><i class="fa-solid fa-chart-column mr-1"></i>Báo cáo hằng ngày</a>
+          <a href="#lich-sinh-hoat" onclick="closeMobileMenu(); goFamcareSection('lich-sinh-hoat')" class="nav-link" data-nav="home"><i class="fa-solid fa-clock mr-1"></i>Lịch sinh hoạt</a>
+          <a href="#lien-he" onclick="closeMobileMenu(); goFamcareSection('lien-he')" class="nav-link" data-nav="home"><i class="fa-solid fa-envelope mr-1"></i>Liên hệ</a>
         </div>
       </nav>
 
@@ -251,6 +272,14 @@
         Ông bà hãy <strong>chụp/tải ảnh</strong> toa thuốc hay vết thương, rồi <strong>nói với bác sĩ</strong> câu hỏi.
         Bác sĩ AI sẽ <strong class="text-teal-700">xem ảnh + nghe câu hỏi</strong> cùng lúc và <strong>đọc to</strong> câu trả lời cho ông bà nghe!
       </p>
+
+      <!-- Lời chào tự động từ Trợ lý AI theo giờ hệ thống -->
+      <div id="aiGreetingBox" class="hidden rounded-2xl p-4 mb-4 border-l-4 space-y-1" style="background:#EFF6F8;border-color:#005F73;">
+        <p class="text-xs font-black uppercase tracking-wider mb-1 flex items-center gap-1" style="color:#005F73;">
+          <i class="fa-solid fa-hand-sparkles"></i> Lời chào từ Bác sĩ AI
+        </p>
+        <p id="aiGreetingText" class="text-gray-800 font-bold text-lg leading-relaxed"></p>
+      </div>
 
       <!-- Câu hỏi hiện tại (từ giọng nói hoặc gõ tay) -->
       <label class="text-xs font-bold text-gray-500 uppercase tracking-wider" for="aiQuestionInput">🎤 Câu hỏi của ông bà:</label>
@@ -528,6 +557,62 @@
           <i class="fa-solid fa-envelope-open-text text-2xl"></i>
           <span>✉️ GỬI BÁO CÁO QUA GMAIL</span>
         </button>
+      </div>
+    </section>
+
+    <!-- ================= TAB: BÁO CÁO HẰNG NGÀY (DAILY SUMMARY DASHBOARD) ================= -->
+    <section id="daily-summary" data-page="tab-bao-cao" class="card-soft p-6 border-t-4 hidden famcare-page" style="border-top-color:#002147;">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-2xl font-black flex items-center gap-2" style="color:#002147;">
+          <i class="fa-solid fa-chart-column"></i> Báo Cáo Hằng Ngày (Con Cháu Theo Dõi)
+        </h2>
+        <span class="flex items-center gap-1.5 bg-teal-100 text-teal-700 text-xs font-bold px-2.5 py-1 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Cập nhật realtime
+        </span>
+      </div>
+      <p class="text-gray-600 text-elder mb-4">
+        Tổng hợp nhật ký sinh hoạt của ông bà trong ngày — con cháu mở app là thấy ngay, không cần mở email!
+      </p>
+
+      <!-- Thẻ tổng hợp chỉ số trong ngày -->
+      <div id="dailySummaryCards" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">👣</p>
+          <p id="dailySteps" class="font-black text-lg mt-1" style="color:#002147;">0</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Bước chân hôm nay</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">💊</p>
+          <p id="dailyMedicine" class="font-black text-lg mt-1" style="color:#002147;">Chưa uống</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Thuốc hôm nay</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">🩺</p>
+          <p id="dailyVitals" class="font-black text-lg mt-1" style="color:#002147;">--/-- mmHg</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Huyết áp mới nhất</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border text-center" style="border-color:#e2e8f0;">
+          <p class="text-3xl">❤️</p>
+          <p id="dailyHeart" class="font-black text-lg mt-1" style="color:#002147;">-- bpm</p>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Nhịp tim mới nhất</p>
+        </div>
+      </div>
+
+      <!-- Đánh giá tổng quan từ AI -->
+      <div class="mt-4 rounded-2xl p-5" style="background:#EFF6F8;border:2px solid #b2d7dd;">
+        <p class="text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1" style="color:#005F73;">
+          <i class="fa-solid fa-robot"></i> Đánh giá tổng quan từ Bác sĩ AI
+        </p>
+        <p id="dailyAiEvaluation" class="text-gray-800 font-bold text-lg leading-relaxed">Đang tổng hợp nhật ký sinh hoạt của ông bà...</p>
+      </div>
+
+      <!-- Nhật ký sinh hoạt chi tiết trong ngày -->
+      <div class="mt-4">
+        <p class="text-xs font-black uppercase tracking-wider mb-2 text-gray-500"><i class="fa-solid fa-clock-rotate-left"></i> Nhật ký sinh hoạt hôm nay</p>
+        <div id="dailyActivityLog" class="bg-teal-50 rounded-xl p-4 max-h-64 overflow-y-auto text-sm space-y-2" style="border:2px solid #b2d7dd;">
+          <p class="text-xs text-teal-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay.</p>
+        </div>
       </div>
     </section>
 

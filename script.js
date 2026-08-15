@@ -66,6 +66,29 @@ function closeCamNangArticle() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* ---------- HAMBURGER MENU (Mobile) ---------- */
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const btn = document.getElementById('hamburgerBtn');
+  if (!menu) return;
+  const isOpen = !menu.classList.contains('hidden');
+  menu.classList.toggle('hidden');
+  if (btn) {
+    btn.innerHTML = isOpen
+      ? '<i class="fa-solid fa-bars text-xl"></i>'
+      : '<i class="fa-solid fa-xmark text-xl"></i>';
+  }
+}
+
+function closeMobileMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const btn = document.getElementById('hamburgerBtn');
+  if (menu && !menu.classList.contains('hidden')) {
+    menu.classList.add('hidden');
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-bars text-xl"></i>';
+  }
+}
+
 /* =========================================================
    PWA: ĐĂNG KÝ SERVICE WORKER + CÀI ĐẶT APP
    ========================================================= */

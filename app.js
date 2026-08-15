@@ -43,7 +43,6 @@ let healthProfile = {
 };
 
 let stepCount = 0;
-let lastAccelMagnitude = 0;
 let medicineReminders = [];
 let deferredInstallPrompt = null;
 let currentSpeechMessage = "";
@@ -67,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRealtimeFeed();
   renderMonitoringSummary();
   loadGmailPrefill();
+  showTimeBasedGreeting();
+  renderDailySummary();
   
   // Request Notification Permission immediately when app opens
   requestNotificationPermission();
@@ -158,6 +159,81 @@ function renderMonitoringSummary() {
   }
 }
 
+// ======================= BÁO CÁO HẰNG NGÀY (DAILY SUMMARY DASHBOARD) =======================
+function renderDailySummary() {
+  const cards = document.getElementById('dailySummaryCards');
+  if (!cards) return;
+
+  const logs = JSON.parse(localStorage.getItem('HEALTH_LOGS') || "[]");
+  const latest = logs[0];
+
+  const stepsEl = document.getElementById('dailySteps');
+  const medEl = document.getElementById('dailyMedicine');
+  const vitEl = document.getElementById('dailyVitals');
+  const heartEl = document.getElementById('dailyHeart');
+  const aiEl = document.getElementById('dailyAiEvaluation');
+  const logEl = document.getElementById('dailyActivityLog');
+
+  if (stepsEl) stepsEl.textContent = stepCount.toLocaleString() + " bước";
+  if (medEl) {
+    medEl.textContent = isMedicineTakenToday ? `✅ ${medicineTakenTime}` : "Chưa uống";
+    medEl.className = isMedicineTakenToday
+      ? "font-black text-emerald-600 text-lg mt-1"
+      : "font-black text-slate-400 text-lg mt-1";
+  }
+  if (vitEl && latest) {
+    vitEl.textContent = `${latest.bloodPressure} mmHg`;
+    const [sys, dia] = String(latest.bloodPressure).split('/').map(Number);
+    const baseSys = healthProfile.baseSystolic || 120;
+    const baseDia = healthProfile.baseDiastolic || 80;
+    const dev = Math.abs(sys - baseSys) / baseSys + Math.abs(dia - baseDia) / baseDia;
+    vitEl.className = dev > 0.3
+      ? "font-black text-red-600 text-lg mt-1"
+      : "font-black text-emerald-600 text-lg mt-1";
+  }
+  if (heartEl && latest) {
+    heartEl.textContent = `${latest.heartRate} bpm`;
+    heartEl.className = (latest.heartRate > 100 || latest.heartRate < 50)
+      ? "font-black text-red-600 text-lg mt-1"
+      : "font-black text-emerald-600 text-lg mt-1";
+  }
+
+  // Đánh giá tổng quan từ AI
+  if (aiEl) {
+    let parts = [`Ông/bà ${healthProfile.userName} hôm nay đã đi ${stepCount.toLocaleString()} bước.`];
+    parts.push(isMedicineTakenToday
+      ? `Đã xác nhận uống thuốc đầy đủ lúc ${medicineTakenTime}.`
+      : "Chưa xác nhận uống thuốc hôm nay.");
+    if (latest) {
+      const abnormal = latest.heartRate > 100 || latest.heartRate < 50;
+      parts.push(abnormal
+        ? `Sinh hiệu mới nhất: Huyết áp ${latest.bloodPressure} mmHg, nhịp tim ${latest.heartRate} bpm — ⚠️ có dấu hiệu bất thường, con cháu nên liên hệ ông bà và nhắc đo lại, nghỉ ngơi.`
+        : `Sinh hiệu mới nhất: Huyết áp ${latest.bloodPressure} mmHg, nhịp tim ${latest.heartRate} bpm — bình thường, ổn định.`);
+    } else {
+      parts.push("Chưa có chỉ số sinh hiệu nào được đo hôm nay.");
+    }
+    aiEl.textContent = parts.join(" ");
+  }
+
+  // Nhật ký hoạt động hôm nay (lọc từ realtime feed theo ngày hiện tại)
+  if (logEl) {
+    const feed = JSON.parse(localStorage.getItem('REALTIME_FEED') || "[]");
+    if (feed.length === 0) {
+      logEl.innerHTML = '<p class="text-xs text-teal-700 italic font-semibold">⏳ Chưa có hoạt động nào hôm nay.</p>';
+    } else {
+      logEl.innerHTML = feed.map(item => `
+        <div class="flex items-start gap-2 bg-white p-3 rounded-lg border border-teal-100 shadow-sm">
+          <span class="text-xl">${item.icon}</span>
+          <div class="flex-1">
+            <p class="text-slate-800 font-bold text-sm">${item.text}</p>
+            <p class="text-[11px] text-teal-500 font-bold">⏰ ${item.time}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
 // REQUEST NOTIFICATION PERMISSION IMMEDIATELY
 function requestNotificationPermission() {
   if ("Notification" in window) {
@@ -173,11 +249,13 @@ function requestNotificationPermission() {
 // REGISTER BACKGROUND NOTIFICATION TIMER IN SERVICE WORKER
 function registerBackgroundSyncNotification() {
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    const medicineTime = localStorage.getItem('MEDICINE_TIME') || "08:00";
+    const reminders = medicineReminders.length > 0
+      ? medicineReminders.map(r => ({ time: r.time, name: r.name }))
+      : [{ time: localStorage.getItem('MEDICINE_TIME') || "08:00", name: "uống thuốc hằng ngày" }];
     navigator.serviceWorker.ready.then(reg => {
       navigator.serviceWorker.controller.postMessage({
-        action: 'setReminderTime',
-        time: medicineTime,
+        action: 'setReminders',
+        reminders: reminders,
         userName: healthProfile.userName
       });
     });
@@ -503,6 +581,7 @@ function saveHealthMetrics(heartRate, bloodPressure) {
   // REALTIME: cập nhật ngay trên Bảng Giám Sát Con Cháu
   addRealtimeEvent('🩺', `${healthProfile.userName} vừa đo: Huyết áp ${healthData.bloodPressure} mmHg, Nhịp tim ${healthData.heartRate} bpm.`);
   renderMonitoringSummary();
+  renderDailySummary();
 
   const isAbnormal = (heartRate > 100 || heartRate < 50);
 
@@ -562,6 +641,7 @@ function confirmMedicineTaken() {
   // REALTIME: cập nhật ngay trên Bảng Giám Sát Con Cháu
   addRealtimeEvent('💊', `${healthProfile.userName} đã xác nhận UỐNG THUỐC đầy đủ lúc ${curTimeStr}.`);
   renderMonitoringSummary();
+  renderDailySummary();
 
   const familyMsg = `✅ MẮT THẤY TAI NGHE: Ông/bà đã uống thuốc đầy đủ lúc ${curTimeStr}`;
 
@@ -643,6 +723,60 @@ function loadGmailPrefill() {
   if (gmailInput) gmailInput.value = getFamilyEmail();
   const qsGmail = document.getElementById('qsGmailTo');
   if (qsGmail) qsGmail.value = getFamilyEmail();
+}
+
+// ======================= LỜI CHÀO TỰ ĐỘNG TỪ TRỢ LÝ AI THEO THỜI GIAN =======================
+function showTimeBasedGreeting() {
+  const box = document.getElementById('aiGreetingBox');
+  const text = document.getElementById('aiGreetingText');
+  if (!box || !text) return;
+
+  const hour = new Date().getHours();
+  const userName = healthProfile.userName || "Ông/Bà";
+  let baseGreeting = "";
+
+  if (hour >= 5 && hour < 12) {
+    baseGreeting = `Chào buổi sáng ${userName}! Thời tiết hôm nay rất đẹp, chúc ông/bà một ngày mới tràn đầy năng lượng và đừng quên uống nước nhé! ☀️`;
+  } else if (hour >= 12 && hour < 17) {
+    baseGreeting = `Chào buổi chiều ${userName}! Chúc ông/bà buổi chiều vui khỏe, nhớ nghỉ ngơi một chút sau khi ăn trưa nhé! 🍃`;
+  } else if (hour >= 17 && hour < 21) {
+    baseGreeting = `Chào buổi tối ${userName}! Chúc ông/bà buổi tối ấm áp bên gia đình, đừng quên vận động nhẹ nhàng sau bữa tối nhé! 🌇`;
+  } else {
+    baseGreeting = `Đã muộn rồi ${userName} ơi, chúc ông/bà có một giấc ngủ thật ngon và những giấc mơ đẹp! 🌙`;
+  }
+
+  text.textContent = baseGreeting;
+  box.classList.remove('hidden');
+
+  // Cập nhật thời tiết trong ngày (best-effort, không cần API key - Open-Meteo)
+  tryWeatherGreeting(text, hour);
+}
+
+function tryWeatherGreeting(textEl, hour) {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`)
+      .then(r => r.json())
+      .then(d => {
+        const w = d.current_weather;
+        if (!w || typeof w.temperature !== 'number') return;
+        const temp = Math.round(w.temperature);
+        let weatherDesc = "trời nhiều mây";
+        const code = w.weathercode;
+        if (code === 0) weatherDesc = "trời nắng đẹp";
+        else if (code === 1 || code === 2) weatherDesc = "trời ít mây, nắng nhẹ";
+        else if (code >= 51 && code <= 67) weatherDesc = "có mưa, ông/bà nhớ mang áo mưa khi ra ngoài";
+        else if (code >= 71 && code <= 77) weatherDesc = "trời lạnh có thể có tuyết, nhớ giữ ấm";
+        else if (code >= 80 && code <= 82) weatherDesc = "có mưa rào, nhớ giữ ấm và cẩn thận đường trơn";
+        else if (code >= 95) weatherDesc = "có giông bão, ông/bà ở trong nhà cho an toàn";
+
+        const greeting = hour >= 5 && hour < 12
+          ? `Chào buổi sáng ${healthProfile.userName || "ông/bà"}! Hôm nay ${weatherDesc}, nhiệt độ khoảng ${temp}°C. Chúc ông/bà một ngày mới tràn đầy năng lượng và đừng quên uống nước nhé! ☀️`
+          : `Cập nhật thời tiết: hôm nay ${weatherDesc}, nhiệt độ khoảng ${temp}°C. Ông/bà nhớ mặc phù hợp với thời tiết nhé!`;
+        textEl.textContent = greeting;
+      })
+      .catch(() => {});
+  }, () => {}, { timeout: 5000, maximumAge: 600000 });
 }
 
 // AUTOMATIC DAILY REMINDERS (06:30 AM, 12:00 PM NOON, 21:00 PM)
@@ -810,33 +944,74 @@ function logoutProfile() {
   toggleModal('quickStartModal');
 }
 
-// PEDOMETER
+// PEDOMETER (peak detection + noise filter trên gia tốc kế)
+let lastAccelMagnitude = 0;
+let accelBuffer = [];
+let lastStepTime = 0;
+let lastSummaryRenderTime = 0;
+
 function initPedometer() {
   const savedSteps = localStorage.getItem('DAILY_STEPS_' + new Date().toDateString());
   if (savedSteps) stepCount = parseInt(savedSteps) || 0;
   updatePedometerUI();
 
-  if (window.DeviceMotionEvent) {
-    window.addEventListener('devicemotion', (e) => {
-      const acc = e.accelerationIncludingGravity;
-      if (!acc) return;
-      
-      const magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-      const delta = Math.abs(magnitude - lastAccelMagnitude);
-      lastAccelMagnitude = magnitude;
+  const motionHandler = (e) => {
+    const acc = e.accelerationIncludingGravity;
+    if (!acc) return;
 
-      if (delta > 11.5) {
+    const magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+
+    // Low-pass filter để khử nhiễu rung lắc nhỏ
+    lastAccelMagnitude = (lastAccelMagnitude === 0)
+      ? magnitude
+      : lastAccelMagnitude * 0.8 + magnitude * 0.2;
+
+    accelBuffer.push(lastAccelMagnitude);
+    if (accelBuffer.length > 7) accelBuffer.shift();
+
+    // Peak detection: điểm cực đại cục bộ, vượt ngưỡng trọng lực, cách bước trước >= 350ms
+    if (accelBuffer.length >= 7) {
+      const mid = accelBuffer[3];
+      const isPeak = mid >= accelBuffer[0] && mid >= accelBuffer[1] &&
+                     mid >= accelBuffer[2] && mid >= accelBuffer[4] &&
+                     mid >= accelBuffer[5] && mid >= accelBuffer[6] &&
+                     mid > 10.6;
+      const now = Date.now();
+      if (isPeak && (now - lastStepTime) > 350) {
+        lastStepTime = now;
         stepCount++;
         localStorage.setItem('DAILY_STEPS_' + new Date().toDateString(), stepCount);
         updatePedometerUI();
       }
-    });
-  }
+    }
+  };
+
+  const requestMotionPermission = () => {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      // iOS 13+: cần xin quyền trước khi đọc cảm biến chuyển động
+      DeviceMotionEvent.requestPermission().then(state => {
+        if (state === 'granted') {
+          window.addEventListener('devicemotion', motionHandler);
+        }
+      }).catch(() => {});
+    } else {
+      window.addEventListener('devicemotion', motionHandler);
+    }
+  };
+
+  requestMotionPermission();
 }
 
 function updatePedometerUI() {
   const stepCountValue = document.getElementById('stepCount');
   if (stepCountValue) stepCountValue.textContent = stepCount.toLocaleString();
+
+  // Cập nhật Bảng Báo Cáo Hằng Ngày theo thời gian thực (giới hạn tần suất)
+  const now = Date.now();
+  if (now - lastSummaryRenderTime > 3000) {
+    lastSummaryRenderTime = now;
+    renderDailySummary();
+  }
 }
 
 // VITALS MANUAL COMPARISON
