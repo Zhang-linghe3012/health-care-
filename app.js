@@ -496,40 +496,63 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     let solutionText = "";
     let parsedData = null;
 
-    // Nếu CHƯA nhập Gemini API Key -> dùng AI miễn phí (Pollinations, không cần key)
-    // Hoạt động ngay trên cả ĐIỆN THOẠI và LAPTOP, luôn trả lời bằng TIẾNG VIỆT
+    // Nếu CHƯA nhập Gemini API Key -> dùng AI tích hợp sẵn trên trình duyệt (Chrome Gemini Nano)
+    // Miễn phí, KHÔNG cần key, hoạt động ngay trên ĐIỆN THOẠI (Android Chrome) và LAPTOP
     if (!apiKey) {
       try {
         const freeSystem = SYSTEM_INSTRUCTION + "\nBẮT BUỘC: Toàn bộ câu trả lời phải BẰNG TIẾNG VIỆT, ấm áp, dễ hiểu cho người cao tuổi.";
         const freeUserMsg = profileContext + "\n\n" + (promptText || "Tư vấn sức khỏe cho ông bà.")
           + (imageBase64 ? "\n\n[KÈM ẢNH] - Nếu không nhìn được ảnh thì hãy tư vấn theo câu hỏi chữ ở trên." : "");
 
-        const freeResponse = await fetch('https://text.pollinations.ai/openai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'openai',
-            messages: [
-              { role: 'system', content: freeSystem },
-              { role: 'user', content: freeUserMsg }
-            ],
-            temperature: 0.7
-          })
-        });
+        // Cách 1: Chrome AI tích hợp sẵn (Gemini Nano) - window.ai / LanguageModel
+        const aiAPI = window.ai || (window.ai && window.ai.languageModel);
+        if (aiAPI && aiAPI.languageModel && aiAPI.languageModel.create) {
+          try {
+            const session = await aiAPI.languageModel.create({
+              systemPrompt: freeSystem,
+              temperature: 0.7,
+              topK: 3
+            });
+            const rawText = await session.prompt(freeUserMsg);
+            session.destroy();
+            if (rawText) {
+              try {
+                let cleaned = rawText.trim();
+                if (cleaned.startsWith('```json')) cleaned = cleaned.replace(/^```json/, '').replace(/```$/, '').trim();
+                else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```/, '').replace(/```$/, '').trim();
+                parsedData = JSON.parse(cleaned);
+                replyText = parsedData.speech_message || rawText;
+                solutionText = parsedData.action_solution || "";
+              } catch(e) { replyText = rawText; }
+              success = true;
+            }
+          } catch (e) {
+            console.warn("Chrome built-in AI error:", e);
+          }
+        }
 
-        if (freeResponse.ok) {
-          const freeData = await freeResponse.json();
-          const rawText = freeData.choices?.[0]?.message?.content || "";
-          if (rawText) {
-            try {
-              let cleaned = rawText.trim();
-              if (cleaned.startsWith('```json')) cleaned = cleaned.replace(/^```json/, '').replace(/```$/, '').trim();
-              else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```/, '').replace(/```$/, '').trim();
-              parsedData = JSON.parse(cleaned);
-              replyText = parsedData.speech_message || rawText;
-              solutionText = parsedData.action_solution || "";
-            } catch(e) { replyText = rawText; }
-            success = true;
+        // Cách 2: Dự phòng AI miễn phí qua web (Pollinations GET - anonymous, không cần key)
+        if (!success) {
+          try {
+            const freeUrl = 'https://text.pollinations.ai/' + encodeURIComponent(freeUserMsg)
+              + '?model=openai&system=' + encodeURIComponent(freeSystem.substring(0, 2000));
+            const freeResponse = await fetch(freeUrl);
+            if (freeResponse.ok) {
+              const rawText = await freeResponse.text();
+              if (rawText && !rawText.startsWith('{') && rawText.trim().length > 5) {
+                try {
+                  let cleaned = rawText.trim();
+                  if (cleaned.startsWith('```json')) cleaned = cleaned.replace(/^```json/, '').replace(/```$/, '').trim();
+                  else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```/, '').replace(/```$/, '').trim();
+                  parsedData = JSON.parse(cleaned);
+                  replyText = parsedData.speech_message || rawText;
+                  solutionText = parsedData.action_solution || "";
+                } catch(e) { replyText = rawText; }
+                success = true;
+              }
+            }
+          } catch (e) {
+            console.warn("Free AI web fallback error:", e);
           }
         }
       } catch (e) {
