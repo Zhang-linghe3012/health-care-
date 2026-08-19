@@ -47,6 +47,7 @@ self.addEventListener('activate', event => {
 // FETCH event
 self.addEventListener('fetch', event => {
   if (event.request.url.includes('generativelanguage.googleapis.com') ||
+      event.request.url.includes('text.pollinations.ai') ||
       event.request.url.includes('accounts.google.com') ||
       event.request.url.includes('translate.google.com') ||
       event.request.url.includes('api.telegram.org') ||
