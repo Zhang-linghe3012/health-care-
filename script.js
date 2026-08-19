@@ -183,14 +183,28 @@ function registerServiceWorker() {
 }
 
 /* Khởi tạo PWA + chế độ giao diện khi trang đã sẵn sàng */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function () {
-    registerServiceWorker();
-    hideInstallPromptIfStandalone();
-    switchMode(localStorage.getItem('FAMCARE_MODE') || 'elderly');
-  });
-} else {
+function initFamcareUi() {
   registerServiceWorker();
   hideInstallPromptIfStandalone();
   switchMode(localStorage.getItem('FAMCARE_MODE') || 'elderly');
+  closeSideDrawer();
+}
+
+/* Bấm nút ☰ trên góc phải để bật/tắt menu trượt */
+document.addEventListener('click', function (e) {
+  const hamburger = e.target.closest('#hamburgerBtn');
+  if (hamburger) {
+    toggleSideDrawer();
+  }
+});
+
+/* Bấm phím ESC để đóng menu */
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') closeSideDrawer();
+});
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFamcareUi);
+} else {
+  initFamcareUi();
 }
