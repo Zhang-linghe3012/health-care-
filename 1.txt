@@ -1,21 +1,21 @@
-Hãy cập nhật lại toàn bộ giao diện trong thư mục health-care-:
+Hãy mở file index.html, style.css và script.js trong thư mục health-care- để sửa dứt điểm giao diện:
 
-1. XÓA HOÀN TOÀN KHUNG FAMCARE MENU Ở TRANG CHỦ:
-   - Trong file index.html, xóa bỏ hoàn toàn (hoặc ẩn triệt để bằng `display: none !important;`) khối "FAMCARE MENU" nằm trực tiếp trên trang chủ.
+1. ẨN HOÀN TOÀN KHUNG MENU TĨNH TRÊN TRANG CHỦ:
+   - Tìm thẻ chứa chữ "FAMCARE MENU" trên trang chủ (khối `#famcare-menu-block` hoặc `.menu-overlay` tĩnh).
+   - Thêm trực tiếp CSS `display: none !important;` vào style của khối này để xóa sạch nó khỏi giao diện chính.
 
-2. CẤU HÌNH MENU 3 GẠCH (HAMBURGER DRAWER) Ở GÓC TRÊN BÊN PHẢI:
-   - Gắn sự kiện click cho biểu tượng 3 gạch (☰) ở góc trên bên phải màn hình để hiển thị menu trượt (side drawer / overlay).
-   - Danh sách menu bên trong khi bật ra BẮT BUỘC chứa chính xác và lần lượt các mục sau:
-     1. Đăng nhập
-     2. Hồ sơ bệnh nền
-     3. Trang chủ
-     4. Lịch sinh hoạt
-     5. Cẩm nang sức khỏe
-     6. Giới thiệu
-     7. Bảng kết nối gia đình
-     8. Báo cáo kết quả gửi cho con cháu
-     9. Cài đặt (hoặc Cài đặt PWA)
-   - Bổ sung nút [X] ở góc menu trượt và xử lý sự kiện: Khi bấm nút [X] hoặc bấm chọn bất kỳ mục nào trong danh sách, menu trượt sẽ tự động đóng lại.
+2. CẤU HÌNH MENU 3 GẠCH (NÚT HAMBURGER GÓC TRÊN BÊN PHẢI):
+   - Khi bấm vào nút 3 gạch (thẻ `#hamburger-btn` hoặc `.menu-toggle`), hiển thị một Menu trượt (Drawer) chứa chính xác 9 mục sau:
+     1. 🔑 Đăng nhập
+     2. 📋 Hồ sơ bệnh nền
+     3. 🏠 Trang chủ
+     4. ⏰ Lịch sinh hoạt
+     5. 📖 Cẩm nang sức khỏe
+     6. ℹ️ Giới thiệu
+     7. 👨‍👩‍👧‍👦 Bảng kết nối gia đình
+     8. 📊 Báo cáo kết quả gửi cho con cháu
+     9. ⚙️ Cài đặt
+   - Thêm nút [X] ở góc trên Menu trượt. Khi bấm nút [X] hoặc bấm vào 1 trong 9 mục trên, Menu trượt phải tự động ẩn đi.
 
 3. ĐẨY CODE LÊN GITHUB:
-   Thực hiện: git add . && git commit -m "UI: Remove static FAMCARE MENU from homepage and update top-right hamburger drawer links" && git push origin main --force
+   Chạy lệnh: git add . && git commit -m "Fix UI: Hide static menu and bind 9 items to top-right hamburger toggle" && git push origin main --force
