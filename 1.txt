@@ -1,14 +1,17 @@
-SỬA TRIỆT ĐỂ 100%: DÀNH CHO NGUỜI LỚN TUỔI - CHỈ DÙNG TIẾNG VIỆT!
+Hãy mở các file index.html, style.css, script.js và app.js trong thư mục health-care- để cập nhật lại toàn bộ giao diện và AI:
 
-1. XÓA SẠCH TIẾNG ANH TRONG FILE CODE:
-   - Trong toàn bộ các file app.js, script.js và index.html thuộc thư mục health-care-: XÓA HOÀN TOÀN tất cả các đoạn văn bản, câu chào, câu báo lỗi bằng tiếng Anh (như "Hello", "Sorry", "I am an AI...").
-   - Đổi tất cả các câu mặc định thành tiếng Việt lễ phép cho ông bà, ví dụ: "Dạ, cháu chào ông bà! Cháu là Trợ lý Famcare, ông bà cần cháu giúp gì ạ?"
+1. BỎ HOÀN TOÀN KHUNG FAMCARE MENU TRÊN MÀN HÌNH CHÍNH:
+   - Trong file index.html và style.css, thêm CSS `display: none !important;` cho khối "FAMCARE MENU" (khối chứa các đường link Đăng nhập, Hồ sơ bệnh nền...) để nó ẩn hoàn toàn khỏi màn hình chính mặc định.
 
-2. ÉP SYSTEM PROMPT CỦA AI GEMINI:
-   - Gắn cố định dòng lệnh hệ thống vào mọi request:
-     "SYSTEM_INSTRUCTION: Bạn là Trợ lý Sức khỏe Famcare dành cho người Việt lớn tuổi. BẮT BUỘC chỉ được trả lời 100% bằng TIẾNG VIỆT tự nhiên, ấm áp, lễ phép. Tuyệt đối KHÔNG ĐƯỢC dùng bất kỳ chữ tiếng Anh nào."
+2. MENU 3 GẠCH Ở GÓC PHẢI (BURGER MENU):
+   - Phóng to biểu tượng nút 3 gạch (☰) ở góc trên bên phải màn hình để người lớn tuổi dễ bấm.
+   - Khi và chỉ khi người dùng bấm vào nút 3 gạch này thì phần Menu mới hiện ra (dạng trượt/overlay). Khi bấm nút [X] hoặc chọn một danh mục, Menu sẽ tự động ẩn đi.
 
-3. ĐỘC ĐỘNG PHÁT GIỌNG ĐỌC TIẾNG VIỆT:
-   - Tự động gọi Google TTS đọc tiếng Việt ngay khi AI tạo ra câu trả lời.
+3. THIẾT LẬP AI TRẢ LỜI VÀ ĐỌC 100% TIẾNG VIỆT:
+   - Trong app.js và script.js: Xóa bỏ hoàn toàn tất cả các câu phản hồi mẫu/mặc định bằng tiếng Anh.
+   - Khóa chặt System Prompt gửi tới AI:
+     "SYSTEM INSTRUCTION: Bạn là Trợ lý Sức khỏe Famcare. Bạn BẮT BUỘC chỉ được trả lời 100% bằng TIẾNG VIỆT tự nhiên, ấm áp, lễ phép với ông bà/người lớn tuổi. Tuyệt đối KHÔNG được sử dụng tiếng Anh."
+   - Tích hợp giọng đọc Google TTS tiếng Việt (`tl=vi`) phát qua thẻ Audio để AI tự động cất giọng tiếng Việt chuẩn mỗi khi có câu trả lời.
 
-Thực hiện ngay: git add . && git commit -m "Fix: Remove 100% English text, force Vietnamese for elderly users" && git push origin main --force
+Thực hiện đẩy code lên GitHub ngay:
+git add . && git commit -m "Fix UI: Hide menu by default, toggle via top-right hamburger, force 100% Vietnamese AI" && git push origin main --force

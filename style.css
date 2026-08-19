@@ -143,15 +143,15 @@ input, select, textarea {
   color: var(--navy);
   border: 2px solid var(--teal);
   border-radius: 0.75rem;
-  min-width: 3rem;
-  min-height: 3rem;
-  padding: 0.45rem 0.95rem;
+  min-width: 3.75rem;
+  min-height: 3.75rem;
+  padding: 0.55rem 1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
   font-weight: 800;
-  font-size: 1.25rem;
+  font-size: 1.6rem;
   cursor: pointer;
   transition: background 0.25s ease, transform 0.1s ease;
   -webkit-tap-highlight-color: transparent;
@@ -198,14 +198,15 @@ input, select, textarea {
   background: #ffffff;
   z-index: 51;
   box-shadow: -8px 0 30px rgba(0, 33, 71, 0.2);
+  display: none !important;
   transform: translateX(100%);
   visibility: hidden;
   pointer-events: none;
   transition: transform 0.32s ease, visibility 0.32s ease;
-  display: flex;
   flex-direction: column;
 }
 .side-drawer.drawer-open {
+  display: flex !important;
   transform: translateX(0);
   visibility: visible;
   pointer-events: auto;
