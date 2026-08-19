@@ -192,25 +192,38 @@ input, select, textarea {
 .side-drawer {
   position: fixed;
   top: 0;
-  right: 0;
+  right: -100%;
   width: min(85vw, 20rem);
   height: 100%;
   background: #ffffff;
   z-index: 51;
   box-shadow: -8px 0 30px rgba(0, 33, 71, 0.2);
-  transform: translateX(100%);
   visibility: hidden;
   pointer-events: none;
   opacity: 0;
-  transition: transform 0.35s ease, visibility 0.35s ease, opacity 0.35s ease;
+  transition: right 0.3s ease, visibility 0.3s ease, opacity 0.3s ease;
   display: flex;
   flex-direction: column;
 }
 .side-drawer.drawer-open {
-  transform: translateX(0);
+  right: 0;
   visibility: visible;
   pointer-events: auto;
   opacity: 1;
+}
+
+/* ---------- App-like fixed header ---------- */
+header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 40;
+}
+
+main {
+  margin-top: 60px !important;
 }
 
 .drawer-item {

@@ -1,11 +1,15 @@
-Chạy các lệnh terminal sau để làm sạch working tree và cập nhật:
+Hãy mở file index.html, style.css và script.js trong thư mục health-care-. Thực hiện đúng các yêu cầu sau:
 
-git reset --hard HEAD
-git pull origin main
+1. PHẪU THUẬT XÓA KHỐI MENU TĨNH (CỰC KỲ QUAN TRỌNG):
+   - Tìm chính xác thẻ HTML chứa khối văn bản "FAMCARE MENU" cùng danh sách 9 mục bên dưới nó. 
+   - XÓA SẠCH toàn bộ thẻ <div> hoặc <section> đó khỏi file index.html. Tuyệt đối không để lại code HTML của nó trong file (không dùng CSS ẩn).
 
-Thực hiện mở file index.html: Xóa hoàn toàn khối HTML chứa chữ "FAMCARE MENU". 
-Đảm bảo menu 3 gạch (hamburger) hiển thị đủ 9 mục: Đăng nhập, Hồ sơ bệnh nền, Trang chủ, Lịch sinh hoạt, Cẩm nang sức khỏe, Giới thiệu, Bảng kết nối gia đình, Báo cáo kết quả gửi cho con cháu, Cài đặt.
+2. THIẾT KẾ GIAO DIỆN APP-LIKE (NATIVE APP FEEL):
+   - Trong file style.css:
+     + Chuyển Header thành `position: fixed; top: 0; width: 100%; height: 60px;` để nó luôn dính ở trên cùng.
+     + Phần nội dung chính (Trợ lý AI) phải có `margin-top: 60px;` để không bị đè.
+     + Cấu hình Menu 3 gạch thành dạng Side Drawer (Overlay) với `position: fixed; right: -100%; top: 0; height: 100%; transition: 0.3s;`.
+   - Trong index.html: Thêm thẻ `<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">` để giao diện app chạy chuẩn trên điện thoại.
 
-git add .
-git commit -m "Force clean index.html"
-git push origin main --force
+3. ĐẨY CODE LÊN GITHUB:
+   Thực hiện: git add . && git commit -m "UI: Delete static menu block, implement fixed app-like header and slide-in drawer" && git push origin main --force
