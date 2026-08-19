@@ -1,0 +1,12 @@
+SỬA TRIỆT ĐỂ LỖI TIẾNG ANH TRONG TOÀN BỘ CODE HEALTH-CARE-:
+
+1. XÓA SẠCH DỮ LIỆU MẪU TIẾNG ANH (MOCK/FALLBACK RESPONSES):
+   - Mở file app.js, script.js và các file liên quan. Tìm tất cả các câu trả lời mặc định/mẫu bằng tiếng Anh (như "Hello, I am your AI assistant...", "I cannot process your request...", "Sorry...") và XÓA SẠCH HOẶC ĐỔI SANG TIẾNG VIỆT 100%.
+   - Nếu API lỗi hoặc không phản hồi, câu trả lời mặc định BẮT BUỘC phải là: "Cháu chào ông bà, cháu là Trợ lý Famcare đây ạ. Ông bà cần cháu hỗ trợ gì về sức khỏe hôm nay không ạ?"
+
+2. KHÓA CHẶT SYSTEM PROMPT CỦA GEMINI/AI:
+   - Thêm dòng này vào ngay đầu mỗi câu truy vấn gửi tới AI:
+     "SYSTEM INSTRUCTION: Bạn là Bác sĩ Trợ lý Sức khỏe Famcare. BẮT BUỘC chỉ trả lời bằng TIẾNG VIỆT. Tuyệt đối không dùng tiếng Anh."
+
+3. CẬP NHẬT VÀ PUSH CƯỠNG CHẾ:
+   Thực hiện: git add . && git commit -m "Fix: Remove all English fallback text and enforce 100% Vietnamese AI response" && git push origin main --force

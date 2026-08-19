@@ -8,7 +8,9 @@
  * 5. Báo cáo Gmail + webhook Telegram, nhắc thuốc chạy ngầm, cảnh báo khẩn cấp.
  */
 
-const SYSTEM_INSTRUCTION = `Bạn là Bác sĩ gia đình chân thành, ấm áp. Hãy phân tích kỹ hình ảnh/toa thuốc/chữ viết và câu nói tâm sự của ông bà. Trả lời linh hoạt, thông minh, đồng cảm, đúng trọng tâm câu hỏi, KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH.
+const SYSTEM_INSTRUCTION = `SYSTEM INSTRUCTION: Bạn là Bác sĩ Trợ lý Sức khỏe Famcare. BẮT BUỘC chỉ trả lời bằng TIẾNG VIỆT. Tuyệt đối không dùng tiếng Anh.
+
+Bạn là Bác sĩ gia đình chân thành, ấm áp. Hãy phân tích kỹ hình ảnh/toa thuốc/chữ viết và câu nói tâm sự của ông bà. Trả lời linh hoạt, thông minh, đồng cảm, đúng trọng tâm câu hỏi, KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH.
 
 BẮT BUỘC:
 - Xưng 'cháu' gọi 'ông' hoặc 'bà', ngôn từ dễ hiểu, ấm áp cho người cao tuổi.
@@ -467,7 +469,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
       contents: [{
         parts: [
           { text: profileContext },
-          { text: promptText || "Hãy phân tích hình ảnh/toa thuốc này và hướng dẫn liều dùng chi tiết cho ông bà." }
+          { text: "SYSTEM INSTRUCTION: Bạn là Bác sĩ Trợ lý Sức khỏe Famcare. BẮT BUỘC chỉ trả lời bằng TIẾNG VIỆT. Tuyệt đối không dùng tiếng Anh.\n\n" + (promptText || "Hãy phân tích hình ảnh/toa thuốc này và hướng dẫn liều dùng chi tiết cho ông bà.") }
         ]
       }],
       generationConfig: { responseMimeType: "application/json", maxOutputTokens: 65536 }
@@ -528,8 +530,8 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
         replyText = "Cháu khuyên ông bà nên chườm ấm khăn ở trán và nách, uống nhiều nước ấm. Nếu sốt trên 38.5 độ C, ông bà uống 1 viên Paracetamol cách 4 đến 6 tiếng nhé!";
         solutionText = "Chườm ấm, uống nhiều nước ấm và dùng thuốc hạ sốt theo khoảng cách 4-6 tiếng.";
       } else {
-        replyText = "Bác sĩ AI đã ghi nhận câu hỏi. Ông bà nhớ uống đầy đủ nước ấm, dùng thuốc đúng liều sau khi ăn no và nghỉ ngơi điều độ nhé!";
-        solutionText = "Uống thuốc sau khi ăn no kèm 1 ly nước ấm to.";
+        replyText = "Cháu chào ông bà, cháu là Trợ lý Famcare đây ạ. Ông bà cần cháu hỗ trợ gì về sức khỏe hôm nay không ạ?";
+        solutionText = "";
       }
     }
 
@@ -581,7 +583,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
   } catch (error) {
     console.error("AI Consultation error:", error);
     loadingIndicator.classList.add('hidden');
-    const fallbackMsg = "Cháu đã phân tích thông tin. Ông bà nhớ nghỉ ngơi tại chỗ, uống thuốc đúng giờ sau khi ăn no và giữ ấm cơ thể nhé.";
+    const fallbackMsg = "Cháu chào ông bà, cháu là Trợ lý Famcare đây ạ. Ông bà cần cháu hỗ trợ gì về sức khỏe hôm nay không ạ?";
     if (aiOutputElement) {
       aiOutputElement.innerHTML = fallbackMsg;
     }
