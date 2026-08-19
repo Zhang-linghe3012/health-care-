@@ -190,14 +190,6 @@ function initFamcareUi() {
   closeSideDrawer();
 }
 
-/* Bấm nút ☰ trên góc phải để bật/tắt menu trượt */
-document.addEventListener('click', function (e) {
-  const hamburger = e.target.closest('#hamburgerBtn');
-  if (hamburger) {
-    toggleSideDrawer();
-  }
-});
-
 /* Bấm phím ESC để đóng menu */
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') closeSideDrawer();
