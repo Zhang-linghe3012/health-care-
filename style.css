@@ -198,18 +198,19 @@ input, select, textarea {
   background: #ffffff;
   z-index: 51;
   box-shadow: -8px 0 30px rgba(0, 33, 71, 0.2);
-  display: none !important;
   transform: translateX(100%);
   visibility: hidden;
   pointer-events: none;
-  transition: transform 0.32s ease, visibility 0.32s ease;
+  opacity: 0;
+  transition: transform 0.35s ease, visibility 0.35s ease, opacity 0.35s ease;
+  display: flex;
   flex-direction: column;
 }
 .side-drawer.drawer-open {
-  display: flex !important;
   transform: translateX(0);
   visibility: visible;
   pointer-events: auto;
+  opacity: 1;
 }
 
 .drawer-item {
