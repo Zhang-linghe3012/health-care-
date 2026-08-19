@@ -13,6 +13,7 @@ const SYSTEM_INSTRUCTION = `SYSTEM INSTRUCTION: Bạn là Trợ lý Sức khỏe
 Bạn là Bác sĩ gia đình chân thành, ấm áp. Hãy phân tích kỹ hình ảnh/toa thuốc/chữ viết và câu nói tâm sự của ông bà. Trả lời linh hoạt, thông minh, đồng cảm, đúng trọng tâm câu hỏi, KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH.
 
 BẮT BUỘC:
+- LUÔN TRẢ LỜI BẰNG TIẾNG VIỆT (không bao giờ dùng tiếng Anh).
 - Xưng 'cháu' gọi 'ông' hoặc 'bà', ngôn từ dễ hiểu, ấm áp cho người cao tuổi.
 - NẾU CÓ ẢNH: phân tích kỹ nội dung hình ảnh (toa thuốc, hộp thuốc, vết thương, chữ viết...) kết hợp với câu hỏi đi kèm.
 - NẾU NGƯỜI DÙNG BÁO 'MỆT / CHÓNG MẶT / ĐAU ĐẦU': khuyên nằm nghỉ ngơi tại chỗ tránh té ngã, nhắc đo Huyết áp & Nhịp tim, uống 1 ly nước ấm hoặc trà đường ấm và hỏi lại cảm giác hiện tại.
@@ -490,24 +491,35 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
     }
 
     const apiKey = localStorage.getItem('GEMINI_API_KEY') || "";
-    // V9: gemini-1.5-flash là model chính (nhanh + rẻ + hỗ trợ ảnh & văn bản), dự phòng các model khác
-    const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-pro-vision'];
     let success = false;
     let replyText = "";
     let solutionText = "";
     let parsedData = null;
 
-    for (const model of modelsToTry) {
+    // Nếu CHƯA nhập Gemini API Key -> dùng AI miễn phí (Pollinations, không cần key)
+    // Hoạt động ngay trên cả ĐIỆN THOẠI và LAPTOP, luôn trả lời bằng TIẾNG VIỆT
+    if (!apiKey) {
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        const freeSystem = SYSTEM_INSTRUCTION + "\nBẮT BUỘC: Toàn bộ câu trả lời phải BẰNG TIẾNG VIỆT, ấm áp, dễ hiểu cho người cao tuổi.";
+        const freeUserMsg = profileContext + "\n\n" + (promptText || "Tư vấn sức khỏe cho ông bà.")
+          + (imageBase64 ? "\n\n[KÈM ẢNH] - Nếu không nhìn được ảnh thì hãy tư vấn theo câu hỏi chữ ở trên." : "");
+
+        const freeResponse = await fetch('https://text.pollinations.ai/openai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody)
+          body: JSON.stringify({
+            model: 'openai',
+            messages: [
+              { role: 'system', content: freeSystem },
+              { role: 'user', content: freeUserMsg }
+            ],
+            temperature: 0.7
+          })
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (freeResponse.ok) {
+          const freeData = await freeResponse.json();
+          const rawText = freeData.choices?.[0]?.message?.content || "";
           if (rawText) {
             try {
               let cleaned = rawText.trim();
@@ -518,10 +530,43 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
               solutionText = parsedData.action_solution || "";
             } catch(e) { replyText = rawText; }
             success = true;
-            break;
           }
         }
-      } catch(e){}
+      } catch (e) {
+        console.warn("Free AI fallback error:", e);
+      }
+    }
+
+    // Nếu CÓ Gemini API Key -> dùng Gemini (nhận ảnh + văn bản)
+    // V9: gemini-1.5-flash là model chính (nhanh + rẻ + hỗ trợ ảnh & văn bản), dự phòng các model khác
+    if (!success && apiKey) {
+      const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-pro-vision'];
+      for (const model of modelsToTry) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawText) {
+              try {
+                let cleaned = rawText.trim();
+                if (cleaned.startsWith('```json')) cleaned = cleaned.replace(/^```json/, '').replace(/```$/, '').trim();
+                else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```/, '').replace(/```$/, '').trim();
+                parsedData = JSON.parse(cleaned);
+                replyText = parsedData.speech_message || rawText;
+                solutionText = parsedData.action_solution || "";
+              } catch(e) { replyText = rawText; }
+              success = true;
+              break;
+            }
+          }
+        } catch(e){}
+      }
     }
 
     loadingIndicator.classList.add('hidden');
