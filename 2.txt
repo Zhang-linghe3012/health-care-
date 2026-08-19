@@ -1,0 +1,11 @@
+Chạy các lệnh terminal sau để làm sạch working tree và cập nhật:
+
+git reset --hard HEAD
+git pull origin main
+
+Thực hiện mở file index.html: Xóa hoàn toàn khối HTML chứa chữ "FAMCARE MENU". 
+Đảm bảo menu 3 gạch (hamburger) hiển thị đủ 9 mục: Đăng nhập, Hồ sơ bệnh nền, Trang chủ, Lịch sinh hoạt, Cẩm nang sức khỏe, Giới thiệu, Bảng kết nối gia đình, Báo cáo kết quả gửi cho con cháu, Cài đặt.
+
+git add .
+git commit -m "Force clean index.html"
+git push origin main --force
