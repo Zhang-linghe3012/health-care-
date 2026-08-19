@@ -8,7 +8,7 @@
  * 5. Báo cáo Gmail + webhook Telegram, nhắc thuốc chạy ngầm, cảnh báo khẩn cấp.
  */
 
-const SYSTEM_INSTRUCTION = `SYSTEM INSTRUCTION: Bạn là Bác sĩ Trợ lý Sức khỏe Famcare. BẮT BUỘC chỉ trả lời bằng TIẾNG VIỆT. Tuyệt đối không dùng tiếng Anh.
+const SYSTEM_INSTRUCTION = `SYSTEM_INSTRUCTION: Bạn là Trợ lý Sức khỏe Famcare dành cho người Việt lớn tuổi. BẮT BUỘC chỉ được trả lời 100% bằng TIẾNG VIỆT tự nhiên, ấm áp, lễ phép. Tuyệt đối KHÔNG ĐƯỢC dùng bất kỳ chữ tiếng Anh nào.
 
 Bạn là Bác sĩ gia đình chân thành, ấm áp. Hãy phân tích kỹ hình ảnh/toa thuốc/chữ viết và câu nói tâm sự của ông bà. Trả lời linh hoạt, thông minh, đồng cảm, đúng trọng tâm câu hỏi, KHÔNG DÙNG CÂU MẪU CỐ ĐỊNH.
 
@@ -391,7 +391,7 @@ function speakVietnamese(text) {
       const btnSpeakAgain = document.getElementById('btnSpeakAgain');
       if (btnSpeakAgain) btnSpeakAgain.classList.add('animate-pulse');
       utterance.onend = () => { if (btnSpeakAgain) btnSpeakAgain.classList.remove('animate-pulse'); };
-      utterance.onerror = () => { if (btnSpeakAgain) btnSpeakAgain.classList.remove('animate-pulse'); };
+      utterance.onerror = () => { speakWithGoogleTTS(cleanText); };
 
       window.speechSynthesis.speak(utterance);
       // Fix Chrome long-text cut-off bug: resume periodically
@@ -410,6 +410,11 @@ function speakVietnamese(text) {
     }
   }
 
+  // Google TTS: tự động phát giọng đọc Tiếng Việt ngay khi AI tạo ra câu trả lời
+  speakWithGoogleTTS(cleanText);
+}
+
+function speakWithGoogleTTS(cleanText) {
   // Priority 2: Google Translate TTS Fallback (0.85x) - works everywhere
   try {
     const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${encodeURIComponent(cleanText.substring(0, 180))}`;
@@ -469,7 +474,7 @@ async function askAIAdvisor(promptText, imageBase64 = null) {
       contents: [{
         parts: [
           { text: profileContext },
-          { text: "SYSTEM INSTRUCTION: Bạn là Bác sĩ Trợ lý Sức khỏe Famcare. BẮT BUỘC chỉ trả lời bằng TIẾNG VIỆT. Tuyệt đối không dùng tiếng Anh.\n\n" + (promptText || "Hãy phân tích hình ảnh/toa thuốc này và hướng dẫn liều dùng chi tiết cho ông bà.") }
+          { text: "SYSTEM_INSTRUCTION: Bạn là Trợ lý Sức khỏe Famcare dành cho người Việt lớn tuổi. BẮT BUỘC chỉ được trả lời 100% bằng TIẾNG VIỆT tự nhiên, ấm áp, lễ phép. Tuyệt đối KHÔNG ĐƯỢC dùng bất kỳ chữ tiếng Anh nào.\n\n" + (promptText || "Hãy phân tích hình ảnh/toa thuốc này và hướng dẫn liều dùng chi tiết cho ông bà.") }
         ]
       }],
       generationConfig: { responseMimeType: "application/json", maxOutputTokens: 65536 }

@@ -1,12 +1,14 @@
-SỬA TRIỆT ĐỂ LỖI TIẾNG ANH TRONG TOÀN BỘ CODE HEALTH-CARE-:
+SỬA TRIỆT ĐỂ 100%: DÀNH CHO NGUỜI LỚN TUỔI - CHỈ DÙNG TIẾNG VIỆT!
 
-1. XÓA SẠCH DỮ LIỆU MẪU TIẾNG ANH (MOCK/FALLBACK RESPONSES):
-   - Mở file app.js, script.js và các file liên quan. Tìm tất cả các câu trả lời mặc định/mẫu bằng tiếng Anh (như "Hello, I am your AI assistant...", "I cannot process your request...", "Sorry...") và XÓA SẠCH HOẶC ĐỔI SANG TIẾNG VIỆT 100%.
-   - Nếu API lỗi hoặc không phản hồi, câu trả lời mặc định BẮT BUỘC phải là: "Cháu chào ông bà, cháu là Trợ lý Famcare đây ạ. Ông bà cần cháu hỗ trợ gì về sức khỏe hôm nay không ạ?"
+1. XÓA SẠCH TIẾNG ANH TRONG FILE CODE:
+   - Trong toàn bộ các file app.js, script.js và index.html thuộc thư mục health-care-: XÓA HOÀN TOÀN tất cả các đoạn văn bản, câu chào, câu báo lỗi bằng tiếng Anh (như "Hello", "Sorry", "I am an AI...").
+   - Đổi tất cả các câu mặc định thành tiếng Việt lễ phép cho ông bà, ví dụ: "Dạ, cháu chào ông bà! Cháu là Trợ lý Famcare, ông bà cần cháu giúp gì ạ?"
 
-2. KHÓA CHẶT SYSTEM PROMPT CỦA GEMINI/AI:
-   - Thêm dòng này vào ngay đầu mỗi câu truy vấn gửi tới AI:
-     "SYSTEM INSTRUCTION: Bạn là Bác sĩ Trợ lý Sức khỏe Famcare. BẮT BUỘC chỉ trả lời bằng TIẾNG VIỆT. Tuyệt đối không dùng tiếng Anh."
+2. ÉP SYSTEM PROMPT CỦA AI GEMINI:
+   - Gắn cố định dòng lệnh hệ thống vào mọi request:
+     "SYSTEM_INSTRUCTION: Bạn là Trợ lý Sức khỏe Famcare dành cho người Việt lớn tuổi. BẮT BUỘC chỉ được trả lời 100% bằng TIẾNG VIỆT tự nhiên, ấm áp, lễ phép. Tuyệt đối KHÔNG ĐƯỢC dùng bất kỳ chữ tiếng Anh nào."
 
-3. CẬP NHẬT VÀ PUSH CƯỠNG CHẾ:
-   Thực hiện: git add . && git commit -m "Fix: Remove all English fallback text and enforce 100% Vietnamese AI response" && git push origin main --force
+3. ĐỘC ĐỘNG PHÁT GIỌNG ĐỌC TIẾNG VIỆT:
+   - Tự động gọi Google TTS đọc tiếng Việt ngay khi AI tạo ra câu trả lời.
+
+Thực hiện ngay: git add . && git commit -m "Fix: Remove 100% English text, force Vietnamese for elderly users" && git push origin main --force
