@@ -190,9 +190,10 @@ input, select, textarea {
 }
 
 .side-drawer {
+  display: none;
   position: fixed;
   top: 0;
-  right: -100%;
+  right: 0;
   width: min(85vw, 20rem);
   height: 100%;
   background: #ffffff;
@@ -202,10 +203,10 @@ input, select, textarea {
   pointer-events: none;
   opacity: 0;
   transition: right 0.3s ease, visibility 0.3s ease, opacity 0.3s ease;
-  display: flex;
   flex-direction: column;
 }
 .side-drawer.drawer-open {
+  display: flex;
   right: 0;
   visibility: visible;
   pointer-events: auto;
