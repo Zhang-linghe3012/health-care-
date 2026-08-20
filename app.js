@@ -241,6 +241,32 @@ function renderDailySummary(prefix) {
 // ======================= CẢNH BÁO KHẨN CẤP SOS =======================
 let sirenAudioCtx = null;
 
+// CHUÔNG BÁO NHẸ NHÀNG CHO NHẮC LỊCH SINH HOẠT (WebAudio, không cần file âm thanh)
+let ringtoneAudioCtx = null;
+
+function playRingtone() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    ringtoneAudioCtx = ringtoneAudioCtx || new AC();
+    const ctx = ringtoneAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    for (let i = 0; i < 6; i++) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(i % 2 === 0 ? 880 : 660, now + i * 0.5);
+      gain.gain.setValueAtTime(0.0001, now + i * 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.25, now + i * 0.5 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.5 + 0.45);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now + i * 0.5);
+      osc.stop(now + i * 0.5 + 0.5);
+    }
+  } catch (e) { /* Trình duyệt chặn âm thanh - banner & thông báo vẫn hoạt động */ }
+}
+
 function playSiren() {
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -318,7 +344,7 @@ function requestNotificationPermission() {
 function registerBackgroundSyncNotification() {
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     const reminders = medicineReminders.length > 0
-      ? medicineReminders.map(r => ({ time: r.time, name: r.name }))
+      ? medicineReminders.filter(r => r.notificationEnabled !== false).map(r => ({ time: r.time, name: r.name }))
       : [{ time: localStorage.getItem('MEDICINE_TIME') || "08:00", name: "uống thuốc hằng ngày" }];
     navigator.serviceWorker.ready.then(reg => {
       navigator.serviceWorker.controller.postMessage({
@@ -958,10 +984,37 @@ function checkDailyReminders() {
   }
 
   medicineReminders.forEach(rem => {
-    if (rem.time === `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}` && !rem.triggeredToday) {
-      rem.triggeredToday = true;
-      showBigBanner("💊 ĐÃ ĐẾN GIỜ UỐNG THUỐC!", `Ông/bà ơi, đã đến giờ uống thuốc: ${rem.name}! Hãy uống đúng liều lượng nhé.`);
-      speakVietnamese("Thông báo quan trọng! Đã đến giờ uống thuốc rồi. Ông bà lấy thuốc uống ngay nhé!");
+    const curTime = `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
+    if (rem.time === curTime && rem.triggeredToday !== new Date().toDateString()) {
+      rem.triggeredToday = new Date().toDateString();
+      localStorage.setItem('MEDICINE_REMINDERS', JSON.stringify(medicineReminders));
+      const notifyOn = rem.notificationEnabled !== false;
+      const bannerTitle = "⏰ ĐÃ ĐẾN GIỜ SINH HOẠT!";
+      const bannerMsg = `Ông/bà ơi, đã đến giờ: ${rem.name} (lúc ${rem.time})!`;
+
+      // Đổ chuông báo + Bảng thông báo nổi trên màn hình
+      if (notifyOn) playRingtone();
+      showBigBanner(bannerTitle, bannerMsg);
+      speakVietnamese(`Thông báo quan trọng! Đã đến giờ ${rem.name} rồi. Ông bà nhớ thực hiện nhé!`);
+
+      // Đồng thời gửi thông báo hệ thống (Browser Notification)
+      if (notifyOn && "Notification" in window && Notification.permission === 'granted') {
+        try {
+          new Notification(bannerTitle, {
+            body: bannerMsg,
+            icon: './icons/icon-192.png',
+            badge: './icons/icon-192.png',
+            vibrate: [300, 100, 300],
+            data: { url: './index.html', time: rem.time, name: rem.name }
+          });
+        } catch (e) { console.warn("Browser notification error:", e); }
+      }
+
+      // Tự động ghi nhận vào Bảng kết nối gia đình / Chế độ Con cháu
+      addRealtimeEvent('⏰', `Đã đến giờ sinh hoạt: ${rem.name} lúc ${rem.time}.`);
+      renderMonitoringSummary();
+      renderDailySummary();
+      renderDailySummary('fam');
     }
   });
 }
@@ -1246,7 +1299,9 @@ function renderReminderList() {
     return;
   }
 
-  container.innerHTML = medicineReminders.map((rem, idx) => `
+  container.innerHTML = medicineReminders.map((rem, idx) => {
+    const notifyOn = rem.notificationEnabled !== false;
+    return `
     <div class="flex items-center justify-between p-3 rounded-xl" style="background:#EFF6F8;border:2px solid #b2d7dd;">
       <div class="flex items-center gap-3">
         <input type="checkbox" id="reminder_chk_${idx}" onchange="toggleReminderStatus(${idx})" class="w-5 h-5 rounded" style="accent-color:#005F73;">
@@ -1255,14 +1310,25 @@ function renderReminderList() {
           <p class="text-sm text-gray-800 font-medium">${rem.name}</p>
         </div>
       </div>
-      <div class="flex gap-2">
-        <button onclick="speakVietnamese('Ông bà nhớ uống thuốc ${rem.name} nhé')" class="text-xs font-bold" style="color:#005F73;">
-          <i class="fa-solid fa-volume-high"></i> Đọc
-        </button>
-        <button onclick="deleteReminder(${idx})" class="text-red-500 hover:text-red-700 text-xs font-bold ml-2">❌ Xóa</button>
+      <div class="flex flex-col items-end gap-1.5">
+        <label class="flex items-center gap-1.5 cursor-pointer select-none" title="Bật/Tắt thông báo tự động cho lịch này">
+          <span class="text-[10px] font-black ${notifyOn ? 'text-teal-700' : 'text-gray-400'}">${notifyOn ? '🔔 BẬT' : '🔕 TẮT'}</span>
+          <div class="relative inline-block w-10 h-5 align-middle">
+            <input type="checkbox" id="reminder_notify_${idx}" onchange="toggleReminderNotification(${idx})" class="sr-only" ${notifyOn ? 'checked' : ''}>
+            <div class="block w-10 h-5 rounded-full transition" style="background:${notifyOn ? '#005F73' : '#CBD5E1'};"></div>
+            <div class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full shadow transition-transform duration-200 ${notifyOn ? 'transform translate-x-5' : ''}"></div>
+          </div>
+        </label>
+        <div class="flex gap-2">
+          <button onclick="speakVietnamese('Ông bà nhớ uống thuốc ${rem.name} nhé')" class="text-xs font-bold" style="color:#005F73;">
+            <i class="fa-solid fa-volume-high"></i> Đọc
+          </button>
+          <button onclick="deleteReminder(${idx})" class="text-red-500 hover:text-red-700 text-xs font-bold ml-2">❌ Xóa</button>
+        </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 window.toggleReminderStatus = function(idx) {
@@ -1280,17 +1346,50 @@ window.deleteReminder = function(idx) {
 };
 
 function addNewSchedule() {
-  const time = prompt("Nhập khung giờ (VD: 08:30):");
-  const name = prompt("Nhập nội dung nhắc nhở / tên thuốc:");
-  if (time && name) {
-    medicineReminders.push({ time, name, triggeredToday: false });
-    localStorage.setItem('MEDICINE_REMINDERS', JSON.stringify(medicineReminders));
-    localStorage.setItem('MEDICINE_TIME', time);
-    renderReminderList();
-    registerBackgroundSyncNotification();
-    showToastAlert("ĐÃ THÊM LỊCH", `Đã đặt nhắc lịch lúc ${time} cho ông bà!`);
-  }
+  openAddScheduleModal();
 }
+
+function openAddScheduleModal() {
+  const nameInput = document.getElementById('scheduleNameInput');
+  const timeInput = document.getElementById('scheduleTimeInput');
+  const notifySwitch = document.getElementById('scheduleNotifySwitch');
+  if (nameInput) nameInput.value = "";
+  if (timeInput) timeInput.value = "08:00";
+  if (notifySwitch) notifySwitch.checked = true;
+  toggleModal('scheduleModal');
+}
+
+function saveNewSchedule() {
+  const name = (document.getElementById('scheduleNameInput').value || "").trim();
+  const time = document.getElementById('scheduleTimeInput').value || "08:00";
+  const notifyOn = document.getElementById('scheduleNotifySwitch').checked;
+  if (!name) {
+    showToastAlert("THIẾU NỘI DUNG", "Ông bà vui lòng nhập tên nhắc nhở / tên thuốc nhé!");
+    return;
+  }
+  medicineReminders.push({ time, name, triggeredToday: "", notificationEnabled: notifyOn });
+  localStorage.setItem('MEDICINE_REMINDERS', JSON.stringify(medicineReminders));
+  localStorage.setItem('MEDICINE_TIME', time);
+  renderReminderList();
+  registerBackgroundSyncNotification();
+  requestNotificationPermission();
+  addRealtimeEvent('⏰', `${healthProfile.userName} đã đặt lịch sinh hoạt "${name}" lúc ${time} (thông báo tự động ${notifyOn ? "BẬT" : "TẮT"}).`);
+  renderDailySummary();
+  renderDailySummary('fam');
+  toggleModal('scheduleModal');
+  showToastAlert("ĐÃ THÊM LỊCH", `Đã đặt nhắc lịch lúc ${time} với thông báo tự động ${notifyOn ? "BẬT" : "TẮT"} cho ông bà!`);
+}
+
+window.toggleReminderNotification = function(idx) {
+  const rem = medicineReminders[idx];
+  if (!rem) return;
+  rem.notificationEnabled = document.getElementById('reminder_notify_' + idx).checked;
+  localStorage.setItem('MEDICINE_REMINDERS', JSON.stringify(medicineReminders));
+  renderReminderList();
+  registerBackgroundSyncNotification();
+  showToastAlert(rem.notificationEnabled ? "🔔 ĐÃ BẬT THÔNG BÁO" : "🔕 ĐÃ TẮT THÔNG BÁO",
+    `Lịch "${rem.name}" lúc ${rem.time} sẽ ${rem.notificationEnabled ? "" : "KHÔNG "}gửi thông báo tự động.`);
+};
 
 // PWA INSTALL AT FIRST
 function initPwaInstall() {

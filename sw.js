@@ -185,7 +185,9 @@ function checkReminderTimes() {
 self.addEventListener('message', event => {
   if (event.data) {
     if (event.data.action === 'setReminders') {
-      reminderList = (event.data.reminders || []).map(r => ({
+      reminderList = (event.data.reminders || [])
+        .filter(r => r.notificationEnabled !== false)
+        .map(r => ({
         time: r.time,
         name: r.name || 'uống thuốc hằng ngày',
         userName: event.data.userName || 'Ông/Bà'

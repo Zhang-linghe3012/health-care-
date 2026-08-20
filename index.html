@@ -995,6 +995,36 @@
     </div>
   </div>
 
+  <!-- ================= MODAL 4: THÊM LỊCH SINH HOẠT + THÔNG BÁO TỰ ĐỘNG ================= -->
+  <div id="scheduleModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+      <h3 class="text-lg font-black flex items-center gap-2" style="color:#002147;">
+        <i class="fa-solid fa-clock" style="color:#005F73;"></i> Thêm Lịch Sinh Hoạt & Nhắc Nhở
+      </h3>
+      <div class="space-y-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="scheduleNameInput">Tên nhắc nhở / tên thuốc:</label>
+          <input type="text" id="scheduleNameInput" class="border rounded-xl p-3 text-sm outline-none" style="border-color:#cbd5e1;" placeholder="VD: Uống thuốc huyết áp">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-gray-500" for="scheduleTimeInput">Giờ nhắc nhở (chuẩn đến từng phút):</label>
+          <input type="time" id="scheduleTimeInput" class="border rounded-xl p-3 text-sm outline-none text-lg" style="border-color:#cbd5e1;" value="08:00">
+        </div>
+        <label class="flex items-center justify-between gap-2 bg-teal-50 border rounded-xl px-4 py-3 cursor-pointer" style="border-color:#b2d7dd;">
+          <span class="text-sm font-bold text-teal-900 flex items-center gap-2">
+            <i class="fa-solid fa-bell"></i> Bật thông báo tự động
+          </span>
+          <input type="checkbox" id="scheduleNotifySwitch" class="w-5 h-5 rounded" style="accent-color:#005F73;" checked>
+        </label>
+        <p class="text-[11px] text-gray-400 font-semibold leading-relaxed">Khi đến giờ, ứng dụng sẽ: đổ chuông báo, hiện bảng thông báo nổi, gửi thông báo hệ thống (kể cả khi đóng web) và tự động ghi nhận vào Bảng kết nối gia đình.</p>
+      </div>
+      <div class="flex justify-end gap-2 border-t pt-3">
+        <button onclick="toggleModal('scheduleModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Hủy</button>
+        <button onclick="saveNewSchedule()" class="px-5 py-2 text-white rounded-xl text-sm font-black shadow-md" style="background:#005F73;">Lưu Lịch</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= MODAL TOAST ALERT (NON-FREEZING CLOSE BUTTON) ================= -->
   <div id="alertModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center border-t-8 border-rose-500">
