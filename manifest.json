@@ -9,13 +9,13 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -27,14 +27,14 @@
       "short_name": "TRỢ LÝ AI",
       "description": "Chụp ảnh toa thuốc hoặc hỏi bác sĩ AI bằng giọng nói",
       "url": "./index.html?action=trợlýAI",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "logo.png", "sizes": "192x192" }]
     },
     {
       "name": "Bảng Kết Nối Gia Đình",
       "short_name": "GIÁM SÁT",
       "description": "Xem tình hình hoạt động realtime của ông bà",
       "url": "./index.html?action=giamsat",
-      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "logo.png", "sizes": "192x192" }]
     }
   ]
 }

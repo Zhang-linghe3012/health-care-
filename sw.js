@@ -1,11 +1,12 @@
-const CACHE_NAME = 'famcare-v7';
+const CACHE_NAME = 'famcare-v8';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css?v=7',
-  './script.js?v=7',
-  './app.js?v=7',
+  './style.css?v=8',
+  './script.js?v=8',
+  './app.js?v=8',
   './manifest.json',
+  './logo.png',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
