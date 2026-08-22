@@ -1,10 +1,10 @@
-const CACHE_NAME = 'famcare-v10';
+const CACHE_NAME = 'famcare-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css?v=10',
-  './script.js?v=10',
-  './app.js?v=10',
+  './style.css?v=11',
+  './script.js?v=11',
+  './app.js?v=11',
   './manifest.json',
   './logo.png',
   './icons/icon.svg',
@@ -210,6 +210,20 @@ self.addEventListener('message', event => {
       scheduleReminderNotifications();
     }
   }
+});
+
+/* =========================================================
+   WEB PUSH NOTIFICATION (tin nhắn đẩy trực tiếp từ server)
+   ========================================================= */
+self.addEventListener('push', function(event) {
+  const data = event.data ? event.data.json() : { title: 'Lịch sinh hoạt Famcare', body: 'Đã đến giờ sinh hoạt của ông bà!' };
+  const options = {
+    body: data.body,
+    icon: 'logo.png',
+    badge: 'logo.png',
+    vibrate: [200, 100, 200]
+  };
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
 // NOTIFICATION CLICK event

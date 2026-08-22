@@ -171,7 +171,7 @@ function hideInstallPromptIfStandalone() {
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js?v=10')
+      navigator.serviceWorker.register('sw.js?v=11')
         .then(function (reg) {
           console.log('Famcare PWA Service Worker registered:', reg.scope);
         })
@@ -179,6 +179,34 @@ function registerServiceWorker() {
           console.error('Famcare PWA Service Worker registration failed:', err);
         });
     });
+  }
+}
+
+/* ---------- WEB PUSH NOTIFICATION (lịch sinh hoạt ông bà) ---------- */
+/* Service Worker sw.js đã được đăng ký trong registerServiceWorker() ở trên */
+function requestNotification() {
+  if (!('Notification' in window)) {
+    alert('Trình duyệt này không hỗ trợ thông báo.');
+    return;
+  }
+  Notification.requestPermission().then(function(permission) {
+    if (permission === 'granted') {
+      alert('Đã bật nhận thông báo lịch sinh hoạt trực tiếp!');
+      setTimeout(function () {
+        testNotification('Lịch sinh hoạt Famcare', 'Đây là thông báo thử - đã đến giờ sinh hoạt của ông bà!');
+      }, 1500);
+    }
+  });
+}
+
+function testNotification(title, body) {
+  const t = title || 'Lịch sinh hoạt Famcare';
+  const b = body || 'Đã đến giờ sinh hoạt của ông bà!';
+  try {
+    new Notification(t, { body: b, icon: 'logo.png' });
+    console.log('[FAMCARE] testNotification fired:', t);
+  } catch (e) {
+    console.warn('[FAMCARE] testNotification failed:', e);
   }
 }
 

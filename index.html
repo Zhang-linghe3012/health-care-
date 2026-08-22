@@ -10,7 +10,7 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Style chính của ứng dụng -->
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#002147">
@@ -560,6 +560,15 @@
           <span>✉️ GỬI BÁO CÁO QUA GMAIL</span>
         </button>
       </div>
+
+      <!-- Nút bật nhận thông báo lịch sinh hoạt ông bà (Web Push) -->
+      <div class="mt-4">
+        <button onclick="requestNotification()" class="w-full btn-elder flex items-center justify-center gap-3 shadow-lg py-4 rounded-2xl font-bold" style="background:#EFF6F8;border:2px solid #005F73;color:#005F73;">
+          <i class="fa-solid fa-bell text-2xl"></i>
+          <span>🔔 Bật nhận thông báo lịch ông bà</span>
+        </button>
+        <p class="text-center text-xs text-gray-400 font-bold mt-2">Nhận cảnh báo trực tiếp trên máy này khi đã đến giờ sinh hoạt của ông bà.</p>
+      </div>
     </section>
 
     <!-- ================= TAB 3: BẢNG KẾT NỐI GIA ĐÌNH - GIÁM SÁT REALTIME ================= -->
@@ -1039,7 +1048,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=10"></script>
-  <script src="app.js?v=10"></script>
+  <script src="script.js?v=11"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
