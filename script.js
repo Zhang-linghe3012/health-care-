@@ -171,7 +171,7 @@ function hideInstallPromptIfStandalone() {
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js?v=9')
+      navigator.serviceWorker.register('sw.js?v=10')
         .then(function (reg) {
           console.log('Famcare PWA Service Worker registered:', reg.scope);
         })

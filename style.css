@@ -222,19 +222,89 @@ input, select, textarea {
   opacity: 1;
 }
 
-/* ---------- App-like fixed header ---------- */
-header {
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  z-index: 40;
-  background-color: #ffffff;
+/* ---------- Navbar header (1 thanh duy nhất: menu + logo + slogan) ---------- */
+.navbar-header {
+  display: flex;
+  align-items: center;
+  background-color: #0b2545 !important; /* Màu xanh navy đậm */
+  color: #ffffff !important;
+  padding: 12px 20px;
+  border-radius: 8px;
+  gap: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-bottom: 25px;
+  position: relative;
 }
 
-main {
-  margin-top: 60px !important;
+/* Nút menu 3 gạch bên trái */
+.menu-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+}
+.menu-btn .bar {
+  width: 22px;
+  height: 2px;
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+/* Thương hiệu FAMCARE */
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+
+/* Đường vạch phân cách | */
+.divider {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+/* Dòng Slogan */
+.slogan-text {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Cụm hồ sơ + chuyển chế độ căn phải */
+.navbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Responsive cho màn hình nhỏ/điện thoại */
+@media (max-width: 768px) {
+  .navbar-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    border-radius: 0;
+    margin-bottom: 12px;
+  }
+  .divider {
+    display: none;
+  }
+  .slogan-text {
+    width: 100%;
+    font-size: 0.85rem;
+    white-space: normal;
+  }
 }
 
 .drawer-item {

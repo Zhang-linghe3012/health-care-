@@ -10,7 +10,7 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Style chính của ứng dụng -->
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#002147">
@@ -178,35 +178,29 @@
 </head>
 <body class="pb-16">
 
-  <!-- ================= TẦNG 1: HEADER THƯƠNG HIỆU FAMCARE (CĂN GIỮA) ================= -->
-  <header class="bg-white shadow-md sticky top-0 z-40 border-b border-teal-100">
-    <div class="max-w-5xl mx-auto px-4 pt-2 pb-1.5">
-      <!-- Dòng 1: Logo Famcare chính giữa + Góc phải: Chế độ & Menu 3 gạch -->
-      <div class="relative">
-        <div class="text-center">
-          <div class="brand-panel">
-            <div class="flex items-center justify-center gap-2">
-              <span class="text-2xl sm:text-3xl">👨‍👩‍👧‍👦</span>
-              <h1 class="brand-logo">FAMCARE</h1>
-            </div>
-            <p class="brand-slogan mt-0.5">"Công nghệ từ tâm – Chăm sóc & Kết nối tình thân"</p>
-          </div>
-        </div>
+  <!-- ================= TẦNG 1: NAVBAR HEADER (1 thanh duy nhất) ================= -->
+  <header class="navbar-header">
+    <button class="menu-btn" aria-label="Mở menu" onclick="toggleSideDrawer()">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <div class="brand-title">
+      <span class="logo-icon">👨‍👩‍👧‍👦</span>
+      <span class="brand-name">FAMCARE</span>
+    </div>
+    <div class="divider">|</div>
+    <div class="slogan-text">"Công nghệ từ tâm – Chăm sóc & Kết nối tình thân"</div>
 
-        <!-- Góc phải: Hồ sơ + Chuyển chế độ + Menu 3 gạch -->
-        <div class="absolute top-0 right-0 flex items-center gap-1.5">
-          <div id="user_profile" class="hidden items-center gap-2 bg-navy text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm border border-teal-300 flex" style="background:#002147;">
-            <img id="user_avatar" class="w-5 h-5 rounded-full border border-white" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar">
-            <span id="user_name" class="text-white">Ông/Bà</span>
-          </div>
-          <button id="modeSwitchBtn" onclick="switchMode()" class="mode-switch-btn" title="Chuyển sang Chế độ Con cháu">
-            <i class="fa-solid fa-people-roof"></i>
-          </button>
-          <button id="hamburgerBtn" onclick="toggleSideDrawer()" aria-label="Mở menu" class="hamburger-btn">
-            <i class="fa-solid fa-bars"></i>
-          </button>
-        </div>
+    <!-- Góc phải: Hồ sơ + Chuyển chế độ (giữ nguyên chức năng) -->
+    <div class="navbar-right">
+      <div id="user_profile" class="hidden items-center gap-2 bg-navy text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm border border-teal-300 flex" style="background:#002147;">
+        <img id="user_avatar" class="w-5 h-5 rounded-full border border-white" src="https://api.dicebear.com/7.x/bottts/svg?seed=Senior" alt="Avatar">
+        <span id="user_name" class="text-white">Ông/Bà</span>
       </div>
+      <button id="modeSwitchBtn" onclick="switchMode()" class="mode-switch-btn" title="Chuyển sang Chế độ Con cháu">
+        <i class="fa-solid fa-people-roof"></i>
+      </button>
     </div>
   </header>
 
@@ -1045,7 +1039,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=9"></script>
-  <script src="app.js?v=9"></script>
+  <script src="script.js?v=10"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
