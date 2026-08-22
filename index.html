@@ -10,7 +10,7 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Style chính của ứng dụng -->
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#002147">
@@ -242,6 +242,7 @@
       <button onclick="closeSideDrawer(); showFamcareTab('tab-gioi-thieu')" class="drawer-item">ℹ️ Giới thiệu</button>
       <button onclick="closeSideDrawer(); showFamcareTab('tab-ket-noi')" class="drawer-item">👨‍👩‍👧‍👦 Bảng kết nối gia đình</button>
       <button onclick="closeSideDrawer(); showFamcareTab('tab-bao-cao')" class="drawer-item">📊 Báo cáo kết quả gửi cho con cháu</button>
+      <button onclick="closeSideDrawer(); toggleModal('pairingModal')" class="drawer-item drawer-accent">🔐 Ghép nối an toàn (thông báo trong app)</button>
       <button onclick="closeSideDrawer(); installPWA()" id="installAppBtn" class="drawer-item drawer-accent">⚙️ Cài đặt</button>
     </nav>
     <div class="p-3 border-t border-gray-100">
@@ -434,20 +435,11 @@
         <p class="text-gray-500 text-sm font-bold">Sau khi uống thuốc xong, ông bà bấm nút bự này để cháu báo cho con cháu khỏi lo nhé!</p>
       </div>
 
-      <!-- Nối Gmail con cháu: tự động đẩy thông báo mỗi khi ông bà xác nhận sinh hoạt -->
-      <div class="mt-6 p-5 rounded-2xl" style="background:#FFF7ED;border:2px solid #FED7AA;">
-        <p class="text-lg font-black mb-1" style="color:#92400E;">
-          <i class="fa-solid fa-lock"></i> Ghép nối an toàn với con cháu
-        </p>
-        <p class="text-gray-600 text-sm font-bold mb-3">Nhập Gmail + mã ghép nối mà con cháu đã đặt. Mỗi lần ông bà bấm xác nhận (uống thuốc, đo huyết áp...), thông báo hiện ngay trong app Famcare của con cháu. Nội dung được <b>mã hóa an toàn</b>, Gmail không được lưu lại.</p>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input id="linkedChildEmailInput" type="email" autocomplete="off" placeholder="Gmail con cháu (vd: conchau@gmail.com)" class="flex-1 px-4 py-3 rounded-xl border-2 text-lg font-bold bg-white" style="border-color:#FED7AA;">
-          <input id="linkedChildPinInput" type="text" autocomplete="off" maxlength="12" placeholder="Mã ghép nối" class="w-full sm:w-44 px-4 py-3 rounded-xl border-2 text-lg font-bold bg-white text-center tracking-widest" style="border-color:#FED7AA;">
-          <button onclick="saveLinkedChildEmail()" class="btn-elder text-white font-bold px-5 py-3 rounded-xl shadow-md whitespace-nowrap" style="background:#D97706;">
-            🔐 LƯU &amp; KIỂM TRA
-          </button>
-        </div>
-      </div>
+      <!-- Ghép nối an toàn: mở nhanh từ đây thay vì cuộn xuống cuối trang -->
+      <button onclick="toggleModal('pairingModal')" class="w-full mt-5 btn-elder flex items-center justify-center gap-3 shadow-md py-4 rounded-2xl font-bold" style="background:#FFF7ED;border:2px dashed #D97706;color:#92400E;">
+        <i class="fa-solid fa-lock text-xl"></i>
+        <span>🔐 GHÉP NỐI AN TOÀN VỚI CON CHÁU</span>
+      </button>
     </section>
 
     <!-- ================= TẦNG 4: SỨC KHỎE & HỒ SƠ TÌNH HÌNH TRONG NGÀY ================= -->
@@ -601,22 +593,9 @@
           <span>🔔 Bật nhận thông báo lịch ông bà</span>
         </button>
         <p class="text-center text-xs text-gray-400 font-bold mt-2">Nhận cảnh báo trực tiếp trên máy này khi đã đến giờ sinh hoạt của ông bà.</p>
-      </div>
-
-      <!-- Kết nối bảo mật trong app qua Gmail ID (mã hóa đầu-cuối) -->
-      <div class="mt-4 rounded-2xl p-4" style="background:#EFF6F8;border:2px solid #b2d7dd;">
-        <p class="text-sm font-black mb-1 flex items-center gap-1.5" style="color:#005F73;">
-          <i class="fa-solid fa-shield-halved"></i> KẾT NỐI BẢO MẬT NHẬN THÔNG BÁO TRONG APP
-        </p>
-        <p class="text-xs text-gray-500 font-bold mb-3">Thông báo chỉ hiện <b>ngay trong app Famcare</b> (chuông 🔔 góc trên), không gửi qua ứng dụng hay email nào khác. Gmail chỉ dùng làm khóa ghép nối: được băm &amp; mã hóa, không lưu nguyên bản.</p>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input id="childEmailInput" type="email" autocomplete="off" placeholder="Gmail của bạn (vd: conchau@gmail.com)" class="flex-1 px-4 py-3 rounded-xl border-2 font-bold bg-white" style="border-color:#b2d7dd;">
-          <input id="childPinInput" type="text" autocomplete="off" maxlength="12" placeholder="Mã ghép nối (tự đặt)" class="w-full sm:w-44 px-4 py-3 rounded-xl border-2 font-bold bg-white text-center tracking-widest" style="border-color:#b2d7dd;">
-          <button onclick="subscribeChildNotifications()" class="btn-elder text-white font-bold px-5 py-3 rounded-xl shadow-md whitespace-nowrap" style="background:#005F73;">
-            🔐 Tạo kết nối
-          </button>
-        </div>
-        <p id="childNotiStatus" class="text-xs font-bold mt-2" style="color:#B45309;">⚪ Chưa kích hoạt. Hãy thống nhất Gmail + mã ghép nối giống hệt phía ông bà.</p>
+        <button onclick="toggleModal('pairingModal')" class="w-full mt-3 text-sm font-black py-2 rounded-xl" style="background:#EFF6F8;border:2px dashed #005F73;color:#005F73;">
+          🔐 Ghép nối an toàn qua Gmail ID → mở tại đây
+        </button>
       </div>
     </section>
 
@@ -1018,6 +997,46 @@
     </div>
   </div>
 
+  <!-- ================= MODAL: GHÉP NỐI AN TOÀN QUA GMAIL ID ================= -->
+  <div id="pairingModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <h3 class="text-lg font-black flex items-center gap-2" style="color:#002147;">
+        <i class="fa-solid fa-shield-halved" style="color:#005F73;"></i> Ghép nối an toàn nhận thông báo
+      </h3>
+      <p class="text-xs text-gray-500 font-bold leading-relaxed">Thông báo chỉ hiện <b>ngay trong app Famcare</b> (chuông 🔔 góc trên), không gửi qua ứng dụng hay email nào khác. Gmail chỉ dùng làm khóa ghép nối: được băm &amp; mã hóa đầu-cuối AES, không lưu nguyên bản trên hệ thống.</p>
+
+      <!-- Phía CON CHÁU: nhận thông báo trong app -->
+      <div class="rounded-2xl p-4 space-y-2" style="background:#EFF6F8;border:2px solid #b2d7dd;">
+        <p class="text-sm font-black flex items-center gap-1.5" style="color:#005F73;">
+          <i class="fa-solid fa-bell"></i> Máy CON CHÁU - nhận thông báo
+        </p>
+        <input id="childEmailInput" type="email" autocomplete="off" placeholder="Gmail của bạn (vd: conchau@gmail.com)" class="w-full px-4 py-3 rounded-xl border-2 font-bold bg-white" style="border-color:#b2d7dd;">
+        <input id="childPinInput" type="text" autocomplete="off" maxlength="12" placeholder="Mã ghép nối (tự đặt)" class="w-full px-4 py-3 rounded-xl border-2 font-bold bg-white text-center tracking-widest" style="border-color:#b2d7dd;">
+        <button onclick="subscribeChildNotifications()" class="w-full btn-elder text-white font-bold py-3 rounded-xl shadow-md" style="background:#005F73;">
+          🔐 Tạo kết nối bảo mật
+        </button>
+        <p id="childNotiStatus" class="text-xs font-bold" style="color:#B45309;">⚪ Chưa kích hoạt. Hãy thống nhất Gmail + mã ghép nối giống hệt phía ông bà.</p>
+      </div>
+
+      <!-- Phía ÔNG BÀ: gửi thông báo tới con cháu -->
+      <div class="rounded-2xl p-4 space-y-2" style="background:#FFF7ED;border:2px solid #FED7AA;">
+        <p class="text-sm font-black flex items-center gap-1.5" style="color:#92400E;">
+          <i class="fa-solid fa-lock"></i> Máy ÔNG BÀ - gửi thông báo tới con cháu
+        </p>
+        <input id="linkedChildEmailInput" type="email" autocomplete="off" placeholder="Gmail con cháu (vd: conchau@gmail.com)" class="w-full px-4 py-3 rounded-xl border-2 font-bold bg-white" style="border-color:#FED7AA;">
+        <input id="linkedChildPinInput" type="text" autocomplete="off" maxlength="12" placeholder="Mã ghép nối" class="w-full px-4 py-3 rounded-xl border-2 font-bold bg-white text-center tracking-widest" style="border-color:#FED7AA;">
+        <button onclick="saveLinkedChildEmail()" class="w-full btn-elder text-white font-bold py-3 rounded-xl shadow-md" style="background:#D97706;">
+          🔐 LƯU &amp; KIỂM TRA KẾT NỐI
+        </button>
+        <p class="text-[11px] text-gray-500 font-bold">Sau khi lưu, mỗi lần ông bà bấm xác nhận (uống thuốc, đo huyết áp...), thông báo hiện ngay trong app Famcare của con cháu.</p>
+      </div>
+
+      <div class="flex justify-end border-t pt-3">
+        <button onclick="toggleModal('pairingModal')" class="px-4 py-2 text-gray-500 text-sm font-bold">Đóng</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= MODAL 3: CÀI ĐẶT HỆ THỐNG & BOT WEBHOOK ================= -->
   <div id="settingsModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
@@ -1097,7 +1116,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=13"></script>
-  <script src="app.js?v=13"></script>
+  <script src="script.js?v=14"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>
