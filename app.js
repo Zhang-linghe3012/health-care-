@@ -100,19 +100,24 @@ function addRealtimeEvent(icon, text) {
   sendNotificationToChild('FAMCARE - Cập nhật từ ông bà', icon + ' ' + text);
 }
 
-// ======================= PUSH THÔNG BÁO TỚI CON CHÁU QUA GMAIL (ntfy.sh) =======================
-function sendNotificationToChild(actionTitle, actionBody) {
-  const email = localStorage.getItem('linked_child_email');
-  if (!email) return;
+// ============ PUSH THÔNG BÁO TỚI CON CHÁU (MÃ HÓA ĐẦU-CUỐI QUA ntfy.sh) ============
+// Chỉ máy có đúng Gmail + mã ghép nối mới giải mã được nội dung.
+// Máy chủ trung gian chỉ nhận chuỗi vô nghĩa; Gmail không bao giờ được gửi đi.
+async function sendNotificationToChild(actionTitle, actionBody) {
+  const rawPair = localStorage.getItem('elder_pair_v2');
+  if (!rawPair) return;
   try {
+    const pair = JSON.parse(rawPair);
+    const key = await derivePairKey(pair.en, pair.pin);
+    const sealed = await sealPayload({ t: actionTitle, m: actionBody }, key);
     fetch('https://ntfy.sh/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        topic: getPushTopic(email),
-        title: actionTitle,
-        message: actionBody,
-        tags: ['bell']
+        topic: pair.topic,
+        title: 'FAMCARE',
+        message: sealed,
+        tags: ['lock']
       })
     }).catch(function (err) { console.warn('[FAMCARE] Push tới con cháu lỗi:', err); });
   } catch (e) {

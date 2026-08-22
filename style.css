@@ -289,6 +289,83 @@ input, select, textarea {
   flex-shrink: 0;
 }
 
+/* ---------- Hộp thông báo trong ứng dụng ---------- */
+.notif-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #0b2545;
+}
+
+.notif-panel {
+  display: none;
+  position: fixed;
+  top: 74px;
+  right: 12px;
+  width: min(92vw, 22rem);
+  background: #ffffff;
+  border-radius: 1rem;
+  overflow: hidden;
+  z-index: 60;
+  box-shadow: 0 12px 32px rgba(0, 33, 71, 0.25);
+  border: 2px solid var(--border-soft);
+}
+.notif-panel.open {
+  display: block;
+  animation: notifPanelIn 0.22s ease;
+}
+@keyframes notifPanelIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-item {
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  background: #F8FAFC;
+  border: 1.5px solid var(--border-soft);
+}
+.notif-item.unread {
+  background: #EFF6F8;
+  border-color: #b2d7dd;
+}
+.notif-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #002147;
+  line-height: 1.35;
+}
+.notif-body {
+  font-size: 0.82rem;
+  color: #334155;
+  line-height: 1.45;
+  margin-top: 0.15rem;
+}
+.notif-time {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #64748B;
+  margin-top: 0.25rem;
+}
+.notif-empty {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #94A3B8;
+  padding: 1.25rem 0.5rem;
+}
+
 /* Responsive cho màn hình nhỏ/điện thoại */
 @media (max-width: 768px) {
   .navbar-header {
