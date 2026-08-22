@@ -70,6 +70,16 @@ input, select, textarea {
   font-size: clamp(0.75rem, 2vw, 0.95rem);
 }
 
+/* ---------- Khung trắng nổi bật chứa logo & slogan ---------- */
+.brand-panel {
+  display: inline-block;
+  background: #ffffff;
+  border: 2px solid rgba(13, 71, 161, 0.22);
+  border-radius: 1rem;
+  padding: 0.35rem 1.25rem 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 33, 71, 0.14);
+}
+
 /* ---------- Navigation ---------- */
 .nav-menu {
   display: flex;
