@@ -59,14 +59,15 @@ input, select, textarea {
   font-weight: 900;
   letter-spacing: 0.05em;
   font-size: clamp(1.5rem, 5vw, 2.4rem);
-  color: var(--navy);
+  color: #ffffff !important;
+  font-weight: bold !important;
   text-shadow: 0 2px 0 rgba(0, 95, 115, 0.08);
 }
 
 .brand-slogan {
-  color: var(--teal);
+  color: #ffffff !important;
+  font-weight: bold !important;
   font-style: italic;
-  font-weight: 500;
   letter-spacing: 0.02em;
   font-size: clamp(0.75rem, 2vw, 0.95rem);
 }
@@ -221,6 +222,7 @@ header {
   width: 100%;
   height: 60px;
   z-index: 40;
+  background-color: #0d47a1;
 }
 
 main {
