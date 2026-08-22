@@ -1,10 +1,10 @@
-const CACHE_NAME = 'famcare-v11';
+const CACHE_NAME = 'famcare-v12';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css?v=11',
-  './script.js?v=11',
-  './app.js?v=11',
+  './style.css?v=12',
+  './script.js?v=12',
+  './app.js?v=12',
   './manifest.json',
   './logo.png',
   './icons/icon.svg',
@@ -52,7 +52,8 @@ self.addEventListener('fetch', event => {
       event.request.url.includes('accounts.google.com') ||
       event.request.url.includes('translate.google.com') ||
       event.request.url.includes('api.telegram.org') ||
-      event.request.url.includes('api.open-meteo.com')) {
+      event.request.url.includes('api.open-meteo.com') ||
+      event.request.url.includes('ntfy.sh')) {
     return;
   }
 

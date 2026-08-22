@@ -171,7 +171,7 @@ function hideInstallPromptIfStandalone() {
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js?v=11')
+      navigator.serviceWorker.register('sw.js?v=12')
         .then(function (reg) {
           console.log('Famcare PWA Service Worker registered:', reg.scope);
         })
@@ -209,6 +209,101 @@ function testNotification(title, body) {
     console.warn('[FAMCARE] testNotification failed:', e);
   }
 }
+
+/* ---------- GHÉP NỐI THÔNG BÁO QUA GMAIL ID (ntfy.sh) ---------- */
+function getPushTopic(email) {
+  return 'famcare-' + String(email || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+let famcareNtfySource = null;
+
+function connectChildPush(email) {
+  if (famcareNtfySource) {
+    famcareNtfySource.close();
+    famcareNtfySource = null;
+  }
+  const statusEl = document.getElementById('childNotiStatus');
+  const topic = getPushTopic(email);
+  try {
+    famcareNtfySource = new EventSource('https://ntfy.sh/' + topic + '/sse');
+    famcareNtfySource.onopen = function () {
+      if (statusEl) {
+        statusEl.textContent = '🟢 Đang nhận thông báo trực tiếp cho Gmail: ' + email;
+        statusEl.style.color = '#047857';
+      }
+    };
+    famcareNtfySource.onmessage = function (e) {
+      try {
+        const ev = JSON.parse(e.data);
+        if (ev.event !== 'message') return;
+        showChildNotification(ev.title || 'FAMCARE', ev.message || '');
+      } catch (err) { /* bỏ qua gói tin lỗi */ }
+    };
+    famcareNtfySource.onerror = function () {
+      if (statusEl) {
+        statusEl.textContent = '🟡 Mất kết nối, đang tự thử lại...';
+        statusEl.style.color = '#B45309';
+      }
+    };
+  } catch (e) {
+    console.warn('[FAMCARE] Không tạo được kết nối EventSource:', e);
+  }
+}
+
+function showChildNotification(title, body) {
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body: body, icon: 'logo.png' });
+    }
+  } catch (e) { /* một số trình duyệt chặn new Notification */ }
+  if (typeof showToastAlert === 'function') showToastAlert(title, body);
+}
+
+/* Phía CON CHÁU: lưu Gmail + mở kênh nghe SSE */
+function subscribeChildNotifications() {
+  const input = document.getElementById('childEmailInput');
+  const email = ((input && input.value) || '').trim();
+  if (!email || !email.includes('@')) {
+    alert('Vui lòng nhập đúng địa chỉ Gmail của con cháu.');
+    return;
+  }
+  localStorage.setItem('child_email', email);
+  const start = function () { connectChildPush(email); };
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().then(function (p) {
+      if (p === 'granted') alert('Đã bật nhận thông báo lịch sinh hoạt trực tiếp!');
+      start();
+    });
+  } else {
+    start();
+  }
+}
+
+/* Phía ÔNG BÀ: lưu Gmail con cháu + gửi tin kiểm tra kết nối */
+function saveLinkedChildEmail() {
+  const input = document.getElementById('linkedChildEmailInput');
+  const email = ((input && input.value) || '').trim();
+  if (!email || !email.includes('@')) {
+    alert('Vui lòng nhập đúng Gmail của con cháu để nối thông báo.');
+    return;
+  }
+  localStorage.setItem('linked_child_email', email);
+  if (typeof showToastAlert === 'function') showToastAlert('✅ ĐÃ NỐI THÔNG BÁO', 'Mọi hoạt động của ông bà sẽ được gửi tới ' + email);
+  sendNotificationToChild('🔗 FAMCARE - Đã nối thông báo thành công', 'Từ giờ mỗi hoạt động của ông bà sẽ được nhắn trực tiếp tới Gmail: ' + email);
+}
+
+/* Khởi động lại kênh push đã lưu khi mở lại trang */
+document.addEventListener('DOMContentLoaded', function () {
+  const savedChild = localStorage.getItem('child_email');
+  if (savedChild) {
+    const input = document.getElementById('childEmailInput');
+    if (input) input.value = savedChild;
+    connectChildPush(savedChild);
+  }
+  const savedLinked = localStorage.getItem('linked_child_email');
+  const linkedInput = document.getElementById('linkedChildEmailInput');
+  if (savedLinked && linkedInput) linkedInput.value = savedLinked;
+});
 
 /* Khởi tạo PWA + chế độ giao diện khi trang đã sẵn sàng */
 function initFamcareUi() {

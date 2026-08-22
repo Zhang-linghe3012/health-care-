@@ -95,6 +95,29 @@ function addRealtimeEvent(icon, text) {
 
   renderRealtimeFeed();
   broadcastRealtimeUpdate();
+
+  // PUSH TRỰC TIẾP: gửi hoạt động này tới Gmail con cháu đã ghép nối (ntfy.sh)
+  sendNotificationToChild('FAMCARE - Cập nhật từ ông bà', icon + ' ' + text);
+}
+
+// ======================= PUSH THÔNG BÁO TỚI CON CHÁU QUA GMAIL (ntfy.sh) =======================
+function sendNotificationToChild(actionTitle, actionBody) {
+  const email = localStorage.getItem('linked_child_email');
+  if (!email) return;
+  try {
+    fetch('https://ntfy.sh/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topic: getPushTopic(email),
+        title: actionTitle,
+        message: actionBody,
+        tags: ['bell']
+      })
+    }).catch(function (err) { console.warn('[FAMCARE] Push tới con cháu lỗi:', err); });
+  } catch (e) {
+    console.warn('[FAMCARE] Push tới con cháu lỗi:', e);
+  }
 }
 
 function renderRealtimeFeed() {

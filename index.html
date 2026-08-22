@@ -10,7 +10,7 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Style chính của ứng dụng -->
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
   
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#002147">
@@ -415,6 +415,20 @@
         </button>
         <p class="text-gray-500 text-sm font-bold">Sau khi uống thuốc xong, ông bà bấm nút bự này để cháu báo cho con cháu khỏi lo nhé!</p>
       </div>
+
+      <!-- Nối Gmail con cháu: tự động đẩy thông báo mỗi khi ông bà xác nhận sinh hoạt -->
+      <div class="mt-6 p-5 rounded-2xl" style="background:#FFF7ED;border:2px solid #FED7AA;">
+        <p class="text-lg font-black mb-1" style="color:#92400E;">
+          <i class="fa-solid fa-paper-plane"></i> Gmail con cháu nhận thông báo
+        </p>
+        <p class="text-gray-600 text-sm font-bold mb-3">Nhập Gmail của con cháu một lần duy nhất. Mỗi lần ông bà bấm xác nhận (uống thuốc, đo huyết áp, ăn cơm...), hệ thống tự động nhắn tin báo ngay cho con cháu.</p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="linkedChildEmailInput" type="email" placeholder="Gmail con cháu (vd: conchau@gmail.com)" class="flex-1 px-4 py-3 rounded-xl border-2 text-lg font-bold bg-white" style="border-color:#FED7AA;">
+          <button onclick="saveLinkedChildEmail()" class="btn-elder text-white font-bold px-5 py-3 rounded-xl shadow-md whitespace-nowrap" style="background:#D97706;">
+            💾 LƯU & KIỂM TRA
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- ================= TẦNG 4: SỨC KHỎE & HỒ SƠ TÌNH HÌNH TRONG NGÀY ================= -->
@@ -568,6 +582,20 @@
           <span>🔔 Bật nhận thông báo lịch ông bà</span>
         </button>
         <p class="text-center text-xs text-gray-400 font-bold mt-2">Nhận cảnh báo trực tiếp trên máy này khi đã đến giờ sinh hoạt của ông bà.</p>
+      </div>
+
+      <!-- Ghép nối thông báo qua Gmail ID (ntfy.sh) -->
+      <div class="mt-4 rounded-2xl p-4" style="background:#EFF6F8;border:2px solid #b2d7dd;">
+        <p class="text-sm font-black mb-2 flex items-center gap-1.5" style="color:#005F73;">
+          <i class="fa-solid fa-link"></i> NHẬN THÔNG BÁO TRỰC TIẾP QUA GMAIL ID
+        </p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="childEmailInput" type="email" placeholder="Nhập Gmail của bạn (vd: conchau@gmail.com)" class="flex-1 px-4 py-3 rounded-xl border-2 font-bold bg-white" style="border-color:#b2d7dd;">
+          <button onclick="subscribeChildNotifications()" class="btn-elder text-white font-bold px-5 py-3 rounded-xl shadow-md whitespace-nowrap" style="background:#005F73;">
+            🔔 Đăng ký nhận thông báo
+          </button>
+        </div>
+        <p id="childNotiStatus" class="text-xs font-bold mt-2" style="color:#B45309;">⚪ Chưa kích hoạt nhận thông báo trực tiếp.</p>
       </div>
     </section>
 
@@ -1048,7 +1076,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=11"></script>
-  <script src="app.js?v=11"></script>
+  <script src="script.js?v=12"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>
